@@ -628,7 +628,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
 
               {/* TODO: Card Status Invest - Comunicados (Relatórios, Fatos Relevantes, Informes) */}
 
-              {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-green-500/40 hover:bg-green-600/20 transition-all duration-300 hover:shadow-green-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
+              <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-green-500/40 hover:bg-green-600/20 transition-all duration-300 hover:shadow-green-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -658,7 +658,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                     </div>
                   )}
                 </CardContent>
-              </Card> */}
+              </Card>
 
               {/* 4. TODO: Resumos feitos pela IA (FNET) */}
 

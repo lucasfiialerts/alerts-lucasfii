@@ -61,17 +61,6 @@ export async function POST(request: NextRequest) {
       // 2. Obter link do PDF
       const linkPDF = await investidor10Module.obterLinkPDF(documento.url);
       
-      // 3. Baixar PDF
-      const pdfBuffer = await investidor10Module.baixarPDF(linkPDF);
-      
-      // 4. Extrair texto
-      const textoCompleto = await investidor10Module.extrairTextoPDF(pdfBuffer);
-      
-      // Limitar texto para não estourar a resposta
-      const textoLimitado = textoCompleto.length > 3000 
-        ? textoCompleto.substring(0, 3000) + '\n\n[...] (Texto truncado)'
-        : textoCompleto;
-
       console.log(`✅ Relatório encontrado: ${documento.tipo} - ${documento.data}`);
 
       return NextResponse.json({
@@ -82,8 +71,7 @@ export async function POST(request: NextRequest) {
           tipo: documento.tipo,
           data: documento.data,
           linkPDF: linkPDF,
-          textoExtraido: textoLimitado,
-          tamanhoCompleto: textoCompleto.length
+          fundName: ticker
         }
       });
 
