@@ -439,7 +439,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
               <div className="relative flex-1 max-w-lg">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Buscar por ticker ou nome do fundo..."
+                  placeholder="Buscar por ticker..."
                   value={filterTerm}
                   onChange={(e) => setFilterTerm(e.target.value)}
                   className="pl-10 h-10 bg-[#1a1a35] border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg"
@@ -513,13 +513,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                           availableFunds.map((fund) => (
                             <div
                               key={fund.id}
-                              className="flex items-start gap-3 p-3 border border-gray-600 rounded-lg hover:bg-[#2a2a44] bg-[#1e1e38]"
+                              className="flex items-center justify-between p-3 border border-gray-600 rounded-lg hover:bg-[#2a2a44] bg-[#1e1e38]"
                             >
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <p className="font-semibold text-sm text-white">{fund.ticker}</p>
-                                <p className="text-xs text-gray-400 break-words leading-tight">
-                                  {fund.name}
-                                </p>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-base text-white">{fund.ticker}</p>
                               </div>
                               <Button
                                 size="sm"
@@ -756,14 +753,11 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                     <CardContent className="p-6 sm:p-7">
                       <div className="space-y-4">
                         {/* Header do card */}
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0 pr-3">
-                            <h3 className="text-lg sm:text-xl font-bold text-white truncate mb-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-white truncate">
                               {follow.fund.ticker}
                             </h3>
-                            <p className="text-sm text-gray-400 line-clamp-2 break-words leading-relaxed">
-                              {follow.fund.name}
-                            </p>
                           </div>
                           <Badge
                             variant={follow.notificationsEnabled ? "default" : "secondary"}
