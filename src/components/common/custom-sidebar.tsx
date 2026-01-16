@@ -172,9 +172,12 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
         {/* User Section */}
         <div className="px-3 pb-3">
           <div className="space-y-2">
-            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-700/70 transition-all duration-300">
+            <button
+              onClick={() => router.push("/configuration")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-700/70 transition-all duration-300 cursor-pointer"
+            >
               <UserAvatar />
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-left">
                 <p className="text-white text-sm font-bold truncate">
                   {session?.user?.name || session?.user?.email || "Usuário"}
                 </p>
@@ -182,15 +185,16 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
                   {session?.user?.email || "email@example.com"}
                 </p>
               </div>
-            </div>
+            </button>
 
-            <button
+            {/* Botão de Logout - Desabilitado temporariamente */}
+            {/* <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-300 bg-red-600/20 text-red-300 hover:bg-red-600/30 hover:text-red-200 border border-red-500/30 hover:border-red-500/50"
             >
               <LogOut className="w-4 h-4" />
               <span className="text-sm font-bold">Sair da Conta</span>
-            </button>
+            </button> */}
           </div>
         </div>
 
