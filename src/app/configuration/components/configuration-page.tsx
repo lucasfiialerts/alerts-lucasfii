@@ -325,18 +325,55 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Page Header */}
         <div className="mb-6 sm:mb-8">
-
           <h1 className="text-xl sm:text-2xl">Configuração</h1>
-
           <br />
-
-          {/* <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 break-words">
-            Configurações
-          </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-400">
-            Gerencie suas preferências e configurações de conta
-          </p> */}
         </div>
+
+        {/* User Profile Card */}
+        <Card className="bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl">
+          <CardHeader className="border-b border-gray-700/50">
+            <CardTitle className="text-gray-300 text-base sm:text-lg font-bold flex items-center">
+              <Settings className="w-5 h-5 mr-2" />
+              Perfil do Usuário
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                {session?.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || "Usuário"}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-blue-400 shadow-lg"
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center border-2 border-blue-400 shadow-lg">
+                    <span className="text-white text-xl sm:text-2xl font-bold">
+                      {(session?.user?.name || session?.user?.email || "U")
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* User Info */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white text-lg sm:text-xl font-bold truncate">
+                  {session?.user?.name || session?.user?.email || "Usuário"}
+                </h3>
+                <p className="text-gray-400 text-sm sm:text-base truncate">
+                  {session?.user?.email || "email@example.com"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Header Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">

@@ -1,0 +1,25 @@
+<svg width="500" height="420" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="500" height="420" fill="#0c152b"/>
+
+  <g transform="translate(185, 80)">
+    <polygon points="65,0 130,65 65,130 0,65" fill="#1c305a"/>
+    <polygon points="65,0 97,32 65,65" fill="#28407a"/>
+    <polygon points="65,0 33,32 65,65" fill="#142240"/>
+    <polygon points="0,65 33,32 65,65" fill="#142240"/>
+    <polygon points="0,65 33,97 65,65" fill="#0c152b"/>
+    <polygon points="65,130 33,97 65,65" fill="#0c152b"/>
+    <polygon points="65,130 97,97 65,65" fill="#1c305a"/>
+    <polygon points="130,65 97,97 65,65" fill="#1c305a"/>
+    <polygon points="130,65 97,32 65,65" fill="#28407a"/>
+  </g>
+
+  <g transform="translate(260, 140)">
+    <path d="M30.7,0 C21.8,0 14.3,6.5 12.7,15 L5,15 C2.2,15 0,17.2 0,20 L0,25 C0,27.8 2.2,30 5,30 L10.5,30 C11.3,34.1 14.9,37 19,37 L30.5,37 C34.6,37 38.2,34.1 39,30 L44.5,30 C47.3,30 49.5,27.8 49.5,25 L49.5,20 C49.5,17.2 47.3,15 44.5,15 L36.8,15 C35.2,6.5 27.7,0 18.8,0 L30.7,0 Z" fill="#e1c077"/>
+    <circle cx="35" cy="5" r="6" fill="#e1c077"/>
+    <line x1="38" y1="2" x2="48" y2="-8" stroke="#e1c077" stroke-width="4" stroke-linecap="round"/>
+    <line x1="45" y1="8" x2="55" y2="5" stroke="#e1c077" stroke-width="4" stroke-linecap="round"/>
+    <line x1="38" y1="14" x2="48" y2="22" stroke="#e1c077" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <text x="250" y="250" font-family="Arial, sans-serif" font-size="36" fill="#e1c077" text-anchor="middle">LUCAS FII ALERTS</text>
+</svg>
