@@ -198,7 +198,7 @@ function createAutoUpdateMessage(fiiUpdates: Array<{
   changePercent: number;
   emoji: string;
 }>): string {
-  const header = `📌 *Lista de acompanhamento que você segue*\n`;
+  const header = `📌 *Lista de acompanhamento que você segue*\n\n`;
   
   const fiiLines = fiiUpdates.map(fii => {
     const changeText = fii.changePercent >= 0 
@@ -208,7 +208,7 @@ function createAutoUpdateMessage(fiiUpdates: Array<{
     return `${fii.emoji} ${changeText} - ${fii.ticker} – R$ ${fii.price.toFixed(2)}`;
   });
   
-  const footer = `\n📱 Acesse: lucasfiialerts.com`;
+  const footer = `\nAcompanhe em: https://lucasfiialerts.com.br\n\nEste é um alerta automático baseado nas suas configurações.`;
   
   return header + fiiLines.join('\n') + footer;
 }
