@@ -18,6 +18,10 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, session }: PageHeaderProps) {
+  // COMPONENTE DESATIVADO - Código mantido para uso futuro se necessário
+  return null;
+
+  /*
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
   // Componente Avatar customizado para mobile (mais robusto - trata erro de carregamento e usa crossOrigin/referrerPolicy)
@@ -35,14 +39,14 @@ export function PageHeader({ title, session }: PageHeaderProps) {
           title={userName}
           className="w-8 h-8 rounded-full object-cover border-2 border-blue-400 shadow-lg"
           onLoad={() => {
-            /* imagem carregou com sucesso */
+            /* imagem carregou com sucesso *\\/
           }}
           onError={(e) => {
             // Esconder a imagem e marcar erro para renderizar as iniciais
             try {
               (e.currentTarget as HTMLImageElement).style.display = 'none';
             } catch {
-              /* ignore */
+              /* ignore *\\/
             }
             setImgError(true);
           }}
@@ -90,4 +94,5 @@ export function PageHeader({ title, session }: PageHeaderProps) {
       </div>
     </header>
   );
+  */
 }
