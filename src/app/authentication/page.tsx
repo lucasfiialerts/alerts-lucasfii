@@ -71,7 +71,7 @@ const Authentication = () => {
         </div>
 
         <div className="max-w-md w-full relative z-10">
-          <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl">
+          <div className="backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl" style={{ backgroundColor: '#0d1120' }}>
             <div className="text-center mb-8">
               <div className="w-48 h-8 bg-gray-700 rounded animate-pulse mx-auto mb-2"></div>
               <div className="w-64 h-4 bg-gray-700 rounded animate-pulse mx-auto"></div>
@@ -156,7 +156,7 @@ const Authentication = () => {
                 </div>
               </div>
 
-               <div className="flex items-start gap-4 bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <div className="flex items-start gap-4 bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
                 <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0">
                   <TrendingUpIcon className="w-6 h-6 text-white" />
                 </div>
@@ -171,12 +171,22 @@ const Authentication = () => {
           {/* Coluna direita - Card de login */}
           <div className="w-full">
             {/* Card principal */}
-            <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl">
+            <div className="backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl" style={{ backgroundColor: '#0d1120' }}>
               {/* Header do card */}
               <div className="text-center mb-8">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                  <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide"><span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">🚀</span></h1>
+                <div className="mx-auto mb-6 flex justify-center">
+                  <Image
+                    src="/logo2.png"
+                    alt="Lucas FII Alerts"
+                    width={180}
+                    height={150}
+                    className="object-contain"
+                    priority
+                  />
                 </div>
+
+                {/* <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide"><span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">🚀</span></h1> */}
+                {/* </div> */}
 
                 <h2 className="text-white text-3xl font-black mb-2">
                   Entre na sua conta
@@ -263,7 +273,7 @@ const Authentication = () => {
                 </div>
                 <div className="flex items-center text-sm text-slate-300">
                   <CheckCircleIcon className="w-5 h-5 text-green-400 mr-3 flex-shrink-0" />
-                  Monitoramento 24/7 de FIIs e ações
+                  Monitoramento 24/7 de FIIs
                 </div>
                 <div className="flex items-center text-sm text-slate-300">
                   <CheckCircleIcon className="w-5 h-5 text-green-400 mr-3 flex-shrink-0" />
