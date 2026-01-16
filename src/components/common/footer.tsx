@@ -4,28 +4,28 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="relative bg-[#1a1a34] text-white overflow-hidden">
+    <footer className="relative bg-[#0d1621] text-white overflow-hidden">
       <div className='absolute inset-0 bg-[url("data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.03\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"2\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")] opacity-30'></div>
       {/* Elemento decorativo de fundo */}
       <div className="relative max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Coluna 1 - Logo e Descrição */}
           <div>
-            {/* <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6">
           <Image 
-            src="/banner-logo-dark-devrocha.png" 
-            alt="DevRocha Logo" 
+            src="/navbar_logo.png" 
+            alt="navbar logo" 
             width={150} 
             height={150} 
-            style={{ height: 70, width: 150, objectFit: 'cover' }} 
+            style={{ height: 60, width: 250, objectFit: 'cover' }} 
             className="rounded-full"
             priority 
           />
-        </div> */}
+        </div>
 
-            <Link href="/" className="flex items-center">
+            {/* <Link href="/" className="flex items-center">
               <h1 className="text-white text-2xl font-bold">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
-            </Link>
+            </Link> */}
             <br />
             <p className="text-gray-300 text-lg leading-relaxed mb-6 max-w-md">
               Plataforma de alertas inteligentes para investidores, fornecendo notificações em tempo real sobre oportunidades e riscos nos seus ativos.

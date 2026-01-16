@@ -11,6 +11,8 @@ import { BitcoinAlertCard } from "./bitcoin-alert-card";
 import { useWhatsAppStatus } from "@/hooks/use-whatsapp-status";
 import { useBitcoinAlerts } from "@/hooks/use-bitcoin-alerts";
 import { getDashboardStats, type DashboardStats } from "@/actions/get-dashboard-stats";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
+
 
 interface Session {
   user?: {
@@ -78,6 +80,16 @@ export function HomeContent({ session }: HomeContentProps) {
   const handleVerRelatorios = () => {
     router.push("/my-follow");
   };
+
+  if (isLoadingStats) {
+    return (
+      <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          <LoadingSpinner />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">

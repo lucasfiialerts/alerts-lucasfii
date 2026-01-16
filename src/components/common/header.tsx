@@ -42,27 +42,27 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a34] border-b border-gray-800 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0d1621] border-b border-gray-800 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* === Logo === */}
 
-          {/* <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <Image
-              src=""
+              src="/navbar_logo.png"
               alt="Lucas FII Alerts"
               width={140}
               height={140}
               className="rounded-full"
-                style={{ height: 60, width: 200, objectFit: 'cover'}}
+                style={{ height: 60, width: 250, objectFit: 'cover'}}
                 priority
             />
-          </Link> */}
-
-          <Link href="/" className="flex items-center">
-            <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
           </Link>
+
+            {/* <Link href="/" className="flex items-center">
+              <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
+            </Link> */}
 
 
           {/* Desktop Navigation */}
