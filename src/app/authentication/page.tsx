@@ -181,8 +181,8 @@ const Authentication = () => {
                   <Image
                     src="/logo2.png"
                     alt="Lucas FII Alerts"
-                    width={180}
-                    height={150}
+                    width={250}
+                    height={60}
                     className="object-contain"
                     priority
                   />
