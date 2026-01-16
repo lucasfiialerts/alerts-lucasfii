@@ -101,6 +101,68 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     }
   });
 
+  // Mutation para seguir múltiplos fundos
+  const followMultipleFundsMutation = useMutation({
+    mutationFn: async (tickers: string[]) => {
+      const results = [];
+      const errors = [];
+      
+      for (const ticker of tickers) {
+        try {
+          // Buscar o fundo pelo ticker
+          const searchResponse = await fetch(`/api/fii/funds?search=${encodeURIComponent(ticker)}&limit=1`);
+          if (!searchResponse.ok) {
+            errors.push(`${ticker}: Erro ao buscar`);
+            continue;
+          }
+          
+          const searchData = await searchResponse.json();
+          const fund = searchData.funds?.[0];
+          
+          if (!fund) {
+            errors.push(`${ticker}: Não encontrado`);
+            continue;
+          }
+          
+          // Seguir o fundo
+          const followResponse = await fetch('/api/fii/follow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fundId: fund.id, ticker: fund.ticker, name: fund.name })
+          });
+          
+          if (!followResponse.ok) {
+            const error = await followResponse.json();
+            errors.push(`${ticker}: ${error.error || 'Erro ao seguir'}`);
+            continue;
+          }
+          
+          results.push(ticker);
+        } catch (error) {
+          errors.push(`${ticker}: Erro desconhecido`);
+        }
+      }
+      
+      return { results, errors };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
+      setIsDialogOpen(false);
+      setSearchTerm("");
+      
+      if (data.results.length > 0) {
+        toast.success(`${data.results.length} ${data.results.length === 1 ? 'fundo adicionado' : 'fundos adicionados'} com sucesso!`);
+      }
+      
+      if (data.errors.length > 0) {
+        toast.error(`Erros: ${data.errors.join(', ')}`);
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    }
+  });
+
   // Mutation para toggle de notificações
   const toggleNotificationMutation = useMutation({
     mutationFn: async ({ followId, enabled }: { followId: string; enabled: boolean }) => {
@@ -198,6 +260,40 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       ticker: fund.ticker,
       name: fund.name
     });
+  };
+
+  const handleFollowMultipleFunds = () => {
+    // Separar por vírgula e limpar espaços
+    const tickers = searchTerm
+      .split(',')
+      .map(t => t.trim().toUpperCase())
+      .filter(t => t.length > 0);
+    
+    if (tickers.length === 0) {
+      toast.error('Digite pelo menos um ticker');
+      return;
+    }
+    
+    if (tickers.length === 1) {
+      // Se for apenas um, usa a busca normal
+      return;
+    }
+    
+    followMultipleFundsMutation.mutate(tickers);
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const tickers = searchTerm
+        .split(',')
+        .map(t => t.trim().toUpperCase())
+        .filter(t => t.length > 0);
+      
+      if (tickers.length > 1) {
+        e.preventDefault();
+        handleFollowMultipleFunds();
+      }
+    }
   };
 
   const handleToggleNotifications = (followId: string, enabled: boolean) => {
@@ -362,7 +458,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                   <DialogHeader>
                     <DialogTitle className="text-lg text-white">Adicionar Fundo ao Acompanhamento</DialogTitle>
                     <DialogDescription className="text-sm text-gray-400">
-                      Busque pelo ticker do fundo que deseja acompanhar (ex: VTLT11, SAPI11)
+                      Busque por um ticker (ex: VTLT11) ou adicione vários de uma vez separados por vírgula (ex: HGLG11, MXRF11, VISC11) e pressione Enter
                     </DialogDescription>
                   </DialogHeader>
 
@@ -370,20 +466,35 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Digite o ticker do fundo..."
+                        placeholder="Digite o ticker ou vários separados por vírgula..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyPress={handleSearchKeyPress}
                         className="pl-10 bg-[#2a2a44] border-gray-600 text-white placeholder:text-gray-400 focus:border-blue-500"
                       />
+                      {searchTerm.includes(',') && (
+                        <div className="mt-2 p-2 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                          <p className="text-xs text-blue-300">
+                            💡 Pressione <kbd className="px-1.5 py-0.5 bg-gray-700 rounded text-white">Enter</kbd> para adicionar {searchTerm.split(',').filter(t => t.trim()).length} ativos de uma vez
+                          </p>
+                        </div>
+                      )}
                     </div>
 
-                    {isSearching && (
+                    {followMultipleFundsMutation.isPending && (
+                      <div className="text-center py-4">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                        <p className="text-gray-400 mt-2">Adicionando múltiplos fundos...</p>
+                      </div>
+                    )}
+
+                    {isSearching && !searchTerm.includes(',') && (
                       <div className="text-center py-4">
                         <p className="text-gray-400">Buscando fundos...</p>
                       </div>
                     )}
 
-                    {searchTerm.length >= 2 && !isSearching && (
+                    {searchTerm.length >= 2 && !isSearching && !searchTerm.includes(',') && (
                       <div className="max-h-60 overflow-y-auto space-y-2">
                         {availableFunds.length === 0 ? (
                           <div className="text-center py-4">
