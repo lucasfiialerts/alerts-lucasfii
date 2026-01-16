@@ -288,7 +288,7 @@ export class FiiAlertService {
 
     return `${emoji} ${alertTitle}
 
-📊 *${ticker}* - ${name}
+📊 *${ticker}*
 💰 *Cotação atual:* ${formattedPrice}
 📈 *Variação hoje:* ${formattedVariation}
 📊 *Volume negociado:* ${volume}
@@ -321,7 +321,7 @@ _Alerta automático baseado nas suas configurações._`;
 
     return `${emoji} ${alertTitle}
 
-📊 *${ticker}* - ${name}
+📊 *${ticker}*
 💰 *Cotação atual:* ${formattedPrice}
 📈 *Variação:* ${formattedVariation}
 
