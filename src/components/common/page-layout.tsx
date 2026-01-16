@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { BottomNavigation } from "../../app/home/components/bottom-navigation";
 import { PageHeader } from "./page-header";
-import { Sidebar } from "./sidebar";
-import { useSidebar } from "@/contexts/sidebar-context";
+import { CustomSidebar } from "./custom-sidebar";
 
 interface PageLayoutProps {
   title: string;
@@ -30,7 +29,6 @@ export function PageLayout({
   onMenuItemClick
 }: PageLayoutProps) {
   const router = useRouter();
-  const { isExpanded } = useSidebar();
 
   const handleBottomNavigation = (tab: string) => {
     if (onMenuItemClick) {
@@ -71,21 +69,21 @@ export function PageLayout({
         <PageHeader title={title} session={session} />
       </div>
 
-      {/* Sidebar */}
-      <Sidebar 
-        activeMenuItem={activeMenuItem} 
-        onMenuItemClick={onMenuItemClick}
-      />
+      {/* Sidebar - Desktop only */}
+      <div className="hidden lg:block">
+        <CustomSidebar 
+          activeMenuItem={activeMenuItem} 
+          onMenuItemClick={onMenuItemClick}
+        />
+      </div>
 
       {/* Main Content */}
-      <div className={`min-h-screen transition-all duration-300 ease-in-out relative z-10 ${
-        isExpanded ? "lg:ml-64" : "lg:ml-20"
-      }`}>
+      <div className="min-h-screen lg:ml-64 relative z-10">
         {children}
       </div>
 
       {/* Bottom Navigation - Mobile only */}
-      <div className="relative z-10">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
         <BottomNavigation
           activeTab={activeMenuItem}
           onTabChange={handleBottomNavigation}
