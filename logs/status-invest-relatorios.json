@@ -1,0 +1,40 @@
+{
+  "relatorios": {
+    "ticker": "HGLG11",
+    "fonte": "Status Invest - Reports Page",
+    "relatorios": [
+      {
+        "titulo": "bug_reportFale conosco",
+        "seletor": "[class*=\"report\"]"
+      },
+      {
+        "titulo": "Fale conosco\n                    bug_report",
+        "seletor": "[class*=\"report\"]"
+      },
+      {
+        "titulo": "Anuncie Aqui",
+        "link": "/_MidiaKit2025.pdf",
+        "seletor": "a[href*=\"pdf\"]"
+      }
+    ],
+    "links": [
+      {
+        "texto": "Anuncie Aqui",
+        "url": "/_MidiaKit2025.pdf"
+      }
+    ],
+    "totalRelatorios": 3,
+    "totalLinks": 1,
+    "htmlSnippet": "\n<!DOCTYPE html>\n<html lang=\"pt-br\">\n<head>\n\n    <meta name=\"version\" content=\"2.4.16.ABCDEF\" />\n    <meta charset=\"utf-8\" />\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n\n    \n        <!-- Google Tag Manager -->\n        <script>\n            (function (w, d, s, l, i) {\n                w[l] = w[l] || []; w[l].push({\n                    'gtm.start':\n                        new Date().getTime(), event: 'gtm.js'\n                }); var f = d.getElementsByTagName(s)[0],\n                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =\n                        'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);\n            })(window, document, 'script', 'dataLayer', 'GTM-KV72QQ5');\n        </script>\n        <!-- End Google Tag Manager -->\n    \n\n        <meta name=\"robots\" content=\"index,follow\">\n\n    <meta name=\"publisher\" content=\"statusinvest.com.br\">\n    <title>Comunicados, fatos relevantes de FIIs | Status Invest</title>\n\n    <link rel=\"icon\" sizes=\"48x48\" href=\"https://statusinvest.com.br/img/favicon/favicon-48x48.png\">\n    <link rel=\"icon\" sizes=\"192x192\" href=\"https://statusinvest.com.br/img/favicon/android-chrome-192x192.png\">\n    <link rel=\"icon\" sizes=\"32x32\" href=\"https://statusinvest.com.br/img/favicon/favicon-32x32.png\">\n    <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"https://statusinvest.com.br/img/favicon/apple-touch-icon.png\">\n    <link rel=\"mask-icon\" href=\"https://statusinvest.com.br/img/favicon/safari-pinned-tab.svg\" color=\"#00598a\">\n    <meta name=\"msapplication-TileColor\" content=\"#2b5797\">\n\n    <meta name=\"description\" content=\"Veja relat&#xF3;rios gerenciais, fatos relevantes, comunicados ao mercado, aviso aos cotistas e muito mais! Todas informa&#xE7;&#xF5;es disponibilizadas na B3 pelos fundos aos cotistas\">\n    <link rel=\"canonical\" href=\"https://statusinvest.com.br/fii/repo"
+  },
+  "dados": {
+    "ticker": "HGLG11",
+    "nome": "HGLG11 -  PÁTRIA LOG",
+    "preco": "30 dias",
+    "dy": "Dividend Yield\n                        \n                            help_outline\n                            \n                                \n                                    Indicador utilizado para relacionar os proventos pagos pelo FII e o preço atual de suas cotas.\n                                    Observação:\n                                    \n                                        O Dividend Yield foi calculado com base no valor bruto dos proventos com a DATA COM entre 05/01/2025 e 05/01/2026. Amortizações não são consideradas no cálculo.\n                                    \n                                \n                            \n                        \n                    \n                    8,37\n                    %",
+    "pvp": "",
+    "liquidez": "",
+    "patrimonio": "PATRIMÔNIO LÍQUIDO (MIL)",
+    "documentos": []
+  }
+}

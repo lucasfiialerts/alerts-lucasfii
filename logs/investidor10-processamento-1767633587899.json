@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-01-05T17:19:47.899Z",
+  "total_fiis": 2,
+  "usuarios": 0,
+  "modo": "preview",
+  "resultados": [
+    {
+      "ticker": "HGLG11",
+      "status": "preview",
+      "resumo": "## Resumo Executivo e Insights do Relatório Gerencial HGLG11 - Novembro/2025\n\nO fundo HGLG11 apresentou um desempenho positivo em novembro de 2025, impulsionado pela recuperação do mercado de FIIs de ..."
+    },
+    {
+      "ticker": "KNRI11",
+      "status": "preview",
+      "resumo": "## Relatório Gerencial Kinea Renda Imobiliária (FII) - Novembro de 2025\n\n**Resumo Executivo:** O Kinea Renda Imobiliária (FII) apresentou um desempenho estável em novembro de 2025, com a vacância físi..."
+    }
+  ]
+}

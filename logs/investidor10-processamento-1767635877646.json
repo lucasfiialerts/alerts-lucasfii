@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-05T17:57:57.646Z",
+  "total_fiis": 1,
+  "usuarios": 2,
+  "modo": "enviar",
+  "resultados": [
+    {
+      "ticker": "HGLG11",
+      "status": "enviado",
+      "enviados": 1,
+      "pulados": 1
+    }
+  ]
+}

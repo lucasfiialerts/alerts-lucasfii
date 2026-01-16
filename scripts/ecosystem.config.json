@@ -1,0 +1,32 @@
+{
+  "name": "fii-monitor",
+  "script": "scripts/fii-monitor.js",
+  "cwd": "./",
+  "instances": 1,
+  "exec_mode": "fork",
+  "watch": false,
+  "autorestart": true,
+  "max_restarts": 10,
+  "min_uptime": "10s",
+  "max_memory_restart": "200M",
+  "env": {
+    "NODE_ENV": "production",
+    "MONITOR_INTERVAL_MINUTES": "60",
+    "MONITOR_MAX_FUNDS": "100", 
+    "MONITOR_TEST_MODE": "false",
+    "MONITOR_WEBHOOK_URL": "http://localhost:3000"
+  },
+  "env_development": {
+    "NODE_ENV": "development",
+    "MONITOR_INTERVAL_MINUTES": "30",
+    "MONITOR_MAX_FUNDS": "50",
+    "MONITOR_TEST_MODE": "true",
+    "MONITOR_WEBHOOK_URL": "http://localhost:3000"
+  },
+  "log_file": "logs/fii-monitor.log",
+  "out_file": "logs/fii-monitor-out.log",
+  "error_file": "logs/fii-monitor-error.log",
+  "log_date_format": "YYYY-MM-DD HH:mm:ss Z",
+  "merge_logs": true,
+  "kill_timeout": 5000
+}

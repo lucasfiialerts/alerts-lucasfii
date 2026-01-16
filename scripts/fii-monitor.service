@@ -1,0 +1,58 @@
+# Systemd Service para Monitor FII
+# 
+# Instalação:
+# 1. sudo cp scripts/fii-monitor.service /etc/systemd/system/
+# 2. sudo systemctl daemon-reload
+# 3. sudo systemctl enable fii-monitor
+# 4. sudo systemctl start fii-monitor
+# 
+# Comandos úteis:
+# sudo systemctl status fii-monitor
+# sudo systemctl restart fii-monitor
+# sudo journalctl -u fii-monitor -f
+
+[Unit]
+Description=LucasFII Alerts Monitor - Automatic FII Report Monitoring
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+# Ajuste o caminho para o seu projeto
+WorkingDirectory=/var/www/lucasfiialerts
+
+# Comando para executar
+ExecStart=/usr/bin/node scripts/fii-monitor.js
+
+# Reiniciar automaticamente em caso de falha
+Restart=always
+RestartSec=10
+
+# Variáveis de ambiente
+Environment=NODE_ENV=production
+Environment=MONITOR_INTERVAL_MINUTES=60
+Environment=MONITOR_MAX_FUNDS=100
+Environment=MONITOR_TEST_MODE=false
+Environment=MONITOR_WEBHOOK_URL=http://localhost:3000
+
+# Limites de recursos
+MemoryLimit=256M
+CPUQuota=50%
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fii-monitor
+
+# Segurança
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/lucasfiialerts
+
+[Install]
+WantedBy=multi-user.target

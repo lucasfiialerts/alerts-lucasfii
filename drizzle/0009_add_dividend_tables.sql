@@ -1,0 +1,51 @@
+-- Tabela para armazenar histórico de dividendos dos FIIs
+CREATE TABLE IF NOT EXISTS "fii_dividend" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"ticker" text NOT NULL,
+	"asset_issued" text NOT NULL,
+	"payment_date" timestamp NOT NULL,
+	"rate" text NOT NULL,
+	"related_to" text NOT NULL,
+	"label" text NOT NULL,
+	"last_date_prior" timestamp,
+	"remarks" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+
+-- Tabela para log de alertas de dividendos enviados
+CREATE TABLE IF NOT EXISTS "dividend_alert_log" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
+	"ticker" text NOT NULL,
+	"dividend_id" uuid NOT NULL,
+	"message" text NOT NULL,
+	"sent_at" timestamp DEFAULT now() NOT NULL,
+	"status" text DEFAULT 'sent',
+	"whatsapp_message_id" text
+);
+
+-- Índices para performance
+CREATE INDEX IF NOT EXISTS "fii_dividend_ticker_idx" ON "fii_dividend" ("ticker");
+CREATE INDEX IF NOT EXISTS "fii_dividend_payment_date_idx" ON "fii_dividend" ("payment_date");
+CREATE INDEX IF NOT EXISTS "dividend_alert_log_user_id_idx" ON "dividend_alert_log" ("user_id");
+CREATE INDEX IF NOT EXISTS "dividend_alert_log_ticker_idx" ON "dividend_alert_log" ("ticker");
+
+-- Foreign Keys
+DO $$ BEGIN
+ ALTER TABLE "dividend_alert_log" ADD CONSTRAINT "dividend_alert_log_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+ ALTER TABLE "dividend_alert_log" ADD CONSTRAINT "dividend_alert_log_dividend_id_fii_dividend_id_fk" FOREIGN KEY ("dividend_id") REFERENCES "public"."fii_dividend"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+
+-- Índice único para evitar dividendos duplicados (mesmo ticker, data de pagamento e valor)
+CREATE UNIQUE INDEX IF NOT EXISTS "fii_dividend_unique_idx" ON "fii_dividend" ("ticker", "payment_date", "rate", "related_to");
+
+-- Índice único para evitar alertas duplicados para o mesmo usuário/dividendo
+CREATE UNIQUE INDEX IF NOT EXISTS "dividend_alert_unique_idx" ON "dividend_alert_log" ("user_id", "dividend_id");

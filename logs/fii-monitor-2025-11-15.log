@@ -1,0 +1,49 @@
+[2025-11-15 10:29:10] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:29:10] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:29:10] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:29:13] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":1,"usersWithFollows":1,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:29:13] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:29:13] 🏁 Verificação concluída
+---
+[2025-11-15 10:32:04] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:32:04] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:32:04] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:32:07] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":2,"usersWithFollows":2,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:32:07] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:32:07] 🏁 Verificação concluída
+---
+[2025-11-15 10:32:23] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:32:23] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:32:23] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:32:25] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":2,"usersWithFollows":2,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:32:25] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:32:25] 🏁 Verificação concluída
+---
+[2025-11-15 10:37:38] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:37:38] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:37:38] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:37:43] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":2,"usersWithFollows":2,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:37:43] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:37:43] 🏁 Verificação concluída
+---
+[2025-11-15 10:38:10] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:38:10] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:38:10] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:38:12] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":2,"usersWithFollows":2,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:38:12] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:38:12] 🏁 Verificação concluída
+---
+[2025-11-15 10:40:20] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:40:20] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:40:20] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:40:24] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":2,"usersWithFollows":2,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:40:24] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:40:24] 🏁 Verificação concluída
+---
+[2025-11-15 10:41:56] 🚀 Iniciando verificação automática de FIIs...
+[2025-11-15 10:41:56] 🌐 URL da aplicação: http://localhost:3000
+[2025-11-15 10:41:56] 📁 Diretório do projeto: /Users/alanrocha/Downloads/lucasfiialerts
+[2025-11-15 10:42:00] ❌ Erro na execução: {"success":true,"message":"Monitoramento concluído","data":{"monitoring":{"tickersChecked":3,"usersWithFollows":3,"newReportsFound":0,"checkLastHours":24},"newReports":[],"notifications":{"sent":0,"failed":0,"testMode":false,"results":[]}}}
+[2025-11-15 10:42:00] 🔧 Verifique se o servidor está rodando em: http://localhost:3000
+[2025-11-15 10:42:00] 🏁 Verificação concluída
+---

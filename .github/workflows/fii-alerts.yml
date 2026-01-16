@@ -1,0 +1,22 @@
+name: FII Alerts Monitor
+
+on:
+  schedule:
+    # Executa a cada 10 minutos durante horário de pregão (9h-17h UTC-3 = 12h-20h UTC)
+    - cron: '*/10 12-20 * * 1-5'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  send-fii-alerts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Send FII Alerts
+      run: |
+        curl -X POST https://seusite.vercel.app/api/fii/send-alerts \
+          -H "Content-Type: application/json" \
+          -w "Status: %{http_code}\nResponse: %{response}"
+    
+    - name: Log Result
+      run: |
+        echo "FII alerts job executed at $(date)"

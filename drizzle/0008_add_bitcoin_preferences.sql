@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "alert_preferences_bitcoin" boolean DEFAULT false;

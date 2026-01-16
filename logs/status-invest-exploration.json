@@ -1,0 +1,188 @@
+[
+  {
+    "endpoint": "Dividendos",
+    "path": "/fii/companytickerprovents?ticker=HGLG11",
+    "status": "sucesso",
+    "tamanho": 2757,
+    "preview": "{\"earningsThisYear\":\"0,0000\",\"earningsLastYear\":\"0,0000\",\"rendiment\":\"0,00\",\"rendimentIsUp\":true,\"provisionedThisYear\":\"0,0000\",\"rendimentWithProvisioned\":\"0,00\",\"rendimentWithProvisionedIsUp\":true,\"h",
+    "dados": {
+      "earningsThisYear": "0,0000",
+      "earningsLastYear": "0,0000",
+      "rendiment": "0,00",
+      "rendimentIsUp": true,
+      "provisionedThisYear": "0,0000",
+      "rendimentWithProvisioned": "0,00",
+      "rendimentWithProvisionedIsUp": true,
+      "helpers": {
+        "earningsThisYearHelper": "Esse indicador foi calculado com base nos dividendos recebidos entre 01/01/2026 e 05/01/2026",
+        "earningsLastYearHelper": "Esse indicador foi calculado com base nos dividendos recebidos entre 01/01/2025 e 05/01/2025",
+        "earningsProvisionedHelper": "Esse indicador foi calculado com base nos dividendos declarados, mas que possuem a data de pagamento superior a 05/01/2026, ou ainda não possuem uma data de pagamento definida.",
+        "earningsMainTextHelper": "O último provento pago do HGLG11 foi um rendimento de R$1,1000 por cota no dia 12/12/25."
+      },
+      "assetEarningsModels": [
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "30/12/2025",
+          "pd": "15/01/2026",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "28/11/2025",
+          "pd": "12/12/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "31/10/2025",
+          "pd": "14/11/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "30/09/2025",
+          "pd": "14/10/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "29/08/2025",
+          "pd": "12/09/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "31/07/2025",
+          "pd": "14/08/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "30/06/2025",
+          "pd": "14/07/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "30/05/2025",
+          "pd": "13/06/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "30/04/2025",
+          "pd": "15/05/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "31/03/2025",
+          "pd": "14/04/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "28/02/2025",
+          "pd": "18/03/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        },
+        {
+          "y": 0,
+          "m": 0,
+          "d": 0,
+          "ed": "31/01/2025",
+          "pd": "14/02/2025",
+          "et": "Rendimento",
+          "etd": "Rendimento",
+          "v": 1.1,
+          "sv": "1,10000000",
+          "sov": "-",
+          "adj": false
+        }
+      ],
+      "assetEarningsYearlyModels": [
+        {
+          "rank": 2025,
+          "value": 13.2
+        }
+      ]
+    }
+  }
+]

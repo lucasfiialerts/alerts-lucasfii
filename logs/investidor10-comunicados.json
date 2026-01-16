@@ -1,0 +1,37 @@
+{
+  "ticker": "KNRI11",
+  "fonte": "Investidor10",
+  "comunicados": [
+    {
+      "tipo": "Informe Mensal",
+      "titulo": "Informe Mensal",
+      "data": "30/12/2025",
+      "url": "https://investidor10.com.br/fiis/link_comunicado/KNRI11/16463/"
+    },
+    {
+      "tipo": "Informe Mensal",
+      "titulo": "Informe Mensal",
+      "data": "15/12/2025",
+      "url": "https://investidor10.com.br/fiis/link_comunicado/KNRI11/15818/"
+    },
+    {
+      "tipo": "Relatório Gerencial",
+      "titulo": "Relatório Gerencial",
+      "data": "02/12/2025",
+      "url": "https://investidor10.com.br/fiis/link_comunicado/KNRI11/15566/"
+    },
+    {
+      "tipo": "Aviso aos Acionistas",
+      "titulo": "Aviso aos Acionistas - Distribuições",
+      "data": "28/11/2025",
+      "url": "https://investidor10.com.br/fiis/link_comunicado/KNRI11/15486/"
+    },
+    {
+      "tipo": "Informe Mensal",
+      "titulo": "Informe Mensal",
+      "data": "17/11/2025",
+      "url": "https://investidor10.com.br/fiis/link_comunicado/KNRI11/14920/"
+    }
+  ],
+  "htmlSnippet": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n\n<head>\n    <meta http-equiv=\"x-ua-compatible\" content=\"ie=edge\" />\n    <meta charset=\"UTF-8\" />\n    <meta name=\"language\" content=\"pt-BR\" />\n    <meta name=\"robots\" content=\"index,follow\">\n\n    <title>KNRI11 FII - Cotação, Dividendos, Gráficos e Resultados - Investidor10</title>\n    \n    <meta name=\"description\" content=\"Acompanhe o KNRI11. Cotação atualizada, histórico de dividendos (DY), resultados, gráficos, proventos e notícias sobre o fundo imobiliárioKinea Renda ImobiliÁria - FII.\">\n\n    \n    <link rel=\"canonical\" href=\"https://investidor10.com.br/fiis/knri11/\">\n\n    \n    <meta name=\"viewport\"\n        content=\"width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no\" />\n\n    <link rel=\"icon\" href=\"https://investidor10.com.br/assets/front/images/icon-32x32.ico\" sizes=\"32x32\" />\n    <link rel=\"icon\" href=\"https://investidor10.com.br/assets/front/images/icon-48x48.ico\" sizes=\"48x48\" />\n    <link rel=\"icon\" href=\"https://investidor10.com.br/assets/front/images/icon-192x192.ico\" sizes=\"192x192\" />\n    <link rel=\"apple-touch-icon\" href=\"https://investidor10.com.br/assets/front/images/icon-180x180.ico\" />\n\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\">\n    <meta property=\"twitter:title\" content=\"KNRI11 FII - Cotação, Dividendos, Gráficos e Resultados - Investidor10\" />\n    <meta property=\"twitter:image\" content=\"https://investidor10.com.br/images/logo_share.jpg\" />\n    <meta property=\"og:image\" content=\"https://investidor10.com.br/images/logo_share.jpg\" />\n    <meta name=\"csrf-token\" content=\"vzdaKZY01vWpT7tqScYVUW6Dtd768LTYC7eEhfFk\" />\n    <link rel=\"preload\"\n        href=\"https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap\"\n        as=\"style\" onload=\"this.onload=null;this.rel='stylesheet'\">\n    <link rel=\"preload\"\n        href=\"https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap\"\n        as=\"style\" onload=\"this.onload=null;this.rel='stylesheet'\">\n\n    <link media=\"all\" type=\"text/css\" rel=\"stylesheet\" href=\"https://investidor10.com.br/storage/assets/vendor/fontawesome/css/all.min.css\">\n\n    <link rel=\"preload\" href=\"https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css\"\n        as=\"style\" onload=\"this.onload=null;this.rel='stylesheet'\">\n    <link rel=\"preload\" href=\"/assets/vendor/swal/sweetalert2.min.css\" as=\"style\"\n        onload=\"this.onload=null;this.rel='stylesheet'\">\n    <link rel=\"stylesheet\" href=\"/assets/vendor/crypto-icon-font/css/sprite.css\">\n\n\n\n    <noscript>\n        <link rel=\"stylesheet\"\n            href=\"https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap\">\n        <link media=\"all\" type=\"text/css\" rel=\"stylesheet\" href=\"https://investidor10.com.br/storage/assets/vendor/fontawesome/css/fontawesome.css\">\n\n        <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2"
+}

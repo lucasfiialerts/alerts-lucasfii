@@ -1,0 +1,1 @@
+ALTER TABLE "user_fii_follow" ALTER COLUMN "min_variation_percent" SET DEFAULT '0.5';
