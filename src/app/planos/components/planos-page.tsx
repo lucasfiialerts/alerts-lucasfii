@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getUserSubscription } from "@/actions/get-user-subscription";
 import { syncSubscriptionStatus } from "@/actions/sync-subscription-status";
 import { PlanButton } from "@/app/planos/components/plan-button";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
 
 interface UserSubscription {
   isActive: boolean;
@@ -28,6 +29,7 @@ interface PlanosContentProps {
 export function PlanosContent({ session }: PlanosContentProps) {
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [planosTipo, setPlanosTipo] = useState<'mensal' | 'anual'>('mensal');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Lista dos planos disponíveis
   const planos = [
@@ -166,6 +168,7 @@ export function PlanosContent({ session }: PlanosContentProps) {
   useEffect(() => {
     const loadSubscriptionData = async () => {
       if (session?.user) {
+        setIsLoading(true);
         try {
           await syncSubscriptionStatus();
           const subscription = await getUserSubscription();
@@ -173,12 +176,24 @@ export function PlanosContent({ session }: PlanosContentProps) {
           setUserSubscription(subscription);
         } catch (error) {
           console.error("Erro ao carregar dados da assinatura:", error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
 
     loadSubscriptionData();
   }, [session]);
+
+  if (isLoading) {
+    return (
+      <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          <LoadingSpinner />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { MyFollowStatsCardsSkeletonGrid } from "./my-follow-stats-skeleton";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
 
 interface Fund {
   id: string;
@@ -246,6 +247,16 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
 
     return matchesText && matchesStatus;
   }) || [];
+
+  if (isLoadingFollows) {
+    return (
+      <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          <LoadingSpinner />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">

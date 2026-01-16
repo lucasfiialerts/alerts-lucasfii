@@ -20,6 +20,7 @@ import { useWhatsAppStatus } from "@/hooks/use-whatsapp-status";
 import { authClient } from "@/lib/auth-client";
 import { sendWhatsAppVerification } from "@/lib/whatsapp-api";
 import { getUserAlertPreferences, updateSingleAlertPreference, type AlertPreferences } from "@/lib/alert-preferences";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
 
 interface ConfigurationPageProps {
   session: {
@@ -319,6 +320,16 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       setShowDeleteModal(false);
     }
   };
+
+  if (isLoadingPreferences || isLoadingPlan) {
+    return (
+      <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          <LoadingSpinner />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
