@@ -8,7 +8,6 @@ import Image from "next/image";
 
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
-import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
@@ -241,7 +240,6 @@ const Home = () => {
 
   return (
     <>
-      <TestEnvironmentBanner />
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
@@ -389,7 +387,7 @@ const Home = () => {
 
       <Header />
 
-      <div className="w-full overflow-x-hidden min-h-screen pt-28 relative">
+      <div className="w-full overflow-x-hidden min-h-screen pt-16 relative">
         {/* Background Image */}
         <div className="fixed inset-0 z-0">
           <Image

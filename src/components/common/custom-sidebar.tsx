@@ -7,11 +7,15 @@ import {
   Settings,
   TrendingUp,
   LogOut,
+  MoreVertical,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useWhatsAppStatus } from "@/hooks/use-whatsapp-status";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 interface CustomSidebarProps {
   activeMenuItem: string;
@@ -22,6 +26,8 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const { isConnected: isWhatsAppConnected, isLoading } = useWhatsAppStatus();
+  const { isExpanded } = useSidebar();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const menuItems = [
     { id: "home", label: "Home", icon: Home },
@@ -92,9 +98,14 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
   };
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-64 backdrop-blur-xl border-r border-gray-700/50 shadow-2xl flex flex-col z-50 custom-sidebar-scroll" style={{ backgroundColor: '#131824' }}>
-      {/* Header */}
-      <div className="border-b border-gray-800 py-4 px-4 flex-shrink-0">
+    <aside
+      className={`fixed top-28 left-0 h-[calc(100vh-7rem)] backdrop-blur-xl border-r border-gray-700/50 shadow-2xl flex flex-col z-50 custom-sidebar-scroll transition-all duration-300 ${isExpanded ? 'w-64 translate-x-0' : 'w-64 -translate-x-full'
+        }`}
+      style={{ backgroundColor: '#131824' }}
+    >
+      {/* === Header === */}
+
+      {/* <div className="border-b border-gray-800 py-4 px-4 flex-shrink-0">
         <div className="flex items-center justify-center">
           <Image
             src="/logo2.png"
@@ -104,44 +115,109 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
             className="object-contain"
           />
         </div>
-      </div>
+      </div> */}
 
-      {/* Menu */}
+      {/* === Menu === */}
+
       <div className="flex-1 overflow-y-auto py-4 px-3 custom-sidebar-scroll">
         <div className="mb-3 mt-6">
           <p className="text-gray-400 uppercase text-[10px] font-bold tracking-widest px-3 mb-3">
             Menu
           </p>
           <nav className="space-y-1">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleMenuItemClick(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group ${activeMenuItem === item.id
-                  ? "bg-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20 text-blue-400"
-                  : "text-gray-300 hover:bg-gray-700/70 hover:text-white hover:shadow-md"
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeMenuItem === item.id;
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleMenuItemClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group ${
+                    isActive
+                      ? "text-blue-400"
+                      : "text-gray-400 hover:text-white"
                   }`}
-              >
-                <item.icon
-                  className={`w-5 h-5 transition-transform duration-300 ${activeMenuItem === item.id ? "scale-110" : "group-hover:scale-110"
-                    }`}
-                />
-                <span className="font-semibold">{item.label}</span>
-              </button>
-            ))}
+                >
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.2,
+                      rotate: [0, -10, 10, -10, 0],
+                      transition: { duration: 0.5 }
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.div>
+                  <span className="font-semibold">{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
       </div>
 
       {/* Footer - WhatsApp Status e Versão */}
       <div className="border-t border-gray-800 flex-shrink-0">
+        {/* User Profile Section */}
+        <div className="px-3 py-3 border-b border-gray-800">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-800/30 hover:bg-gray-700/40 transition-colors relative">
+            <UserAvatar size="w-10 h-10" />
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-semibold truncate">
+                {session?.user?.name || "Usuário"}
+              </p>
+              <p className="text-gray-400 text-xs truncate">
+                {session?.user?.email}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <MoreVertical className="w-5 h-5 text-gray-400" />
+            </button>
+
+            {/* Dropdown Menu */}
+            <AnimatePresence>
+              {showUserMenu && (
+                <>
+                  {/* Overlay para fechar ao clicar fora */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-2 bottom-full mb-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 w-48"
+                  >
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-gray-700/50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="font-medium">Sair</span>
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
         {/* WhatsApp Status */}
         {!isLoading && (
           <div className="px-3 py-3">
             <div
               className={`px-4 py-3 rounded-xl shadow-lg transition-all duration-300 ${isWhatsAppConnected
-                ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                : "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
+                ? "bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-700/90 hover:to-emerald-700/90"
+                : "bg-gradient-to-r from-red-600/80 to-rose-600/80 hover:from-red-700/90 hover:to-rose-700/90"
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -162,8 +238,9 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
           </div>
         )}
 
-        {/* Versão - Abaixo do status WhatsApp */}
-        <div className="px-3 pb-3">
+        {/* === Versão === */}
+
+        {/* <div className="px-3 pb-3">
           <div className="text-gray-500 text-[10px] space-y-0.5 text-center py-2">
             <p className="font-mono">v1.0.0-beta</p>
             <p className="truncate">
@@ -172,13 +249,14 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
                 href="https://www.devrocha.com.br"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                className="text-blue-400 hover:text-blue-100 transition-colors duration-200"
               >
                 DevRocha
               </a>
             </p>
           </div>
-        </div>
+        </div> */}
+
       </div>
     </aside>
   );
