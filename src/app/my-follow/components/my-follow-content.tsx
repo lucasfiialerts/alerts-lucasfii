@@ -2,8 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Send, Trash2, TrendingUp } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 
 import { getUserSubscription } from "@/actions/get-user-subscription";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { MyFollowStatsCardsSkeletonGrid } from "./my-follow-stats-skeleton";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
+import Notification, { NotificationType } from "@/components/ui/notification-toast";
 
 interface Fund {
   id: string;
@@ -46,12 +47,41 @@ interface MyFollowContentProps {
   session: Session;
 }
 
+interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  showIcon?: boolean;
+  duration?: number;
+}
+
 export function MyFollowContent({ session }: MyFollowContentProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterTerm, setFilterTerm] = useState(""); // Para filtrar ativos seguidos
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all"); // Filtro de status
   const queryClient = useQueryClient();
+
+  // Sistema de notificações
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const nextIdRef = useRef(1);
+
+  const addNotification = (type: NotificationType, title: string, message?: string, showIcon?: boolean, duration?: number) => {
+    const newNotification: NotificationItem = {
+      id: nextIdRef.current++,
+      type,
+      title,
+      message,
+      showIcon: showIcon ?? true,
+      duration: duration ?? 4000,
+    };
+    setNotifications((prev) => [...prev, newNotification]);
+  };
+
+  const handleCloseNotification = (id: number) => {
+    setNotifications((prev) => prev.filter(n => n.id !== id));
+  };
 
   // Query para buscar fundos seguidos
   const { data: follows, isLoading: isLoadingFollows } = useQuery({
@@ -138,10 +168,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
       setIsDialogOpen(false);
       setSearchTerm("");
-      toast.success('Fundo adicionado ao acompanhamento!');
+      addNotification('success', 'Fundo adicionado!', 'Fundo adicionado ao acompanhamento com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao adicionar', error.message, true, 5000);
     }
   });
 
@@ -205,15 +235,15 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       setSearchTerm("");
       
       if (data.results.length > 0) {
-        toast.success(`${data.results.length} ${data.results.length === 1 ? 'fundo adicionado' : 'fundos adicionados'} com sucesso!`);
+        addNotification('success', 'Fundos adicionados!', `${data.results.length} ${data.results.length === 1 ? 'fundo adicionado' : 'fundos adicionados'} com sucesso!`);
       }
       
       if (data.errors.length > 0) {
-        toast.error(`Erros: ${data.errors.join(', ')}`);
+        addNotification('error', 'Erros encontrados', `Erros: ${data.errors.join(', ')}`, true, 6000);
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao adicionar fundos', error.message, true, 5000);
     }
   });
 
@@ -233,10 +263,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
-      toast.success('Notificações atualizadas!');
+      addNotification('success', 'Notificações atualizadas!', 'Configuração de notificações atualizada com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao atualizar', error.message, true, 5000);
     }
   });
 
@@ -256,10 +286,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
-      toast.success('Fundo removido do acompanhamento!');
+      addNotification('success', 'Fundo removido!', 'Fundo removido do acompanhamento com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao remover', error.message, true, 5000);
     }
   });
 
@@ -278,10 +308,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['fii-search'] });
-      toast.success(`${data.synced || 0} fundos sincronizados com sucesso!`);
+      addNotification('success', 'Sincronização concluída!', `${data.synced || 0} fundos sincronizados com sucesso!`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao sincronizar', error.message, true, 5000);
     }
   });
 
@@ -300,10 +330,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Relatório de teste enviado via WhatsApp!');
+      addNotification('success', 'Relatório enviado!', 'Relatório de teste enviado via WhatsApp com sucesso!');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao enviar', error.message, true, 5000);
     }
   });
 
@@ -324,7 +354,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       .filter(t => t.length > 0);
     
     if (tickers.length === 0) {
-      toast.error('Digite pelo menos um ticker');
+      addNotification('error', 'Nenhum ticker', 'Digite pelo menos um ticker', true, 4000);
       return;
     }
     
@@ -889,6 +919,23 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       <br />
       <br />
       <br />
+
+      {/* Container de Notificações */}
+      <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-50">
+        <AnimatePresence>
+          {notifications.map((notification) => (
+            <Notification
+              key={notification.id}
+              type={notification.type}
+              title={notification.title}
+              message={notification.message}
+              showIcon={notification.showIcon}
+              duration={notification.duration}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
       
     </main>
   );
