@@ -2,7 +2,8 @@
 
 import { Bell, Check, DollarSign, FileText, LogOut, Mail, Phone, Settings, Shield, TrendingUp, X, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 
 import { deleteAccount } from "@/actions/delete-account";
 import { createBillingPortalSession } from "@/actions/create-billing-portal-session";
@@ -21,6 +22,7 @@ import { authClient } from "@/lib/auth-client";
 import { sendWhatsAppVerification } from "@/lib/whatsapp-api";
 import { getUserAlertPreferences, updateSingleAlertPreference, type AlertPreferences } from "@/lib/alert-preferences";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
+import Notification, { NotificationType } from "@/components/ui/notification-toast";
 
 interface ConfigurationPageProps {
   session: {
@@ -32,9 +34,38 @@ interface ConfigurationPageProps {
   };
 }
 
+interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  showIcon?: boolean;
+  duration?: number;
+}
+
 export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const router = useRouter();
   const { refreshStatus } = useWhatsAppStatus();
+
+  // Sistema de notificações
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const nextIdRef = useRef(1);
+
+  const addNotification = (type: NotificationType, title: string, message?: string, showIcon?: boolean, duration?: number) => {
+    const newNotification: NotificationItem = {
+      id: nextIdRef.current++,
+      type,
+      title,
+      message,
+      showIcon: showIcon ?? true,
+      duration: duration ?? 4000,
+    };
+    setNotifications((prev) => [...prev, newNotification]);
+  };
+
+  const handleCloseNotification = (id: number) => {
+    setNotifications((prev) => prev.filter(n => n.id !== id));
+  };
 
   // Estados do WhatsApp
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -206,7 +237,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const updatePreference = async (key: keyof AlertPreferences, value: boolean) => {
     // Verificar se o usuário tem plano ativo
     if (!hasActivePlan) {
-      alert("Você precisa de um plano ativo para ativar alertas. Acesse a página de planos para assinar.");
+      addNotification('warning', 'Plano necessário', 'Você precisa de um plano ativo para ativar alertas. Acesse a página de planos para assinar.', true, 6000);
       return;
     }
 
@@ -234,7 +265,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   // Função para conectar WhatsApp
   const handleConnectWhatsApp = async () => {
     if (!inputWhatsappNumber.trim()) {
-      alert("Por favor, insira um número de WhatsApp válido");
+      addNotification('error', 'Número inválido', 'Por favor, insira um número de WhatsApp válido', true, 4000);
       return;
     }
 
@@ -252,10 +283,10 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       setShowWhatsappModal(false);
       setShowVerificationModal(true);
 
-      alert("Código de verificação enviado para seu WhatsApp!");
+      addNotification('success', 'Código enviado!', 'Código de verificação enviado para seu WhatsApp!');
     } catch (error) {
       console.error("Erro ao conectar WhatsApp:", error);
-      alert("Erro ao conectar WhatsApp. Tente novamente.");
+      addNotification('error', 'Erro ao conectar', 'Erro ao conectar WhatsApp. Tente novamente.', true, 5000);
     } finally {
       setIsConnectingWhatsapp(false);
     }
@@ -264,7 +295,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   // Função para verificar código
   const handleVerifyCode = async () => {
     if (!inputVerificationCode.trim()) {
-      alert("Por favor, insira o código de verificação");
+      addNotification('error', 'Código necessário', 'Por favor, insira o código de verificação', true, 4000);
       return;
     }
 
@@ -278,10 +309,10 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       // Atualizar o status global do WhatsApp
       await refreshStatus();
 
-      alert("WhatsApp verificado com sucesso!");
+      addNotification('success', 'WhatsApp verificado!', 'WhatsApp verificado com sucesso!');
     } catch (error) {
       console.error("Erro ao verificar código:", error);
-      alert("Código inválido. Tente novamente.");
+      addNotification('error', 'Código inválido', 'Código inválido. Tente novamente.', true, 5000);
     } finally {
       setIsVerifying(false);
     }
@@ -295,7 +326,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       window.location.href = '/';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      alert('Erro ao fazer logout. Tente novamente.');
+      addNotification('error', 'Erro ao fazer logout', 'Não foi possível fazer logout. Tente novamente.', true, 5000);
     } finally {
       setIsLoggingOut(false);
     }
@@ -315,7 +346,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       window.location.href = '/';
     } catch (error) {
       console.error('Erro ao excluir conta:', error);
-      alert('Erro ao excluir conta. Tente novamente.');
+      addNotification('error', 'Erro ao excluir conta', 'Não foi possível excluir a conta. Tente novamente.', true, 5000);
     } finally {
       setIsDeletingAccount(false);
       setShowDeleteModal(false);
@@ -1052,6 +1083,19 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
           </div>
         </div>
       )}
+
+      {/* Toast Notifications Container */}
+      <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-50">
+        <AnimatePresence>
+          {notifications.map((notification) => (
+            <Notification
+              key={notification.id}
+              {...notification}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
     </main>
   );
 }
