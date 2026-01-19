@@ -77,7 +77,8 @@ const Home = () => {
       {
         id: 'iniciante',
         nome: 'Iniciante',
-        preco: 'R$ 10,00',
+        preco: 'R$ ?',
+        // preco: 'R$ 10,00',
         precoDetalhe: '/mês',
         features: [
           'Acompanhe até 10 ativos',
@@ -103,7 +104,8 @@ const Home = () => {
       {
         id: 'investidor',
         nome: 'Investidor',
-        preco: 'R$ 15,00',
+        preco: 'R$ ?',
+        // preco: 'R$ 15,00',
         precoDetalhe: '/mês',
         isPopular: true,
         features: [
@@ -131,7 +133,8 @@ const Home = () => {
       {
         id: 'iniciante_anual',
         nome: 'Iniciante (ANUAL)',
-        preco: 'R$ 120,00',
+        preco: 'R$ ?',
+        // preco: 'R$ 120,00',
         precoDetalhe: '/ano',
         features: [
           'Acompanhe até 10 ativos',
@@ -157,7 +160,8 @@ const Home = () => {
       {
         id: 'investidor_anual',
         nome: 'Investidor (ANUAL)',
-        preco: 'R$ 180,00',
+        preco: 'R$ ?',
+        // preco: 'R$ 180,00',
         precoDetalhe: '/ano',
         isPopular: true,
         features: [
@@ -402,7 +406,7 @@ const Home = () => {
         {/* === Hero Section === */}
 
         <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          
+
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               {/* Conteúdo Principal */}
@@ -466,16 +470,16 @@ const Home = () => {
                 <div className="relative">
                   {/* Efeito de glow animado */}
                   <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-xl opacity-30 animate-pulse"></div>
-                  
+
                   {/* Partículas flutuantes */}
                   <div className="absolute -inset-20 overflow-hidden pointer-events-none">
-                    <div className="absolute top-10 left-10 w-2 h-2 bg-blue-400 rounded-full animate-float" style={{animationDelay: '0s', animationDuration: '3s'}}></div>
-                    <div className="absolute top-32 right-10 w-1.5 h-1.5 bg-purple-400 rounded-full animate-float" style={{animationDelay: '1s', animationDuration: '4s'}}></div>
-                    <div className="absolute bottom-24 left-16 w-1 h-1 bg-cyan-400 rounded-full animate-float" style={{animationDelay: '2s', animationDuration: '3.5s'}}></div>
+                    <div className="absolute top-10 left-10 w-2 h-2 bg-blue-400 rounded-full animate-float" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
+                    <div className="absolute top-32 right-10 w-1.5 h-1.5 bg-purple-400 rounded-full animate-float" style={{ animationDelay: '1s', animationDuration: '4s' }}></div>
+                    <div className="absolute bottom-24 left-16 w-1 h-1 bg-cyan-400 rounded-full animate-float" style={{ animationDelay: '2s', animationDuration: '3.5s' }}></div>
                   </div>
 
                   {/* Smartphone Frame com animação 3D */}
-                  <div className="relative bg-gray-900/90 backdrop-blur-xl rounded-[3rem] p-3 shadow-2xl border border-gray-700/50 hover:scale-105 transition-transform duration-500 hover:rotate-y-6" style={{transformStyle: 'preserve-3d'}}>
+                  <div className="relative bg-gray-900/90 backdrop-blur-xl rounded-[3rem] p-3 shadow-2xl border border-gray-700/50 hover:scale-105 transition-transform duration-500 hover:rotate-y-6" style={{ transformStyle: 'preserve-3d' }}>
                     <div className="bg-black rounded-[2.5rem] overflow-hidden">
                       {/* Status Bar */}
                       <div className="bg-gray-900 px-6 py-3 flex justify-between items-center text-white text-sm">
@@ -511,86 +515,86 @@ const Home = () => {
                           <div className="flex justify-start animate-slideInLeft">
                             <div className="bg-gray-700/50 backdrop-blur-sm border border-gray-600/30 rounded-2xl px-6 py-3">
                               <div className="flex gap-1.5">
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                               </div>
                             </div>
                           </div>
                         )}
                         {/* Alert Message 1 - Preço */}
                         {showMessages[0] && (
-                        <div className="flex justify-start animate-slideInLeft">
-                          <div className="bg-gradient-to-r from-red-500/20 to-red-600/20 backdrop-blur-sm border border-red-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-red-500/20 hover:scale-105 transition-all duration-300">
-                            <div className="flex items-center gap-2 text-red-400 text-xs font-bold mb-2">
-                              <TrendingUpIcon className="w-3 h-3" />
-                              ALERTA DE PREÇO
+                          <div className="flex justify-start animate-slideInLeft">
+                            <div className="bg-gradient-to-r from-red-500/20 to-red-600/20 backdrop-blur-sm border border-red-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-red-500/20 hover:scale-105 transition-all duration-300">
+                              <div className="flex items-center gap-2 text-red-400 text-xs font-bold mb-2">
+                                <TrendingUpIcon className="w-3 h-3" />
+                                ALERTA DE PREÇO
+                              </div>
+                              <div className="text-white text-sm space-y-1">
+                                <div className="font-bold text-base">HGLG11</div>
+                                <div className="text-red-300">📉 R$ 160,50 (-2,3%)</div>
+                                <div className="text-gray-300">Atingiu limite de compra!</div>
+                                <div className="text-blue-300 text-xs">💡 Boa oportunidade</div>
+                              </div>
+                              <div className="text-gray-500 text-xs mt-2">09:15</div>
                             </div>
-                            <div className="text-white text-sm space-y-1">
-                              <div className="font-bold text-base">HGLG11</div>
-                              <div className="text-red-300">📉 R$ 160,50 (-2,3%)</div>
-                              <div className="text-gray-300">Atingiu limite de compra!</div>
-                              <div className="text-blue-300 text-xs">💡 Boa oportunidade</div>
-                            </div>
-                            <div className="text-gray-500 text-xs mt-2">09:15</div>
                           </div>
-                        </div>
                         )}
 
                         {/* Alert Message 2 - Dividendos */}
                         {showMessages[1] && (
-                        <div className="flex justify-start animate-slideInLeft">
-                          <div className="bg-gradient-to-r from-yellow-500/20 to-amber-600/20 backdrop-blur-sm border border-yellow-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-yellow-500/20 hover:scale-105 transition-all duration-300">
-                            <div className="flex items-center gap-2 text-yellow-400 text-xs font-bold mb-2">
-                              <DollarSignIcon className="w-3 h-3" />
-                              PAGAMENTO DE DIVIDENDOS
+                          <div className="flex justify-start animate-slideInLeft">
+                            <div className="bg-gradient-to-r from-yellow-500/20 to-amber-600/20 backdrop-blur-sm border border-yellow-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-yellow-500/20 hover:scale-105 transition-all duration-300">
+                              <div className="flex items-center gap-2 text-yellow-400 text-xs font-bold mb-2">
+                                <DollarSignIcon className="w-3 h-3" />
+                                PAGAMENTO DE DIVIDENDOS
+                              </div>
+                              <div className="text-white text-sm space-y-1">
+                                <div className="font-bold text-base">VISC11</div>
+                                <div className="text-yellow-300">💰 R$ 0,95 por cota</div>
+                                <div className="text-gray-300">Ex-dividendo: 15/11/2024</div>
+                                <div className="text-green-300 text-xs">📈 Yield: 0,89%</div>
+                              </div>
+                              <div className="text-gray-500 text-xs mt-2">08:30</div>
                             </div>
-                            <div className="text-white text-sm space-y-1">
-                              <div className="font-bold text-base">VISC11</div>
-                              <div className="text-yellow-300">💰 R$ 0,95 por cota</div>
-                              <div className="text-gray-300">Ex-dividendo: 15/11/2024</div>
-                              <div className="text-green-300 text-xs">📈 Yield: 0,89%</div>
-                            </div>
-                            <div className="text-gray-500 text-xs mt-2">08:30</div>
                           </div>
-                        </div>
                         )}
 
                         {/* Alert Message 3 - Alta */}
                         {showMessages[2] && (
-                        <div className="flex justify-start animate-slideInLeft">
-                          <div className="bg-gradient-to-r from-green-500/20 to-emerald-600/20 backdrop-blur-sm border border-green-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-green-500/20 hover:scale-105 transition-all duration-300">
-                            <div className="flex items-center gap-2 text-green-400 text-xs font-bold mb-2">
-                              <ZapIcon className="w-3 h-3" />
-                              ALTA SIGNIFICATIVA
+                          <div className="flex justify-start animate-slideInLeft">
+                            <div className="bg-gradient-to-r from-green-500/20 to-emerald-600/20 backdrop-blur-sm border border-green-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-green-500/20 hover:scale-105 transition-all duration-300">
+                              <div className="flex items-center gap-2 text-green-400 text-xs font-bold mb-2">
+                                <ZapIcon className="w-3 h-3" />
+                                ALTA SIGNIFICATIVA
+                              </div>
+                              <div className="text-white text-sm space-y-1">
+                                <div className="font-bold text-base">BTLG11</div>
+                                <div className="text-green-300">📈 R$ 105,20 (+5,1%)</div>
+                                <div className="text-gray-300">Volume acima da média</div>
+                                <div className="text-purple-300 text-xs">🎯 Considere venda parcial</div>
+                              </div>
+                              <div className="text-gray-500 text-xs mt-2">07:45</div>
                             </div>
-                            <div className="text-white text-sm space-y-1">
-                              <div className="font-bold text-base">BTLG11</div>
-                              <div className="text-green-300">📈 R$ 105,20 (+5,1%)</div>
-                              <div className="text-gray-300">Volume acima da média</div>
-                              <div className="text-purple-300 text-xs">🎯 Considere venda parcial</div>
-                            </div>
-                            <div className="text-gray-500 text-xs mt-2">07:45</div>
                           </div>
-                        </div>
                         )}
 
                         {/* Alert Message 4 - IA Insight */}
                         {showMessages[3] && (
-                        <div className="flex justify-start animate-slideInLeft">
-                          <div className="bg-gradient-to-r from-blue-500/20 to-cyan-600/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-blue-500/20 hover:scale-105 transition-all duration-300">
-                            <div className="flex items-center gap-2 text-blue-400 text-xs font-bold mb-2">
-                              <StarIcon className="w-3 h-3" />
-                              INSIGHT DE IA
+                          <div className="flex justify-start animate-slideInLeft">
+                            <div className="bg-gradient-to-r from-blue-500/20 to-cyan-600/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-4 py-3 max-w-xs shadow-lg hover:shadow-blue-500/20 hover:scale-105 transition-all duration-300">
+                              <div className="flex items-center gap-2 text-blue-400 text-xs font-bold mb-2">
+                                <StarIcon className="w-3 h-3" />
+                                INSIGHT DE IA
+                              </div>
+                              <div className="text-white text-sm space-y-1">
+                                <div className="text-blue-300">🤖 Análise do setor</div>
+                                <div className="text-gray-300">FIIs de logística em alta</div>
+                                <div className="text-cyan-300 text-xs">📊 3 oportunidades detectadas</div>
+                              </div>
+                              <div className="text-gray-500 text-xs mt-2">07:20</div>
                             </div>
-                            <div className="text-white text-sm space-y-1">
-                              <div className="text-blue-300">🤖 Análise do setor</div>
-                              <div className="text-gray-300">FIIs de logística em alta</div>
-                              <div className="text-cyan-300 text-xs">📊 3 oportunidades detectadas</div>
-                            </div>
-                            <div className="text-gray-500 text-xs mt-2">07:20</div>
                           </div>
-                        </div>
                         )}
                       </div>
 
