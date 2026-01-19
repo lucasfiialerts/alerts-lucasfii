@@ -63,7 +63,7 @@ const Footer = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* TODO: <div className="flex items-center gap-3">
                 <Link href="/contato" className="flex items-center gap-3 group">
                   <span className="p-2 bg-blue-500 rounded-lg flex items-center justify-center">
                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +72,7 @@ const Footer = () => {
                   </span>
                   <span className="text-gray-300 text-sm font-medium group-hover:text-white transition">FALE CONOSCO</span>
                 </Link>
-              </div>
+              </div> */}
 
               {/* <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-r from-green-500 to-green-600 rounded-lg">
