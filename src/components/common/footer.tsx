@@ -55,9 +55,9 @@ const Footer = () => {
             <h3 className="font-bold text-xl mb-6 text-white">Contato</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg">
+                {/* <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg">
                   <MailIcon className="h-4 w-4 text-white" />
-                </div>
+                </div> */}
                 <div>
                   <p className="text-white font-medium">lucasfiialerts@gmail.com</p>
                 </div>
