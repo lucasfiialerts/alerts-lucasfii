@@ -628,7 +628,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
 
               {/* TODO: Card Status Invest - Comunicados (Relatórios, Fatos Relevantes, Informes) */}
 
-              <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-green-500/40 hover:bg-green-600/20 transition-all duration-300 hover:shadow-green-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
+              {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-green-500/40 hover:bg-green-600/20 transition-all duration-300 hover:shadow-green-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -658,11 +658,11 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                     </div>
                   )}
                 </CardContent>
-              </Card>
+              </Card> */}
 
-              {/* 4. TODO: Resumos feitos pela IA (FNET) */}
+              {/* 4. Resumos feitos pela IA (FNET) */}
 
-              {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-blue-500/40 hover:bg-blue-600/20 transition-all duration-300 hover:shadow-blue-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
+              {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-indigo-500/40 hover:bg-indigo-600/20 transition-all duration-300 hover:shadow-indigo-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -671,7 +671,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-white text-base sm:text-lg font-bold">Resumos feitos pela IA</CardTitle>
-                        <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">BETA</span>
+                        <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">IA</span>
                       </div>
                     </div>
                     <Switch
@@ -683,9 +683,8 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      Receba notificações sobre documentos oficiais: relatórios gerenciais,
-                      informes mensais/trimestrais, fatos relevantes e assembleias dos
-                      ativos que você acompanha.
+                      Receba resumos inteligentes gerados por IA sobre <strong>Relatórios Gerenciais</strong> e <strong>Fatos Relevantes</strong> dos 
+                      FIIs que você acompanha. A IA extrai e analisa o PDF completo!
                     </p>
                     {!hasActivePlan && (
                       <div className="mt-3 text-orange-400 text-xs font-bold">
