@@ -42,27 +42,27 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0d1621] border-b border-gray-800 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a34] border-b border-gray-800 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* === Logo === */}
 
-          <Link href="/" className="flex items-center">
+          {/* <Link href="/" className="flex items-center">
             <Image
-              src="/navbar_logo.png"
+              src=""
               alt="Lucas FII Alerts"
               width={140}
               height={140}
               className="rounded-full"
-                style={{ height: 60, width: 250, objectFit: 'cover'}}
+                style={{ height: 60, width: 200, objectFit: 'cover'}}
                 priority
             />
-          </Link>
+          </Link> */}
 
-            {/* <Link href="/" className="flex items-center">
-              <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
-            </Link> */}
+          <Link href="/" className="flex items-center">
+            <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
+          </Link>
 
 
           {/* Desktop Navigation */}
@@ -95,13 +95,13 @@ export const Header = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 rounded-xl transition-all duration-300"></div>
             </button>
 
-            <Link
+            {/* <Link
               href="/contato"
               className="group relative text-white hover:text-blue-400 px-5 py-2.5 text-sm font-bold transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-500/20 hover:to-cyan-500/20 rounded-xl border border-transparent hover:border-blue-400/30 hover:shadow-lg hover:shadow-blue-500/20 inline-block"
             >
               <span className="relative z-10">Contato</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 rounded-xl transition-all duration-300"></div>
-            </Link>
+            </Link> */}
 
 
           </nav>
@@ -201,7 +201,7 @@ export const Header = () => {
                               </Link>
                             </Button>
 
-                            <Button
+                            {/* <Button
                               variant="ghost"
                               className="w-full justify-start h-12 px-4 hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-200 text-gray-200"
                               asChild
@@ -212,7 +212,8 @@ export const Header = () => {
                                 </svg>
                                 <span className="text-sm font-medium">Contato</span>
                               </Link>
-                            </Button>
+                            </Button> */}
+
                           </div>
                         </div>
 
@@ -314,12 +315,12 @@ export const Header = () => {
                     </button>
 
 
-                    <Link href="/contato" className="flex items-center px-3 py-3 text-gray-200 hover:bg-blue-500/20 hover:text-blue-300 rounded-lg transition-all duration-200">
+                    {/* <Link href="/contato" className="flex items-center px-3 py-3 text-gray-200 hover:bg-blue-500/20 hover:text-blue-300 rounded-lg transition-all duration-200">
                       <svg className="w-5 h-5 mr-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                       <span className="font-medium">Contato</span>
-                    </Link>
+                    </Link> */}
 
 
                   </div>

@@ -1,4 +1,4 @@
-import { InstagramIcon, LinkedinIcon, MailIcon, MapPinIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
+import { ChartBar, InstagramIcon, LinkedinIcon, MailIcon, MapPinIcon, MessageCircleIcon, Phone, PhoneIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,7 +12,11 @@ const Footer = () => {
           {/* Coluna 1 - Logo e Descrição */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-          <Image 
+              <Link href="/" className="flex items-center">
+                <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
+              </Link>
+
+              {/* <Image 
             src="/navbar_logo.png" 
             alt="navbar logo" 
             width={150} 
@@ -20,8 +24,8 @@ const Footer = () => {
             style={{ height: 60, width: 250, objectFit: 'cover' }} 
             className="rounded-full"
             priority 
-          />
-        </div>
+          /> */}
+            </div>
 
             {/* <Link href="/" className="flex items-center">
               <h1 className="text-white text-2xl font-bold">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
@@ -55,9 +59,19 @@ const Footer = () => {
                   <MailIcon className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-gray-300 text-sm">Email</p>
                   <p className="text-white font-medium">lucasfiialerts@gmail.com</p>
                 </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Link href="/contato" className="flex items-center gap-3 group">
+                  <span className="p-2 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </span>
+                  <span className="text-gray-300 text-sm font-medium group-hover:text-white transition">FALE CONOSCO</span>
+                </Link>
               </div>
 
               {/* <div className="flex items-center gap-3">
@@ -97,14 +111,14 @@ const Footer = () => {
               </li>
             </ul>
 
-            <ul className="space-y-3">
+            {/* <ul className="space-y-3">
               <li>
                 <Link href="/" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2 group">
                   <div className="w-1 h-1 rounded-full group-hover:scale-150 transition-transform duration-200"></div>
                   Lucas FII Wealth
                 </Link>
               </li>
-            </ul>
+            </ul> */}
 
 
             {/* <ul className="space-y-3">
@@ -153,7 +167,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              © 2025  Lucas FII  <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider"> Alerts 🚀</span> – Plataforma de alertas inteligentes para investidores de fundos imobiliários.
+              © 2025-2026  Lucas FII  <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider"> Alerts 🚀</span> – Plataforma de alertas inteligentes para investidores de fundos imobiliários.
             </p>
             {/* <p className="text-gray-400 text-sm">
           CNPJ: 00.000.000/0001-00
@@ -166,7 +180,7 @@ const Footer = () => {
             </div>
 
             <p className="text-gray-500 text-xs">
-              Site: v1.0.0
+              Site: v1.0.0-beta
             </p>
           </div>
         </div>
