@@ -8,6 +8,7 @@ import { PageHeader } from "./page-header";
 import { CustomSidebar } from "./custom-sidebar";
 import { Navbar } from "./navbar";
 import { useSidebar } from "@/contexts/sidebar-context";
+import { useDevMode } from "@/contexts/dev-mode-context";
 
 interface PageLayoutProps {
   title: string;
@@ -32,6 +33,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   const router = useRouter();
   const { isExpanded } = useSidebar();
+  const { isDevMode } = useDevMode();
 
   const handleBottomNavigation = (tab: string) => {
     if (onMenuItemClick) {
@@ -53,7 +55,9 @@ export function PageLayout({
   };
 
   return (
-    <div className="min-h-screen text-white relative pt-28">
+    <div className={`min-h-screen text-white relative transition-all duration-300 ${
+      isDevMode ? 'pt-28' : 'pt-16'
+    }`}>
       {/* Background Image */}
       <div className="fixed inset-0 z-0">
         <Image

@@ -144,4 +144,5 @@ const Notification: React.FC<NotificationProps> = ({
   );
 };
 
+export { Notification };
 export default Notification;

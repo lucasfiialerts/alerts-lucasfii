@@ -4,12 +4,16 @@ import { PanelLeftClose, PanelLeft, Info } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSidebar } from '@/contexts/sidebar-context';
+import { useDevMode } from '@/contexts/dev-mode-context';
 
 export function Navbar() {
   const { isExpanded, setIsExpanded } = useSidebar();
+  const { isDevMode } = useDevMode();
 
   return (
-    <nav className="fixed top-12 left-0 right-0 z-[9998] bg-[#131824]/90 backdrop-blur-md border-b border-gray-700/50 shadow-lg h-16">
+    <nav className={`fixed left-0 right-0 z-[9998] bg-[#131824]/90 backdrop-blur-md border-b border-gray-700/50 shadow-lg h-16 transition-all duration-300 ${
+      isDevMode ? 'top-12' : 'top-0'
+    }`}>
       <div className="flex items-center justify-center h-full px-4 relative">
         {/* Menu Toggle Button */}
         <button

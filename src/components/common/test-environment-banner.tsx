@@ -1,6 +1,14 @@
 'use client';
 
+import { useDevMode } from '@/contexts/dev-mode-context';
+
 export function TestEnvironmentBanner() {
+    const { isDevMode } = useDevMode();
+
+    if (!isDevMode) {
+        return null;
+    }
+
     return (
         <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-orange-400 via-orange-300 to-orange-400 w-full h-12 px-6 flex items-center justify-between shadow-md">
             {/* <span className="text-gray-800 font-semibold text-sm">

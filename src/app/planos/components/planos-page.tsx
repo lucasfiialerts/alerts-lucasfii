@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { getUserSubscription } from "@/actions/get-user-subscription";
 import { syncSubscriptionStatus } from "@/actions/sync-subscription-status";
-import { activateBetaTester } from "@/actions/activate-beta-tester";
 import { PlanButton } from "@/app/planos/components/plan-button";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 
@@ -31,7 +30,6 @@ export function PlanosContent({ session }: PlanosContentProps) {
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [planosTipo, setPlanosTipo] = useState<'mensal' | 'anual'>('mensal');
   const [isLoading, setIsLoading] = useState(true);
-  const [isActivatingBeta, setIsActivatingBeta] = useState(false);
 
   // Lista dos planos disponíveis
   const planos = [
@@ -192,28 +190,6 @@ export function PlanosContent({ session }: PlanosContentProps) {
     loadSubscriptionData();
   }, [session]);
 
-  const handleActivateBetaTester = async () => {
-    setIsActivatingBeta(true);
-    try {
-      const result = await activateBetaTester();
-
-      if (result.success) {
-        // Recarregar os dados da assinatura
-        const subscription = await getUserSubscription();
-        setUserSubscription(subscription);
-
-        alert(result.message);
-      } else {
-        alert(result.message);
-      }
-    } catch (error) {
-      console.error("Erro ao ativar Beta Tester:", error);
-      alert("Erro ao ativar plano. Tente novamente.");
-    } finally {
-      setIsActivatingBeta(false);
-    }
-  };
-
   if (isLoading) {
     return (
       <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6 min-h-screen overflow-hidden">
@@ -270,105 +246,6 @@ export function PlanosContent({ session }: PlanosContentProps) {
 
         <br />
 
-        {/* === Plano Beta Tester === */}
-        {(!userSubscription?.isActive || userSubscription?.plan === 'beta_tester') && (
-          <div className="max-w-2xl mx-auto mb-12">
-            <div className="bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-cyan-600/20 rounded-2xl p-1">
-              <div className="bg-[#1a1a35] rounded-xl p-6 sm:p-8 relative">
-                {/* Badge Beta */}
-                <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <span className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
-                    🎯 TESTE GRÁTIS
-                  </span>
-                </div>
-
-                {userSubscription?.isActive && userSubscription?.plan === 'beta_tester' && (
-                  <div className="absolute -top-3 sm:-top-4 right-4 z-10">
-                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                      ✅ ATIVO
-                    </span>
-                  </div>
-                )}
-
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
-                    Beta Tester
-                  </h3>
-                  <div className="mb-4">
-                    <span className="text-4xl sm:text-5xl font-bold text-white">GRATUITO</span>
-                    <span className="text-gray-400 text-base block mt-1">por 30 dias</span>
-                  </div>
-                  <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
-                    Teste todos os recursos da plataforma gratuitamente e nos ajude a melhorar!
-                    Ideal para quem quer explorar o sistema antes de assinar.
-                  </p>
-                </div>
-
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Acompanhe até 45 ativos
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Alertas sobre variação de preços
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Alerta de acompanhamento lista de ativos (Em Breve)
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Resumo diário após o fechamento do mercado (Em Breve)
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Resumo feito por IA dos principais acontecimentos do ativo (Em Breve)
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Atualizações dos seus ativos automaticamente (Em Breve)
-                  </li>
-                  <li className="flex items-center text-white text-sm sm:text-base">
-                    <span className="w-5 h-5 bg-purple-200 rounded-full flex items-center justify-center mr-3 text-xs text-purple-800 flex-shrink-0">✓</span>
-                    Alerta de Dividendos de FIIs (Em Breve)
-                  </li>
-                </ul>
-
-                {userSubscription?.isActive && userSubscription?.plan === 'beta_tester' ? (
-                  <div className="text-center py-3 bg-green-500/20 rounded-lg">
-                    <p className="text-green-400 font-semibold">✅ Plano Beta Tester Ativo</p>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleActivateBetaTester}
-                    disabled={isActivatingBeta || userSubscription?.isActive}
-                    className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    {isActivatingBeta ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Ativando...
-                      </span>
-                    ) : userSubscription?.isActive ? (
-                      'Você já possui um plano ativo'
-                    ) : (
-                      '🚀 Ativar Plano Beta Tester'
-                    )}
-                  </button>
-                )}
-
-                <p className="text-center text-xs text-gray-500 mt-4">
-                  * Válido até a versão beta acabar. Sem necessidade de cartão de crédito.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* === Planos === */}
 
         <div className="mb-16">
@@ -418,7 +295,7 @@ export function PlanosContent({ session }: PlanosContentProps) {
                   <div className="text-center">
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{plano.nome}</h3>
                     <div className="mb-4 sm:mb-6">
-                      <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-400">{plano.preco}</span>
+                      {/* <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-400">{plano.preco}</span> */}
                       <span className="text-gray-400 text-sm sm:text-base">{plano.precoDetalhe}</span>
                     </div>
                   </div>
@@ -436,12 +313,12 @@ export function PlanosContent({ session }: PlanosContentProps) {
                       </li>
                     ))}
                   </ul>
-                  <PlanButton
+                  {/* <PlanButton
                     planType={plano.planType}
                     isDisabled={userSubscription?.isActive}
                   >
                     Escolher Plano
-                  </PlanButton>
+                  </PlanButton> */}
                 </div>
               ))}
             </div>
