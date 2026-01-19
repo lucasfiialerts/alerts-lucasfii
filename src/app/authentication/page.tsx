@@ -174,24 +174,19 @@ const Authentication = () => {
           {/* Coluna direita - Card de login */}
           <div className="w-full">
             {/* Card principal */}
-            <div className="backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl" style={{ backgroundColor: '#0d1120' }}>
+            <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 shadow-2xl">
               {/* Header do card */}
               <div className="text-center mb-8">
-                <div className="mx-auto mb-6 flex justify-center">
-                  <Image
-                    src="/logo2.png"
-                    alt="Lucas FII Alerts"
-                    width={250}
-                    height={60}
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-
+                {/* <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"> */}
                 {/* <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide"><span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">🚀</span></h1> */}
+                <h1 className="text-white text-3xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
                 {/* </div> */}
 
-                <h2 className="text-white text-3xl font-black mb-2">
+                <br />
+                <br />
+                <br />
+
+                <h2 className="text-white text-2xl font-black mb-2">
                   Entre na sua conta
                 </h2>
 
@@ -203,6 +198,7 @@ const Authentication = () => {
                   Comece a monitorar seus investimentos agora mesmo
                 </p>
               </div>
+
 
               {/* Divisor */}
               <div className="relative mb-8">

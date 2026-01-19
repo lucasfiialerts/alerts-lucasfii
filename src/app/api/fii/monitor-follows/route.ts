@@ -178,10 +178,13 @@ export async function POST(request: NextRequest) {
         for (const follower of followers) {
           try {
             if (!testMode) {
-              // Criar mensagem apenas com link do documento (SEM IA, SEM texto extraído)
-              const mensagemWhatsApp = `*📊 ${report.reportType} - ${report.ticker}*\n` +
+              // Criar mensagem apenas com link do documento (SEM texto extraído)
+              const mensagemWhatsApp = `📊 *${report.reportType}*\n` +
+                                       `${report.ticker}\n\n` +
                                        `📅 Data: ${report.reportDate}\n\n` +
-                                       `🔗 *Link do documento:*\n${report.pdfUrl}`;
+                                       `🔗 Acesse o documento:\n${report.pdfUrl}\n\n` +
+                                       `Acompanhe em: https://lucasfiialerts.com.br\n\n` +
+                                       `_Este é um alerta automático baseado nas suas configurações._`;
               
               // Enviar via WhatsApp API
               const whatsappResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/whatsapp/send`, {
