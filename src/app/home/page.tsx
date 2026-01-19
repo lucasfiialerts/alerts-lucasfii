@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import { HomeContent } from "@/app/home/components/home-content";
 import { PageLayout } from "@/components/common/page-layout";
+import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { authClient } from "@/lib/auth-client";
 
 import { DashboardSkeleton } from "./components/dashboard-skeleton";
@@ -46,25 +47,28 @@ export default function HomePage() {
   }
 
   return (
-    <PageLayout
-      title="Home"
-      activeMenuItem="home"
-      session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }}
-      onMenuItemClick={handleMenuItemClick}
-    >
-      <HomeContent session={{ 
+    <>
+      <TestEnvironmentBanner />
+      <PageLayout
+        title="Home"
+        activeMenuItem="home"
+        session={{ 
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }}
+        onMenuItemClick={handleMenuItemClick}
+      >
+        <HomeContent session={{ 
         user: session?.user ? {
           name: session.user.name,
           email: session.user.email,
           image: session.user.image || undefined
         } : undefined
       }} />
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

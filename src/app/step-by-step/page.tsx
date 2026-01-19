@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { PageLayout } from "@/components/common/page-layout";
+import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { authClient } from "@/lib/auth-client";
 
 import { StepByStepPage } from "./components/step-by-step-page";
@@ -45,25 +46,28 @@ export default function StepByStepPageRoute() {
   }
 
   return (
-    <PageLayout
-      title="Como funciona"
-      activeMenuItem="como-funciona"
-      session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }}
-      onMenuItemClick={handleMenuItemClick}
-    >
-      <StepByStepPage session={{ 
+    <>
+      <TestEnvironmentBanner />
+      <PageLayout
+        title="Como funciona"
+        activeMenuItem="como-funciona"
+        session={{ 
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }}
+        onMenuItemClick={handleMenuItemClick}
+      >
+        <StepByStepPage session={{ 
         user: session?.user ? {
           name: session.user.name,
           email: session.user.email,
           image: session.user.image || undefined
         } : undefined
       }} />
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

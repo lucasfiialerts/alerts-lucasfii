@@ -50,7 +50,7 @@ export function PageLayout({
   };
 
   return (
-    <div className="min-h-screen text-white relative">
+    <div className="min-h-screen text-white relative pt-12">
       {/* Background Image */}
       <div className="fixed inset-0 z-0">
         <Image

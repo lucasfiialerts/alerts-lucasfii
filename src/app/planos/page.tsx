@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { PageLayout } from "@/components/common/page-layout";
+import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { authClient } from "@/lib/auth-client";
 
 import { PlanosContent } from "./components/planos-page";
@@ -43,25 +44,28 @@ export default function PlanosPage() {
   }
 
   return (
-    <PageLayout
-      title="Planos"
-      activeMenuItem="planos"
-      session={{
-        user: {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        }
-      }}
-      onMenuItemClick={handleMenuItemClick}
-    >
-      <PlanosContent session={{ 
+    <>
+      <TestEnvironmentBanner />
+      <PageLayout
+        title="Planos"
+        activeMenuItem="planos"
+        session={{
+          user: {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          }
+        }}
+        onMenuItemClick={handleMenuItemClick}
+      >
+        <PlanosContent session={{ 
         user: session?.user ? {
           name: session.user.name,
           email: session.user.email,
           image: session.user.image || undefined
         } : undefined
       }} />
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }
