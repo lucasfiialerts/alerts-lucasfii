@@ -5,6 +5,7 @@ import { Plus, Search, Send, Trash2, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { getUserSubscription } from "@/actions/get-user-subscription";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +64,44 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     }
   });
 
+  // Query para buscar informações do plano do usuário
+  const { data: userSubscription } = useQuery({
+    queryKey: ['user-subscription'],
+    queryFn: async () => {
+      return await getUserSubscription();
+    }
+  });
+
+  // Definir limite de fundos baseado no plano
+  const getMaxFunds = () => {
+    if (!userSubscription?.plan) return 10; // Default para Iniciante
+    
+    const plan = userSubscription.plan.toLowerCase();
+    if (plan.includes('iniciante')) return 10;
+    if (plan.includes('investidor') || plan === 'beta_tester') return 45;
+    
+    return 10; // Default
+  };
+
+  // Formatar nome do plano para exibição
+  const getPlanDisplayName = (planType: string | undefined) => {
+    if (!planType) return 'Iniciante';
+    
+    const planNames: Record<string, string> = {
+      'iniciante': 'Iniciante',
+      'investidor': 'Investidor',
+      'iniciante_anual': 'Iniciante (Anual)',
+      'investidor_anual': 'Investidor (Anual)',
+      'beta_tester': 'Beta Tester',
+    };
+    
+    return planNames[planType.toLowerCase()] || planType;
+  };
+
+  const maxFunds = getMaxFunds();
+  const currentFundsCount = follows?.length || 0;
+  const hasReachedLimit = currentFundsCount >= maxFunds;
+
   // Query para buscar fundos disponíveis
   const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ['fii-search', searchTerm],
@@ -79,6 +118,11 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
   // Mutation para seguir um fundo
   const followFundMutation = useMutation({
     mutationFn: async ({ fundId, ticker, name }: { fundId: string; ticker?: string; name?: string }) => {
+      // Verificar limite antes de seguir
+      if (hasReachedLimit) {
+        throw new Error(`Limite de ${maxFunds} fundos atingido para o plano ${getPlanDisplayName(userSubscription?.plan)}`);
+      }
+      
       const response = await fetch('/api/fii/follow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,6 +148,16 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
   // Mutation para seguir múltiplos fundos
   const followMultipleFundsMutation = useMutation({
     mutationFn: async (tickers: string[]) => {
+      // Verificar limite antes de processar
+      const remainingSlots = maxFunds - currentFundsCount;
+      if (remainingSlots <= 0) {
+        throw new Error(`Limite de ${maxFunds} fundos atingido para o plano ${getPlanDisplayName(userSubscription?.plan)}`);
+      }
+      
+      if (tickers.length > remainingSlots) {
+        throw new Error(`Você só pode adicionar mais ${remainingSlots} ${remainingSlots === 1 ? 'fundo' : 'fundos'}. Limite do plano: ${maxFunds}`);
+      }
+      
       const results = [];
       const errors = [];
       
@@ -367,7 +421,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
         {isLoadingFollows ? (
           <MyFollowStatsCardsSkeletonGrid />
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             <Card className="bg-slate-900/70 backdrop-blur-xl border-slate-600/30 shadow-2xl hover:bg-slate-900/80 transition-all duration-300 hover:border-blue-500/40">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-5">
                 <CardTitle className="text-sm sm:text-base font-semibold text-gray-300 tracking-wide">
@@ -381,6 +435,25 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                 </div>
                 <p className="text-sm text-gray-400 font-medium">
                   {filterTerm ? "Encontrados" : "Acompanhados"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className={`bg-slate-900/70 backdrop-blur-xl border-slate-600/30 shadow-2xl hover:bg-slate-900/80 transition-all duration-300 ${hasReachedLimit ? 'border-red-500/50' : 'hover:border-blue-500/40'}`}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-5">
+                <CardTitle className="text-sm sm:text-base font-semibold text-gray-300 tracking-wide">
+                  Limite do Plano
+                </CardTitle>
+                <div className={`w-5 h-5 ${hasReachedLimit ? 'text-red-400' : 'text-yellow-400'}`}>
+                  {hasReachedLimit ? '⚠️' : '📊'}
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-5 pt-0">
+                <div className={`text-2xl sm:text-3xl font-bold mb-1 ${hasReachedLimit ? 'text-red-400' : 'text-white'}`}>
+                  {currentFundsCount}/{maxFunds}
+                </div>
+                <p className="text-sm text-gray-400 font-medium">
+                  {getPlanDisplayName(userSubscription?.plan)}
                 </p>
               </CardContent>
             </Card>
@@ -449,9 +522,13 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
               {/* Botão Adicionar Fundo */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 rounded-lg font-medium">
+                  <Button 
+                    className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={hasReachedLimit}
+                    title={hasReachedLimit ? `Limite de ${maxFunds} fundos atingido. Faça upgrade do plano para adicionar mais fundos.` : ''}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Fundo
+                    {hasReachedLimit ? `Limite atingido (${maxFunds})` : 'Adicionar Fundo'}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg max-w-[95vw] bg-[#1a1a34] border-gray-600 [&>button]:text-gray-300 [&>button]:hover:text-white [&>button]:hover:bg-gray-700">
