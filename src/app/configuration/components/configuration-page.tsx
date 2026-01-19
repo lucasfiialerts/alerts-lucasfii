@@ -94,6 +94,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       'investidor': 'Investidor',
       'iniciante_anual': 'Iniciante (Anual)',
       'investidor_anual': 'Investidor (Anual)',
+      'beta_tester': 'Beta Tester',
     };
     return planNames[planType] || planType;
   };
