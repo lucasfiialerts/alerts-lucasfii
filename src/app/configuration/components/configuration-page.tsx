@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, DollarSign, FileText, LogOut, Mail, Phone, Settings, Shield, TrendingUp, X, CreditCard } from "lucide-react";
+import { Bell, Check, DollarSign, FileText, LogOut, Mail, Phone, Settings, Shield, TrendingUp, X, CreditCard, FlaskConical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -12,6 +12,8 @@ import { getUserSubscription } from "@/actions/get-user-subscription";
 import { syncSubscriptionStatus } from "@/actions/sync-subscription-status";
 import { saveWhatsAppNumber } from "@/actions/save-whatsapp-number";
 import { verifyWhatsAppCode } from "@/actions/verify-whatsapp-code";
+import { activateBetaTester } from "@/actions/activate-beta-tester";
+import { deactivateBetaTester } from "@/actions/deactivate-beta-tester";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +25,7 @@ import { sendWhatsAppVerification } from "@/lib/whatsapp-api";
 import { getUserAlertPreferences, updateSingleAlertPreference, type AlertPreferences } from "@/lib/alert-preferences";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import Notification, { NotificationType } from "@/components/ui/notification-toast";
+import { useDevMode } from "@/contexts/dev-mode-context";
 
 interface ConfigurationPageProps {
   session: {
@@ -46,6 +49,7 @@ interface NotificationItem {
 export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const router = useRouter();
   const { refreshStatus } = useWhatsAppStatus();
+  const { isDevMode, setIsDevMode } = useDevMode();
 
   // Sistema de notificações
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -66,6 +70,10 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const handleCloseNotification = (id: number) => {
     setNotifications((prev) => prev.filter(n => n.id !== id));
   };
+
+  // Estado do Beta Mode
+  const [isBetaModeActive, setIsBetaModeActive] = useState(false);
+  const [isTogglingBeta, setIsTogglingBeta] = useState(false);
 
   // Estados do WhatsApp
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -153,6 +161,13 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
         await syncSubscriptionStatus();
         const subscription = await getUserSubscription();
         setUserPlan(subscription);
+        // Verificar se é Beta Tester e sincronizar
+        if (subscription?.plan === 'beta_tester' && subscription?.isActive) {
+          setIsBetaModeActive(true);
+          setIsDevMode(true);
+        } else {
+          setIsBetaModeActive(false);
+        }
       } catch (error) {
         console.error("Erro ao carregar dados do plano:", error);
         setUserPlan(null);
@@ -261,6 +276,48 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const setFnetDocumentos = (value: boolean) => updatePreference('alertPreferencesFnet', value);
   const setBitcoin = (value: boolean) => updatePreference('alertPreferencesBitcoin', value);
   const setStatusInvestComunicados = (value: boolean) => updatePreference('alertPreferencesStatusInvest', value);
+
+  // Função para alternar Beta Mode
+  const handleBetaModeToggle = async (checked: boolean) => {
+    setIsTogglingBeta(true);
+    try {
+      if (checked) {
+        // Ativar Beta Tester
+        const result = await activateBetaTester();
+        if (result.success) {
+          setIsDevMode(true);
+          setIsBetaModeActive(true);
+          addNotification('success', 'Beta Mode Ativado', 'Ambiente de testes ativado com sucesso!', true, 2000);
+          // Recarregar a página após 2 segundos
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          addNotification('error', 'Erro ao ativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      } else {
+        // Desativar Beta Tester
+        const result = await deactivateBetaTester();
+        if (result.success) {
+          setIsDevMode(false);
+          setIsBetaModeActive(false);
+          addNotification('info', 'Beta Mode Desativado', 'Ambiente de testes desativado.', true, 2000);
+          // Recarregar a página após 2 segundos
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          addNotification('error', 'Erro ao desativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao alternar Beta Mode:", error);
+      addNotification('error', 'Erro', 'Erro ao alternar Beta Mode. Tente novamente.', true, 5000);
+      setIsTogglingBeta(false);
+    }
+  };
 
   // Função para conectar WhatsApp
   const handleConnectWhatsApp = async () => {
@@ -867,6 +924,28 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
 
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Beta Mode Section */}
+            <div className="border-b border-gray-700/50 pb-6">
+              <h3 className="text-gray-300 text-base font-bold flex items-center mb-4">
+                <FlaskConical className="w-5 h-5 mr-2" />
+                Beta Mode
+              </h3>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  {/* <p className="text-white text-sm font-medium">Ambiente de Testes</p> */}
+                  <p className="text-gray-400 text-xs mt-1">
+                    Ative para testar novos recursos em desenvolvimento
+                  </p>
+                </div>
+                <Switch
+                  checked={isBetaModeActive}
+                  onCheckedChange={handleBetaModeToggle}
+                  disabled={isTogglingBeta}
+                  className="ml-4"
+                />
+              </div>
+            </div>
+
             {/* User Profile Section */}
             <div className="border-b border-gray-700/50 pb-6">
               <h3 className="text-gray-300 text-base font-bold flex items-center mb-4">
