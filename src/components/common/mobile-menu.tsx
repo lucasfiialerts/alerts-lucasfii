@@ -1,0 +1,371 @@
+"use client";
+
+import {
+  CrownIcon,
+  HelpCircle,
+  Home,
+  Settings,
+  TrendingUp,
+  LogOut,
+  MoreVertical,
+  Code2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { authClient } from "@/lib/auth-client";
+import { useWhatsAppStatus } from "@/hooks/use-whatsapp-status";
+import { useDevMode } from "@/contexts/dev-mode-context";
+import { Switch } from "@/components/ui/switch";
+import { Notification, NotificationType } from "@/components/ui/notification-toast";
+import { activateBetaTester } from "@/actions/activate-beta-tester";
+import { deactivateBetaTester } from "@/actions/deactivate-beta-tester";
+import { getUserSubscription } from "@/actions/get-user-subscription";
+
+interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  autoClose?: boolean;
+  duration?: number;
+}
+
+interface MobileMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  activeMenuItem: string;
+  onMenuItemClick?: (itemId: string) => void;
+}
+
+export function MobileMenu({ isOpen, onClose, activeMenuItem, onMenuItemClick }: MobileMenuProps) {
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const { isConnected: isWhatsAppConnected, isLoading } = useWhatsAppStatus();
+  const { isDevMode, setIsDevMode } = useDevMode();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isTogglingBeta, setIsTogglingBeta] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const notificationIdRef = useRef(0);
+
+  const menuItems = [
+    { id: "home", label: "Home", icon: Home },
+    { id: "my-follow", label: "Acompanhamento", icon: TrendingUp },
+    { id: "configuracao", label: "Configuração", icon: Settings },
+    { id: "planos", label: "Planos", icon: CrownIcon },
+    { id: "como-funciona", label: "Como funciona", icon: HelpCircle },
+  ];
+
+  const addNotification = (
+    type: NotificationType,
+    title: string,
+    message: string,
+    autoClose: boolean = true,
+    duration: number = 3000
+  ) => {
+    const id = notificationIdRef.current++;
+    setNotifications((prev) => [...prev, { id, type, title, message, autoClose, duration }]);
+  };
+
+  const handleCloseNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const handleBetaModeToggle = async (checked: boolean) => {
+    setIsTogglingBeta(true);
+    try {
+      if (checked) {
+        const result = await activateBetaTester();
+        if (result.success) {
+          setIsDevMode(true);
+          addNotification('success', 'Beta Mode Ativado', 'Ambiente de testes ativado com sucesso!', true, 2000);
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          addNotification('error', 'Erro ao ativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      } else {
+        const result = await deactivateBetaTester();
+        if (result.success) {
+          setIsDevMode(false);
+          addNotification('info', 'Beta Mode Desativado', 'Ambiente de testes desativado.', true, 2000);
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          addNotification('error', 'Erro ao desativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao alternar Beta Mode:", error);
+      addNotification('error', 'Erro', 'Erro ao alternar Beta Mode. Tente novamente.', true, 5000);
+      setIsTogglingBeta(false);
+    }
+  };
+
+  // Sincronizar estado do toggle com o plano do banco
+  useEffect(() => {
+    const syncBetaMode = async () => {
+      if (session?.user) {
+        try {
+          const subscription = await getUserSubscription();
+          const hasBetaPlan = subscription?.plan === 'beta_tester' && subscription?.isActive;
+          setIsDevMode(hasBetaPlan || false);
+        } catch (error) {
+          console.error("Erro ao sincronizar Beta Mode:", error);
+        }
+      }
+    };
+    syncBetaMode();
+  }, [session?.user, setIsDevMode]);
+
+  // Previne scroll do body quando o menu está aberto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
+
+  const UserAvatar = ({ size = "w-8 h-8" }: { size?: string }) => {
+    const userName = session?.user?.name || session?.user?.email || "Usuário";
+    const userImage = session?.user?.image;
+    const initials = userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    if (userImage) {
+      return (
+        <img
+          src={userImage}
+          alt={userName}
+          className={`${size} rounded-full object-cover border-2 border-blue-400 shadow-lg`}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+      );
+    }
+
+    return (
+      <div
+        className={`${size} bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-blue-400 shadow-lg`}
+      >
+        <span className="text-white text-sm font-bold">{initials}</span>
+      </div>
+    );
+  };
+
+  const handleMenuItemClick = (itemId: string) => {
+    onClose();
+    if (onMenuItemClick) {
+      onMenuItemClick(itemId);
+    } else {
+      if (itemId === "home") {
+        router.push("/home");
+      } else if (itemId === "my-follow") {
+        router.push("/my-follow");
+      } else if (itemId === "configuracao") {
+        router.push("/configuration");
+      } else if (itemId === "planos") {
+        router.push("/planos");
+      } else if (itemId === "como-funciona") {
+        router.push("/step-by-step");
+      } else {
+        router.push("/home");
+      }
+    }
+  };
+
+  if (!isOpen) return null;
+
+  // Calcular posição do menu baseado no dev mode (banner ativo)
+  const menuTop = isDevMode ? 'top-28' : 'top-16';
+
+  return (
+    <>
+      {/* Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[9997] lg:hidden transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+
+      {/* Menu lateral - EXATAMENTE IGUAL AO CUSTOM-SIDEBAR */}
+      <aside
+        className={`fixed left-0 bottom-0 backdrop-blur-xl border-r border-gray-700/50 shadow-2xl flex flex-col z-[9998] lg:hidden transition-all duration-300 w-64 custom-sidebar-scroll ${menuTop} ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ backgroundColor: '#131824' }}
+      >
+        {/* === Menu === */}
+        <div className="flex-1 overflow-y-auto custom-sidebar-scroll">
+          <div className="py-4 px-3">
+            <div className="mb-3 mt-6">
+              <p className="text-gray-400 uppercase text-[10px] font-bold tracking-widest px-3 mb-3">
+                Menu
+              </p>
+              <nav className="space-y-1">
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeMenuItem === item.id;
+                  
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleMenuItemClick(item.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group ${
+                        isActive
+                          ? "text-blue-400"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      <motion.div
+                        whileHover={{ 
+                          scale: 1.2,
+                          rotate: [0, -10, 10, -10, 0],
+                          transition: { duration: 0.5 }
+                        }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </motion.div>
+                      <span className="font-semibold">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer - WhatsApp Status e Versão */}
+        <div className="border-t border-gray-800 flex-shrink-0">
+          {/* Dev Mode Toggle */}
+          <div className="px-3 py-3 border-b border-gray-800">
+            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-800/30 hover:bg-gray-700/40 transition-colors">
+              <div className="flex items-center gap-2">
+                <Code2 className="w-4 h-4 text-blue-400" />
+                <span className="text-white text-sm font-semibold">Beta Mode</span>
+              </div>
+              <Switch
+                checked={isDevMode}
+                onCheckedChange={handleBetaModeToggle}
+                disabled={isTogglingBeta}
+              />
+            </div>
+          </div>
+
+          {/* User Profile Section */}
+          <div className="px-3 py-3 border-b border-gray-800">
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-800/30 hover:bg-gray-700/40 transition-colors relative">
+              <UserAvatar size="w-10 h-10" />
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold truncate">
+                  {session?.user?.name || "Usuário"}
+                </p>
+                <p className="text-gray-400 text-xs truncate">
+                  {session?.user?.email}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <MoreVertical className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {showUserMenu && (
+                  <>
+                    {/* Overlay para fechar ao clicar fora */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowUserMenu(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-2 bottom-full mb-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 w-48"
+                    >
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          onClose();
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-gray-700/50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="font-medium">Sair</span>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* WhatsApp Status */}
+          {!isLoading && (
+            <div className="px-3 py-3 pb-6">
+              <div
+                className={`px-4 py-3 rounded-xl shadow-lg transition-all duration-300 ${isWhatsAppConnected
+                  ? "bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-700/90 hover:to-emerald-700/90"
+                  : "bg-gradient-to-r from-red-600/80 to-rose-600/80 hover:from-red-700/90 hover:to-rose-700/90"
+                  }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <div
+                    className={`w-2.5 h-2.5 bg-white rounded-full shadow-lg ${isWhatsAppConnected ? "animate-pulse" : ""
+                      }`}
+                  ></div>
+                  <span className="text-white font-bold text-xs">
+                    {isWhatsAppConnected ? "WhatsApp Conectado" : "WhatsApp Desconectado"}
+                  </span>
+                </div>
+                <p className="text-xs mt-1.5 text-white/90 font-medium">
+                  {isWhatsAppConnected
+                    ? "✓ Recebendo atualizações"
+                    : "⚠ Configure para receber alertas"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Toast Notifications Container */}
+        <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-[9999]">
+          <AnimatePresence>
+            {notifications.map((notification) => (
+              <Notification
+                key={notification.id}
+                {...notification}
+                onClose={() => handleCloseNotification(notification.id)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      </aside>
+    </>
+  );
+}
+

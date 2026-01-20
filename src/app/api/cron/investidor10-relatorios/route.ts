@@ -22,9 +22,11 @@ export async function GET(request: NextRequest) {
   console.log('🤖 Cron: Processando relatórios Investidor10...');
   
   try {
-    // Validar secret para segurança
+    // Validar secret para segurança (aceita via query param ou header)
     const searchParams = request.nextUrl.searchParams;
-    const secret = searchParams.get('secret');
+    const secretFromQuery = searchParams.get('secret');
+    const secretFromHeader = request.headers.get('x-webhook-secret') || request.headers.get('X-Webhook-Secret');
+    const secret = secretFromQuery || secretFromHeader;
     const expectedSecret = process.env.WEBHOOK_SECRET || 'fii-alerts-webhook-2025-secure-key';
     
     if (secret !== expectedSecret) {

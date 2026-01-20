@@ -56,7 +56,7 @@ export function PageLayout({
 
   return (
     <div className={`min-h-screen text-white relative transition-all duration-300 ${
-      isDevMode ? 'pt-28' : 'pt-16'
+      isDevMode ? 'pt-28 lg:pt-28' : 'pt-16'
     }`}>
       {/* Background Image */}
       <div className="fixed inset-0 z-0">
@@ -71,15 +71,11 @@ export function PageLayout({
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
       </div>
 
-      {/* Navbar - Desktop only */}
-      <div className="hidden lg:block">
-        <Navbar />
-      </div>
-
-      {/* Header - Hidden on desktop (lg+), visible on mobile and tablet */}
-      <div className="lg:hidden relative z-10">
-        <PageHeader title={title} session={session} />
-      </div>
+      {/* Navbar - Visível em todos os tamanhos */}
+      <Navbar 
+        activeMenuItem={activeMenuItem}
+        onMenuItemClick={onMenuItemClick}
+      />
 
       {/* Sidebar - Desktop only */}
       <div className="hidden lg:block">
@@ -90,19 +86,20 @@ export function PageLayout({
       </div>
 
       {/* Main Content */}
-      <div className={`min-h-screen relative z-10 lg:pt-16 transition-all duration-300 ${
-        isExpanded ? 'lg:ml-64' : 'lg:ml-0'
+      <div className={`min-h-screen relative z-10 transition-all duration-300 ${
+        isExpanded ? 'lg:ml-64' : 'lg:ml-20'
       }`}>
         {children}
       </div>
 
-      {/* Bottom Navigation - Mobile only */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+      {/* === Bottom Navigation - Mobile only === */}
+
+      {/* <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
         <BottomNavigation
           activeTab={activeMenuItem}
           onTabChange={handleBottomNavigation}
         />
-      </div>
+      </div> */}
     </div>
   );
 }
