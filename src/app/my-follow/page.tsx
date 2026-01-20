@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { checkActivePlan } from "@/actions/check-active-plan";
 import { PageLayout } from "@/components/common/page-layout";
+import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { PlanRequired } from "@/components/plan-required";
 import { authClient } from "@/lib/auth-client";
 
@@ -78,25 +79,28 @@ export default function MyFollowPage() {
   }
 
   return (
-    <PageLayout
-      title="Acompanhamento"
-      activeMenuItem="my-follow"
-      session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }}
-      onMenuItemClick={handleMenuItemClick}
-    >
-      <MyFollowContent session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }} />
-    </PageLayout>
+    <>
+      <TestEnvironmentBanner />
+      <PageLayout
+        title="Acompanhamento"
+        activeMenuItem="my-follow"
+        session={{ 
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }}
+        onMenuItemClick={handleMenuItemClick}
+      >
+        <MyFollowContent session={{ 
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }} />
+      </PageLayout>
+    </>
   );
 }

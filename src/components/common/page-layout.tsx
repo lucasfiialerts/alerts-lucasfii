@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import { BottomNavigation } from "../../app/home/components/bottom-navigation";
 import { PageHeader } from "./page-header";
 import { CustomSidebar } from "./custom-sidebar";
+import { Navbar } from "./navbar";
+import { useSidebar } from "@/contexts/sidebar-context";
+import { useDevMode } from "@/contexts/dev-mode-context";
 
 interface PageLayoutProps {
   title: string;
@@ -29,6 +32,8 @@ export function PageLayout({
   onMenuItemClick
 }: PageLayoutProps) {
   const router = useRouter();
+  const { isExpanded } = useSidebar();
+  const { isDevMode } = useDevMode();
 
   const handleBottomNavigation = (tab: string) => {
     if (onMenuItemClick) {
@@ -50,7 +55,9 @@ export function PageLayout({
   };
 
   return (
-    <div className="min-h-screen text-white relative">
+    <div className={`min-h-screen text-white relative transition-all duration-300 ${
+      isDevMode ? 'pt-28' : 'pt-16'
+    }`}>
       {/* Background Image */}
       <div className="fixed inset-0 z-0">
         <Image
@@ -62,6 +69,11 @@ export function PageLayout({
         />
         {/* Dark overlay para melhor legibilidade */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80"></div>
+      </div>
+
+      {/* Navbar - Desktop only */}
+      <div className="hidden lg:block">
+        <Navbar />
       </div>
 
       {/* Header - Hidden on desktop (lg+), visible on mobile and tablet */}
@@ -78,7 +90,9 @@ export function PageLayout({
       </div>
 
       {/* Main Content */}
-      <div className="min-h-screen lg:ml-64 relative z-10">
+      <div className={`min-h-screen relative z-10 lg:pt-16 transition-all duration-300 ${
+        isExpanded ? 'lg:ml-64' : 'lg:ml-0'
+      }`}>
         {children}
       </div>
 

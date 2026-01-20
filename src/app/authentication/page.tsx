@@ -179,7 +179,7 @@ const Authentication = () => {
               <div className="text-center mb-8">
                 {/* <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg"> */}
                 {/* <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide"><span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">🚀</span></h1> */}
-                <h1 className="text-white text-3xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
+                <h1 className="text-white text-3xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🔔</span></h1>
                 {/* </div> */}
 
                 <br />

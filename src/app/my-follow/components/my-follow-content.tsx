@@ -2,9 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Send, Trash2, TrendingUp } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 
+import { getUserSubscription } from "@/actions/get-user-subscription";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { MyFollowStatsCardsSkeletonGrid } from "./my-follow-stats-skeleton";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
+import Notification, { NotificationType } from "@/components/ui/notification-toast";
 
 interface Fund {
   id: string;
@@ -45,12 +47,41 @@ interface MyFollowContentProps {
   session: Session;
 }
 
+interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  showIcon?: boolean;
+  duration?: number;
+}
+
 export function MyFollowContent({ session }: MyFollowContentProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterTerm, setFilterTerm] = useState(""); // Para filtrar ativos seguidos
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all"); // Filtro de status
   const queryClient = useQueryClient();
+
+  // Sistema de notificações
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const nextIdRef = useRef(1);
+
+  const addNotification = (type: NotificationType, title: string, message?: string, showIcon?: boolean, duration?: number) => {
+    const newNotification: NotificationItem = {
+      id: nextIdRef.current++,
+      type,
+      title,
+      message,
+      showIcon: showIcon ?? true,
+      duration: duration ?? 4000,
+    };
+    setNotifications((prev) => [...prev, newNotification]);
+  };
+
+  const handleCloseNotification = (id: number) => {
+    setNotifications((prev) => prev.filter(n => n.id !== id));
+  };
 
   // Query para buscar fundos seguidos
   const { data: follows, isLoading: isLoadingFollows } = useQuery({
@@ -62,6 +93,44 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       return data.follows as Follow[];
     }
   });
+
+  // Query para buscar informações do plano do usuário
+  const { data: userSubscription } = useQuery({
+    queryKey: ['user-subscription'],
+    queryFn: async () => {
+      return await getUserSubscription();
+    }
+  });
+
+  // Definir limite de fundos baseado no plano
+  const getMaxFunds = () => {
+    if (!userSubscription?.plan) return 10; // Default para Iniciante
+    
+    const plan = userSubscription.plan.toLowerCase();
+    if (plan.includes('iniciante')) return 10;
+    if (plan.includes('investidor') || plan === 'beta_tester') return 45;
+    
+    return 10; // Default
+  };
+
+  // Formatar nome do plano para exibição
+  const getPlanDisplayName = (planType: string | undefined) => {
+    if (!planType) return 'Iniciante';
+    
+    const planNames: Record<string, string> = {
+      'iniciante': 'Iniciante',
+      'investidor': 'Investidor',
+      'iniciante_anual': 'Iniciante (Anual)',
+      'investidor_anual': 'Investidor (Anual)',
+      'beta_tester': 'Beta Tester',
+    };
+    
+    return planNames[planType.toLowerCase()] || planType;
+  };
+
+  const maxFunds = getMaxFunds();
+  const currentFundsCount = follows?.length || 0;
+  const hasReachedLimit = currentFundsCount >= maxFunds;
 
   // Query para buscar fundos disponíveis
   const { data: searchResults, isLoading: isSearching } = useQuery({
@@ -79,6 +148,11 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
   // Mutation para seguir um fundo
   const followFundMutation = useMutation({
     mutationFn: async ({ fundId, ticker, name }: { fundId: string; ticker?: string; name?: string }) => {
+      // Verificar limite antes de seguir
+      if (hasReachedLimit) {
+        throw new Error(`Limite de ${maxFunds} fundos atingido para o plano ${getPlanDisplayName(userSubscription?.plan)}`);
+      }
+      
       const response = await fetch('/api/fii/follow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,16 +168,26 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
       setIsDialogOpen(false);
       setSearchTerm("");
-      toast.success('Fundo adicionado ao acompanhamento!');
+      addNotification('success', 'Fundo adicionado!', 'Fundo adicionado ao acompanhamento com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao adicionar', error.message, true, 5000);
     }
   });
 
   // Mutation para seguir múltiplos fundos
   const followMultipleFundsMutation = useMutation({
     mutationFn: async (tickers: string[]) => {
+      // Verificar limite antes de processar
+      const remainingSlots = maxFunds - currentFundsCount;
+      if (remainingSlots <= 0) {
+        throw new Error(`Limite de ${maxFunds} fundos atingido para o plano ${getPlanDisplayName(userSubscription?.plan)}`);
+      }
+      
+      if (tickers.length > remainingSlots) {
+        throw new Error(`Você só pode adicionar mais ${remainingSlots} ${remainingSlots === 1 ? 'fundo' : 'fundos'}. Limite do plano: ${maxFunds}`);
+      }
+      
       const results = [];
       const errors = [];
       
@@ -151,15 +235,15 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       setSearchTerm("");
       
       if (data.results.length > 0) {
-        toast.success(`${data.results.length} ${data.results.length === 1 ? 'fundo adicionado' : 'fundos adicionados'} com sucesso!`);
+        addNotification('success', 'Fundos adicionados!', `${data.results.length} ${data.results.length === 1 ? 'fundo adicionado' : 'fundos adicionados'} com sucesso!`);
       }
       
       if (data.errors.length > 0) {
-        toast.error(`Erros: ${data.errors.join(', ')}`);
+        addNotification('error', 'Erros encontrados', `Erros: ${data.errors.join(', ')}`, true, 6000);
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao adicionar fundos', error.message, true, 5000);
     }
   });
 
@@ -179,10 +263,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
-      toast.success('Notificações atualizadas!');
+      addNotification('success', 'Notificações atualizadas!', 'Configuração de notificações atualizada com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao atualizar', error.message, true, 5000);
     }
   });
 
@@ -202,10 +286,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fii-follows'] });
-      toast.success('Fundo removido do acompanhamento!');
+      addNotification('success', 'Fundo removido!', 'Fundo removido do acompanhamento com sucesso.');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao remover', error.message, true, 5000);
     }
   });
 
@@ -224,10 +308,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['fii-search'] });
-      toast.success(`${data.synced || 0} fundos sincronizados com sucesso!`);
+      addNotification('success', 'Sincronização concluída!', `${data.synced || 0} fundos sincronizados com sucesso!`);
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao sincronizar', error.message, true, 5000);
     }
   });
 
@@ -246,10 +330,10 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       return response.json();
     },
     onSuccess: () => {
-      toast.success('Relatório de teste enviado via WhatsApp!');
+      addNotification('success', 'Relatório enviado!', 'Relatório de teste enviado via WhatsApp com sucesso!');
     },
     onError: (error: Error) => {
-      toast.error(error.message);
+      addNotification('error', 'Erro ao enviar', error.message, true, 5000);
     }
   });
 
@@ -270,7 +354,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       .filter(t => t.length > 0);
     
     if (tickers.length === 0) {
-      toast.error('Digite pelo menos um ticker');
+      addNotification('error', 'Nenhum ticker', 'Digite pelo menos um ticker', true, 4000);
       return;
     }
     
@@ -367,7 +451,7 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
         {isLoadingFollows ? (
           <MyFollowStatsCardsSkeletonGrid />
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             <Card className="bg-slate-900/70 backdrop-blur-xl border-slate-600/30 shadow-2xl hover:bg-slate-900/80 transition-all duration-300 hover:border-blue-500/40">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-5">
                 <CardTitle className="text-sm sm:text-base font-semibold text-gray-300 tracking-wide">
@@ -381,6 +465,25 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
                 </div>
                 <p className="text-sm text-gray-400 font-medium">
                   {filterTerm ? "Encontrados" : "Acompanhados"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className={`bg-slate-900/70 backdrop-blur-xl border-slate-600/30 shadow-2xl hover:bg-slate-900/80 transition-all duration-300 ${hasReachedLimit ? 'border-red-500/50' : 'hover:border-blue-500/40'}`}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-5">
+                <CardTitle className="text-sm sm:text-base font-semibold text-gray-300 tracking-wide">
+                  Limite do Plano
+                </CardTitle>
+                <div className={`w-5 h-5 ${hasReachedLimit ? 'text-red-400' : 'text-yellow-400'}`}>
+                  {hasReachedLimit ? '⚠️' : '📊'}
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-5 pt-0">
+                <div className={`text-2xl sm:text-3xl font-bold mb-1 ${hasReachedLimit ? 'text-red-400' : 'text-white'}`}>
+                  {currentFundsCount}/{maxFunds}
+                </div>
+                <p className="text-sm text-gray-400 font-medium">
+                  {getPlanDisplayName(userSubscription?.plan)}
                 </p>
               </CardContent>
             </Card>
@@ -449,9 +552,13 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
               {/* Botão Adicionar Fundo */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 rounded-lg font-medium">
+                  <Button 
+                    className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={hasReachedLimit}
+                    title={hasReachedLimit ? `Limite de ${maxFunds} fundos atingido. Faça upgrade do plano para adicionar mais fundos.` : ''}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Fundo
+                    {hasReachedLimit ? `Limite atingido (${maxFunds})` : 'Adicionar Fundo'}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg max-w-[95vw] bg-[#1a1a34] border-gray-600 [&>button]:text-gray-300 [&>button]:hover:text-white [&>button]:hover:bg-gray-700">
@@ -812,6 +919,23 @@ export function MyFollowContent({ session }: MyFollowContentProps) {
       <br />
       <br />
       <br />
+
+      {/* Container de Notificações */}
+      <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-50">
+        <AnimatePresence>
+          {notifications.map((notification) => (
+            <Notification
+              key={notification.id}
+              type={notification.type}
+              title={notification.title}
+              message={notification.message}
+              showIcon={notification.showIcon}
+              duration={notification.duration}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
       
     </main>
   );

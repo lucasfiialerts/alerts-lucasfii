@@ -6,6 +6,7 @@ import { Geist, Geist_Mono, Orbitron, Boogaloo } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { WhatsAppProvider } from "@/contexts/whatsapp-context";
 import { SidebarProvider } from "@/contexts/sidebar-context";
+import { DevModeProvider } from "@/contexts/dev-mode-context";
 import ReactQueryProvider from "@/providers/react-query";
 
 const geistSans = Geist({
@@ -46,11 +47,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${boogaloo.variable} antialiased`}
       >
         <ReactQueryProvider>
-          <SidebarProvider>
-            <WhatsAppProvider>
-              {children}
-            </WhatsAppProvider>
-          </SidebarProvider>
+          <DevModeProvider>
+            <SidebarProvider>
+              <WhatsAppProvider>
+                {children}
+              </WhatsAppProvider>
+            </SidebarProvider>
+          </DevModeProvider>
         </ReactQueryProvider>
         <Toaster position="top-center" />
       </body>

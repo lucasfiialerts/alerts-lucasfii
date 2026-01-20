@@ -13,7 +13,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-3 mb-6">
               <Link href="/" className="flex items-center">
-                <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🚀</span></h1>
+                <h1 className="text-white text-2xl font-bold font-boogaloo tracking-wide">Lucas FII <span className="font-space-grotesk text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 font-bold tracking-wider">Alerts  🔔</span></h1>
               </Link>
 
               {/* <Image 

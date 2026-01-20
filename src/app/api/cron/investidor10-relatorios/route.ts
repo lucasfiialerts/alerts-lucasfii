@@ -102,6 +102,14 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * POST handler - same logic as GET
+ * Some cron services default to POST requests
+ */
+export async function POST(request: NextRequest) {
+  return GET(request);
+}
+
+/**
  * Health check
  */
 export async function HEAD() {

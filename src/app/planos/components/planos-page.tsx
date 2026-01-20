@@ -37,7 +37,8 @@ export function PlanosContent({ session }: PlanosContentProps) {
       id: 'iniciante',
       tipo: 'mensal',
       nome: 'Iniciante',
-      preco: 'R$ 10,00',
+      preco: 'R$ ?',
+      // preco: 'R$ 10,00',
       precoDetalhe: '/mês',
       planType: 'iniciante',
       features: [
@@ -68,7 +69,8 @@ export function PlanosContent({ session }: PlanosContentProps) {
       id: 'investidor',
       tipo: 'mensal',
       nome: 'Investidor',
-      preco: 'R$ 15,00',
+      preco: 'R$ ?',
+      // preco: 'R$ 15,00',
       precoDetalhe: '/mês',
       planType: 'investidor',
       features: [
@@ -95,7 +97,8 @@ export function PlanosContent({ session }: PlanosContentProps) {
       id: 'iniciante_anual',
       tipo: 'anual',
       nome: 'Iniciante (ANUAL)',
-      preco: 'R$ 120,00',
+      preco: 'R$ ?',
+      // preco: 'R$ 120,00',
       precoDetalhe: '/ano',
       planType: 'iniciante_anual',
       features: [
@@ -126,7 +129,8 @@ export function PlanosContent({ session }: PlanosContentProps) {
       id: 'investidor_anual',
       tipo: 'anual',
       nome: 'Investidor (ANUAL)',
-      preco: 'R$ 180,00',
+      preco: 'R$ ?',
+      // preco: 'R$ 180,00',
       precoDetalhe: '/ano',
       planType: 'investidor_anual',
       features: [
@@ -159,6 +163,7 @@ export function PlanosContent({ session }: PlanosContentProps) {
       'iniciante_anual': 'Iniciante (Anual)',
       'investidor': 'Investidor',
       'investidor_anual': 'Investidor (Anual)',
+      'beta_tester': 'Beta Tester',
     };
     const displayName = planNames[planType] || planType;
     console.log('Display name:', displayName);
@@ -290,7 +295,7 @@ export function PlanosContent({ session }: PlanosContentProps) {
                   <div className="text-center">
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{plano.nome}</h3>
                     <div className="mb-4 sm:mb-6">
-                      <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-400">{plano.preco}</span>
+                      {/* <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-400">{plano.preco}</span> */}
                       <span className="text-gray-400 text-sm sm:text-base">{plano.precoDetalhe}</span>
                     </div>
                   </div>
@@ -308,12 +313,12 @@ export function PlanosContent({ session }: PlanosContentProps) {
                       </li>
                     ))}
                   </ul>
-                  <PlanButton
+                  {/* <PlanButton
                     planType={plano.planType}
                     isDisabled={userSubscription?.isActive}
                   >
                     Escolher Plano
-                  </PlanButton>
+                  </PlanButton> */}
                 </div>
               ))}
             </div>

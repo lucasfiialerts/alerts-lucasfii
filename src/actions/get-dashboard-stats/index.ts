@@ -81,6 +81,9 @@ export const getDashboardStats = async (): Promise<DashboardStats | null> => {
         case "investidor_anual":
           currentPlan = "Investidor (Anual)";
           break;
+        case "beta_tester":
+          currentPlan = "Beta Tester";
+          break;
         default:
           currentPlan = user.activePlan; // Mostrar o valor original se não estiver mapeado
           break;

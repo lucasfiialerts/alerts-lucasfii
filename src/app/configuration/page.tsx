@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { PageLayout } from "@/components/common/page-layout";
+import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { authClient } from "@/lib/auth-client";
 
 import { ConfigurationPage } from "./components/configuration-page";
@@ -43,25 +44,28 @@ export default function ConfigurationPageRoute() {
   }
 
   return (
-    <PageLayout
-      title="Configuração"
-      activeMenuItem="configuracao"
-      session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }}
-      onMenuItemClick={handleMenuItemClick}
-    >
-      <ConfigurationPage session={{ 
+    <>
+      <TestEnvironmentBanner />
+      <PageLayout
+        title="Configuração"
+        activeMenuItem="configuracao"
+        session={{ 
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }}
+        onMenuItemClick={handleMenuItemClick}
+      >
+        <ConfigurationPage session={{ 
         user: session?.user ? {
           name: session.user.name,
           email: session.user.email,
           image: session.user.image || undefined
         } : undefined
       }} />
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

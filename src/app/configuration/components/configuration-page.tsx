@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, Check, DollarSign, FileText, LogOut, Mail, Phone, Settings, Shield, TrendingUp, X, CreditCard } from "lucide-react";
+import { Bell, Check, DollarSign, FileText, LogOut, Mail, Phone, Settings, Shield, TrendingUp, X, CreditCard, FlaskConical } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
 
 import { deleteAccount } from "@/actions/delete-account";
 import { createBillingPortalSession } from "@/actions/create-billing-portal-session";
@@ -11,6 +12,8 @@ import { getUserSubscription } from "@/actions/get-user-subscription";
 import { syncSubscriptionStatus } from "@/actions/sync-subscription-status";
 import { saveWhatsAppNumber } from "@/actions/save-whatsapp-number";
 import { verifyWhatsAppCode } from "@/actions/verify-whatsapp-code";
+import { activateBetaTester } from "@/actions/activate-beta-tester";
+import { deactivateBetaTester } from "@/actions/deactivate-beta-tester";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +24,8 @@ import { authClient } from "@/lib/auth-client";
 import { sendWhatsAppVerification } from "@/lib/whatsapp-api";
 import { getUserAlertPreferences, updateSingleAlertPreference, type AlertPreferences } from "@/lib/alert-preferences";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
+import Notification, { NotificationType } from "@/components/ui/notification-toast";
+import { useDevMode } from "@/contexts/dev-mode-context";
 
 interface ConfigurationPageProps {
   session: {
@@ -32,9 +37,43 @@ interface ConfigurationPageProps {
   };
 }
 
+interface NotificationItem {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  showIcon?: boolean;
+  duration?: number;
+}
+
 export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const router = useRouter();
   const { refreshStatus } = useWhatsAppStatus();
+  const { isDevMode, setIsDevMode } = useDevMode();
+
+  // Sistema de notificações
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const nextIdRef = useRef(1);
+
+  const addNotification = (type: NotificationType, title: string, message?: string, showIcon?: boolean, duration?: number) => {
+    const newNotification: NotificationItem = {
+      id: nextIdRef.current++,
+      type,
+      title,
+      message,
+      showIcon: showIcon ?? true,
+      duration: duration ?? 4000,
+    };
+    setNotifications((prev) => [...prev, newNotification]);
+  };
+
+  const handleCloseNotification = (id: number) => {
+    setNotifications((prev) => prev.filter(n => n.id !== id));
+  };
+
+  // Estado do Beta Mode
+  const [isBetaModeActive, setIsBetaModeActive] = useState(false);
+  const [isTogglingBeta, setIsTogglingBeta] = useState(false);
 
   // Estados do WhatsApp
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -94,6 +133,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       'investidor': 'Investidor',
       'iniciante_anual': 'Iniciante (Anual)',
       'investidor_anual': 'Investidor (Anual)',
+      'beta_tester': 'Beta Tester',
     };
     return planNames[planType] || planType;
   };
@@ -121,6 +161,13 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
         await syncSubscriptionStatus();
         const subscription = await getUserSubscription();
         setUserPlan(subscription);
+        // Verificar se é Beta Tester e sincronizar
+        if (subscription?.plan === 'beta_tester' && subscription?.isActive) {
+          setIsBetaModeActive(true);
+          setIsDevMode(true);
+        } else {
+          setIsBetaModeActive(false);
+        }
       } catch (error) {
         console.error("Erro ao carregar dados do plano:", error);
         setUserPlan(null);
@@ -205,7 +252,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const updatePreference = async (key: keyof AlertPreferences, value: boolean) => {
     // Verificar se o usuário tem plano ativo
     if (!hasActivePlan) {
-      alert("Você precisa de um plano ativo para ativar alertas. Acesse a página de planos para assinar.");
+      addNotification('warning', 'Plano necessário', 'Você precisa de um plano ativo para ativar alertas. Acesse a página de planos para assinar.', true, 6000);
       return;
     }
 
@@ -230,10 +277,52 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const setBitcoin = (value: boolean) => updatePreference('alertPreferencesBitcoin', value);
   const setStatusInvestComunicados = (value: boolean) => updatePreference('alertPreferencesStatusInvest', value);
 
+  // Função para alternar Beta Mode
+  const handleBetaModeToggle = async (checked: boolean) => {
+    setIsTogglingBeta(true);
+    try {
+      if (checked) {
+        // Ativar Beta Tester
+        const result = await activateBetaTester();
+        if (result.success) {
+          setIsDevMode(true);
+          setIsBetaModeActive(true);
+          addNotification('success', 'Beta Mode Ativado', 'Ambiente de testes ativado com sucesso!', true, 2000);
+          // Recarregar a página após 2 segundos
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          addNotification('error', 'Erro ao ativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      } else {
+        // Desativar Beta Tester
+        const result = await deactivateBetaTester();
+        if (result.success) {
+          setIsDevMode(false);
+          setIsBetaModeActive(false);
+          addNotification('info', 'Beta Mode Desativado', 'Ambiente de testes desativado.', true, 2000);
+          // Recarregar a página após 2 segundos
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          addNotification('error', 'Erro ao desativar', result.message, true, 5000);
+          setIsTogglingBeta(false);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao alternar Beta Mode:", error);
+      addNotification('error', 'Erro', 'Erro ao alternar Beta Mode. Tente novamente.', true, 5000);
+      setIsTogglingBeta(false);
+    }
+  };
+
   // Função para conectar WhatsApp
   const handleConnectWhatsApp = async () => {
     if (!inputWhatsappNumber.trim()) {
-      alert("Por favor, insira um número de WhatsApp válido");
+      addNotification('error', 'Número inválido', 'Por favor, insira um número de WhatsApp válido', true, 4000);
       return;
     }
 
@@ -251,10 +340,10 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       setShowWhatsappModal(false);
       setShowVerificationModal(true);
 
-      alert("Código de verificação enviado para seu WhatsApp!");
+      addNotification('success', 'Código enviado!', 'Código de verificação enviado para seu WhatsApp!');
     } catch (error) {
       console.error("Erro ao conectar WhatsApp:", error);
-      alert("Erro ao conectar WhatsApp. Tente novamente.");
+      addNotification('error', 'Erro ao conectar', 'Erro ao conectar WhatsApp. Tente novamente.', true, 5000);
     } finally {
       setIsConnectingWhatsapp(false);
     }
@@ -263,7 +352,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   // Função para verificar código
   const handleVerifyCode = async () => {
     if (!inputVerificationCode.trim()) {
-      alert("Por favor, insira o código de verificação");
+      addNotification('error', 'Código necessário', 'Por favor, insira o código de verificação', true, 4000);
       return;
     }
 
@@ -277,10 +366,10 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       // Atualizar o status global do WhatsApp
       await refreshStatus();
 
-      alert("WhatsApp verificado com sucesso!");
+      addNotification('success', 'WhatsApp verificado!', 'WhatsApp verificado com sucesso!');
     } catch (error) {
       console.error("Erro ao verificar código:", error);
-      alert("Código inválido. Tente novamente.");
+      addNotification('error', 'Código inválido', 'Código inválido. Tente novamente.', true, 5000);
     } finally {
       setIsVerifying(false);
     }
@@ -294,7 +383,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       window.location.href = '/';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
-      alert('Erro ao fazer logout. Tente novamente.');
+      addNotification('error', 'Erro ao fazer logout', 'Não foi possível fazer logout. Tente novamente.', true, 5000);
     } finally {
       setIsLoggingOut(false);
     }
@@ -314,7 +403,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
       window.location.href = '/';
     } catch (error) {
       console.error('Erro ao excluir conta:', error);
-      alert('Erro ao excluir conta. Tente novamente.');
+      addNotification('error', 'Erro ao excluir conta', 'Não foi possível excluir a conta. Tente novamente.', true, 5000);
     } finally {
       setIsDeletingAccount(false);
       setShowDeleteModal(false);
@@ -835,6 +924,28 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
 
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Beta Mode Section */}
+            <div className="border-b border-gray-700/50 pb-6">
+              <h3 className="text-gray-300 text-base font-bold flex items-center mb-4">
+                <FlaskConical className="w-5 h-5 mr-2" />
+                Beta Mode
+              </h3>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  {/* <p className="text-white text-sm font-medium">Ambiente de Testes</p> */}
+                  <p className="text-gray-400 text-xs mt-1">
+                    Ative para testar novos recursos em desenvolvimento
+                  </p>
+                </div>
+                <Switch
+                  checked={isBetaModeActive}
+                  onCheckedChange={handleBetaModeToggle}
+                  disabled={isTogglingBeta}
+                  className="ml-4"
+                />
+              </div>
+            </div>
+
             {/* User Profile Section */}
             <div className="border-b border-gray-700/50 pb-6">
               <h3 className="text-gray-300 text-base font-bold flex items-center mb-4">
@@ -1051,6 +1162,19 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
           </div>
         </div>
       )}
+
+      {/* Toast Notifications Container */}
+      <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-50">
+        <AnimatePresence>
+          {notifications.map((notification) => (
+            <Notification
+              key={notification.id}
+              {...notification}
+              onClose={() => handleCloseNotification(notification.id)}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
     </main>
   );
 }
