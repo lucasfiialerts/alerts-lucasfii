@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { processarRelatoriosInvestidor10 } from '@/lib/investidor10-processor';
 
 /**
  * 🤖 API Cron: Investidor10 Relatórios Gerenciais
@@ -41,51 +38,30 @@ export async function GET(request: NextRequest) {
     const limite = searchParams.get('limite');
     const teste = searchParams.get('teste') === 'true';
     
-    // Construir comando
-    let comando = 'cd /Users/alanrocha/Downloads/lucasfiialerts && node scripts/investidor10-processar-todos.js';
+    console.log(`📊 Parâmetros: limite=${limite || 'todos'}, teste=${teste}`);
     
-    if (limite) {
-      comando += ` --limite=${limite}`;
-    }
-    
-    if (!teste) {
-      comando += ' --enviar';
-    }
-    
-    console.log(`📊 Executando: ${comando}`);
-    
-    // Executar script (com timeout de 30 minutos para processar muitos FIIs)
+    // Executar lógica do processamento
     const startTime = Date.now();
-    const { stdout, stderr } = await execAsync(comando, {
-      timeout: 30 * 60 * 1000, // 30 minutos
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+    const resultado = await processarRelatoriosInvestidor10({
+      limite: limite ? parseInt(limite) : undefined,
+      enviar: !teste
     });
     
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     
-    // Extrair estatísticas do output
-    const enviados = (stdout.match(/Total de mensagens enviadas: (\d+)/) || [])[1] || '0';
-    const processados = (stdout.match(/FIIs a processar: (\d+)/) || [])[1] || '0';
-    
     console.log(`✅ Processamento concluído em ${duration}s`);
-    console.log(`📊 FIIs processados: ${processados}`);
-    console.log(`📤 Mensagens enviadas: ${enviados}`);
-    
-    if (stderr) {
-      console.warn('⚠️ Stderr:', stderr.substring(0, 500));
-    }
+    console.log(`📊 FIIs processados: ${resultado.fiis_processados}`);
+    console.log(`📤 Mensagens enviadas: ${resultado.mensagens_enviadas}`);
     
     return NextResponse.json({
       success: true,
       message: 'Relatórios processados com sucesso',
       stats: {
-        fiis_processados: parseInt(processados),
-        mensagens_enviadas: parseInt(enviados),
+        ...resultado,
         duracao_segundos: parseFloat(duration),
         modo: teste ? 'teste' : 'producao',
         timestamp: new Date().toISOString()
-      },
-      output: stdout.substring(stdout.length - 1000) // Últimas 1000 chars
+      }
     });
     
   } catch (error: any) {
@@ -95,8 +71,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: error.message,
-        stderr: error.stderr?.substring(0, 500),
-        stdout: error.stdout?.substring(0, 500)
+        stack: error.stack?.substring(0, 500)
       },
       { status: 500 }
     );
