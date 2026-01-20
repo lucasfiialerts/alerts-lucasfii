@@ -22,6 +22,13 @@ interface Usuario {
   fiisAcompanhados: string[];
 }
 
+interface Comunicado {
+  tipo: string;
+  titulo: string;
+  data: string;
+  url: string;
+}
+
 /**
  * Busca usuários com alertas Investidor10 ativos
  */
@@ -95,6 +102,199 @@ function buscarFIIsAcompanhados(usuarios: Usuario[]): string[] {
   return fiis;
 }
 
+/**
+ * Busca comunicados no Investidor10
+ */
+async function buscarComunicados(ticker: string): Promise<Comunicado[]> {
+  console.log(`📄 Buscando comunicados de ${ticker}...`);
+  
+  try {
+    const response = await fetch(`https://investidor10.com.br/fiis/${ticker.toLowerCase()}/`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'text/html',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const html = await response.text();
+    const comunicados: Comunicado[] = [];
+    
+    // Parse HTML simples para buscar comunicados
+    const cardMatches = html.matchAll(/<div[^>]*class="[^"]*communication-card[^"]*"[^>]*>([\s\S]*?)<\/div>/gi);
+    
+    for (const match of cardMatches) {
+      const cardHtml = match[1];
+      
+      // Extrair título
+      const tituloMatch = cardHtml.match(/class="[^"]*communication-card--content[^"]*"[^>]*>([^<]+)</i);
+      const titulo = tituloMatch ? tituloMatch[1].trim() : '';
+      
+      // Extrair data
+      const dataMatch = cardHtml.match(/class="[^"]*card-date[^"]*"[^>]*>([^<]+)</i);
+      const data = dataMatch ? dataMatch[1].trim() : '';
+      
+      // Extrair URL
+      const urlMatch = cardHtml.match(/href="([^"]*link_comunicado[^"]*)"/i);
+      const url = urlMatch ? urlMatch[1] : '';
+      
+      if (titulo && url) {
+        let tipo = 'Comunicado';
+        if (/relatório\s+gerencial/i.test(titulo)) tipo = 'Relatório Gerencial';
+        else if (/informe\s+mensal/i.test(titulo)) tipo = 'Informe Mensal';
+        
+        comunicados.push({
+          tipo,
+          titulo,
+          data,
+          url: url.startsWith('http') ? url : `https://investidor10.com.br${url}`
+        });
+      }
+    }
+    
+    console.log(`✅ ${comunicados.length} comunicados encontrados`);
+    return comunicados;
+  } catch (error: any) {
+    console.error(`❌ Erro ao buscar comunicados:`, error.message);
+    return [];
+  }
+}
+
+/**
+ * Envia mensagem via WhatsApp usando UltraMsg
+ */
+async function enviarWhatsApp(numero: string, mensagem: string): Promise<void> {
+  console.log(`📱 Enviando para WhatsApp: ${numero}`);
+  
+  const token = process.env.ULTRAMSG_TOKEN;
+  const instance = process.env.ULTRAMSG_INSTANCE;
+  
+  if (!token || !instance) {
+    throw new Error('❌ ULTRAMSG_TOKEN ou ULTRAMSG_INSTANCE não configurados');
+  }
+  
+  // Formatar número
+  let numeroLimpo = numero.replace(/\D/g, '');
+  if (!numeroLimpo.startsWith('55')) {
+    numeroLimpo = '55' + numeroLimpo;
+  }
+  
+  const response = await fetch(`https://api.ultramsg.com/${instance}/messages/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: token,
+      to: numeroLimpo,
+      body: mensagem
+    })
+  });
+  
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Erro ao enviar WhatsApp: ${response.status} - ${error}`);
+  }
+  
+  console.log(`✅ Mensagem enviada com sucesso!`);
+}
+
+/**
+ * Verifica se documento é recente (últimos 30 dias)
+ */
+function isDocumentoRecente(dataStr: string): boolean {
+  try {
+    // Tentar parsear data no formato DD/MM/YYYY
+    const partes = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!partes) return false;
+    
+    const [, dia, mes, ano] = partes;
+    const dataDoc = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    const agora = new Date();
+    const diffDias = Math.floor((agora.getTime() - dataDoc.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return diffDias <= 30;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Processa um FII completo
+ */
+async function processarFII(
+  ticker: string,
+  usuarios: Usuario[],
+  enviar: boolean
+): Promise<{ status: string; enviados?: number }> {
+  console.log(`\n${'═'.repeat(60)}`);
+  console.log(`📊 Processando: ${ticker}`);
+  console.log('═'.repeat(60));
+  
+  try {
+    // 1. Buscar comunicados
+    const comunicados = await buscarComunicados(ticker);
+    const relatorio = comunicados.find(c => c.tipo === 'Relatório Gerencial');
+    
+    if (!relatorio) {
+      console.log(`   ⚠️ Nenhum Relatório Gerencial encontrado`);
+      return { status: 'sem_relatorio' };
+    }
+    
+    console.log(`   📄 Relatório: ${relatorio.data}`);
+    
+    // Verificar se é recente
+    if (!isDocumentoRecente(relatorio.data)) {
+      console.log(`   ⏳ Relatório antigo (${relatorio.data}), pulando...`);
+      return { status: 'antigo' };
+    }
+    
+    // 2. Preparar mensagem simplificada (sem IA por enquanto)
+    const mensagemWhatsApp = 
+      `*📊 Relatório Gerencial - ${ticker}*\n` +
+      `📅 Data: ${relatorio.data}\n` +
+      `📌 Título: ${relatorio.titulo}\n\n` +
+      `🔗 Acesse o documento: ${relatorio.url}`;
+    
+    // 3. Enviar se solicitado
+    if (enviar && usuarios.length > 0) {
+      let enviados = 0;
+      
+      for (const usuario of usuarios) {
+        // Verificar se acompanha este FII
+        const acompanhaFII = usuario.fiisAcompanhados.some(
+          fii => fii.toUpperCase() === ticker.toUpperCase()
+        );
+        
+        if (acompanhaFII) {
+          try {
+            await enviarWhatsApp(usuario.whatsappNumber, mensagemWhatsApp);
+            enviados++;
+            console.log(`   ✅ Enviado para ${usuario.email}`);
+            // Delay entre envios
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } catch (error: any) {
+            console.error(`   ❌ Erro ao enviar para ${usuario.email}: ${error.message}`);
+          }
+        }
+      }
+      
+      console.log(`   📤 Total enviados: ${enviados}`);
+      return { status: 'enviado', enviados };
+    } else {
+      console.log(`   ℹ️ Preview gerado (modo teste)`);
+      return { status: 'preview' };
+    }
+    
+  } catch (error: any) {
+    console.error(`   ❌ Erro: ${error.message}`);
+    return { status: 'erro' };
+  }
+}
+
 export async function processarRelatoriosInvestidor10(
   options: ProcessorOptions
 ): Promise<ProcessorResult> {
@@ -131,12 +331,30 @@ export async function processarRelatoriosInvestidor10(
     console.log(`📊 FIIs a processar: ${fiisProcessar.length}`);
     console.log(`🔄 Modo: ${options.enviar ? '📤 ENVIAR ALERTAS' : '👁️ PREVIEW (sem enviar)'}`);
     
-    // TODO: Implementar processamento de cada FII
-    // Por enquanto retornar contadores básicos
+    // 4. Processar cada FII
+    let totalEnviados = 0;
+    
+    for (let i = 0; i < fiisProcessar.length; i++) {
+      const ticker = fiisProcessar[i];
+      console.log(`\n[${i + 1}/${fiisProcessar.length}]`);
+      
+      const resultado = await processarFII(ticker, usuarios, options.enviar);
+      
+      if (resultado.enviados) {
+        totalEnviados += resultado.enviados;
+      }
+      
+      // Delay entre FIIs
+      if (i < fiisProcessar.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+    }
+    
+    console.log('\n✅ Processamento concluído!');
     
     return {
       fiis_processados: fiisProcessar.length,
-      mensagens_enviadas: 0, // TODO: implementar envio
+      mensagens_enviadas: totalEnviados,
       usuarios_ativos: usuarios.length
     };
   } catch (error) {
