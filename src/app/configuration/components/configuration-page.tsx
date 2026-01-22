@@ -810,7 +810,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                    Consulte cotações a qualquer momento! Envie mensagens como <strong>"HGLG11"</strong> ou <strong>"cotacao VISC11"</strong> no WhatsApp e receba instantaneamente:
+                    Consulte cotações a qualquer momento! Envie mensagens como <strong>&quot;HGLG11&quot;</strong> ou <strong>&quot;cotacao VISC11&quot;</strong> no WhatsApp e receba instantaneamente:
                   </p>
                   <ul className="text-gray-300 text-xs space-y-1 mb-3 ml-4">
                     <li>📊 Cotação atual e variação do dia</li>
