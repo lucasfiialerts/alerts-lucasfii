@@ -104,6 +104,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
     alertPreferencesFnet: false,
     alertPreferencesBitcoin: false,
     alertPreferencesStatusInvest: false,
+    alertPreferencesOnDemandQuote: false,
   });
   const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
 
@@ -117,6 +118,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const fnetDocumentos = alertPreferences.alertPreferencesFnet;
   const bitcoin = alertPreferences.alertPreferencesBitcoin;
   const statusInvestComunicados = alertPreferences.alertPreferencesStatusInvest;
+  const cotacaoSobDemanda = alertPreferences.alertPreferencesOnDemandQuote;
 
   // Estados do plano do usuário
   const [userPlan, setUserPlan] = useState<{
@@ -225,6 +227,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
               alertPreferencesFnet: false,
               alertPreferencesBitcoin: false,
               alertPreferencesStatusInvest: false,
+              alertPreferencesOnDemandQuote: false,
             };
 
             await fetch('/api/user/alert-preferences', {
@@ -276,6 +279,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
   const setFnetDocumentos = (value: boolean) => updatePreference('alertPreferencesFnet', value);
   const setBitcoin = (value: boolean) => updatePreference('alertPreferencesBitcoin', value);
   const setStatusInvestComunicados = (value: boolean) => updatePreference('alertPreferencesStatusInvest', value);
+  const setCotacaoSobDemanda = (value: boolean) => updatePreference('alertPreferencesOnDemandQuote', value);
 
   // Função para alternar Beta Mode
   const handleBetaModeToggle = async (checked: boolean) => {
@@ -749,7 +753,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                 </CardContent>
               </Card> */}
 
-              {/* 4. Resumos feitos pela IA (FNET) */}
+              {/* 4. Relatórios Gerenciais (FNET) */}
 
               {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-indigo-500/40 hover:bg-indigo-600/20 transition-all duration-300 hover:shadow-indigo-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
                 <CardHeader className="pb-4">
@@ -759,8 +763,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                         <FileText className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-white text-base sm:text-lg font-bold">Resumos feitos pela IA</CardTitle>
-                        <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">IA</span>
+                        <CardTitle className="text-white text-base sm:text-lg font-bold">Relatórios e Eventos</CardTitle>
                       </div>
                     </div>
                     <Switch
@@ -772,8 +775,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      Receba resumos inteligentes gerados por IA sobre <strong>Relatórios Gerenciais</strong> e <strong>Fatos Relevantes</strong> dos 
-                      FIIs que você acompanha. A IA extrai e analisa o PDF completo!
+                      Você receberá o documento sempre que um ativo da sua lista divulgar <strong>relatórios gerenciais</strong>, <strong>fatos relevantes</strong>, atualizações patrimoniais ou qualquer outra informação oficial. Tudo direto no seu WhatsApp, sem precisar buscar.
                     </p>
                     {!hasActivePlan && (
                       <div className="mt-3 text-orange-400 text-xs font-bold">
@@ -784,7 +786,53 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                 </Card> */}
 
 
-              {/* 5. TODO: Temporarily hidden === Anúncios de Rendimentos === */}
+              {/* 5. Cotação Sob Demanda */}
+
+              <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-cyan-500/40 hover:bg-cyan-600/20 transition-all duration-300 hover:shadow-cyan-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className={`w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center mr-3 shadow-lg ${!hasActivePlan ? 'opacity-50' : ''}`}>
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-white text-base sm:text-lg font-bold">Cotação Sob Demanda</CardTitle>
+                        <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">BETA</span>
+                        {/* <span className="bg-cyan-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">💬</span> */}
+                      </div>
+                    </div>
+                    <Switch
+                      checked={cotacaoSobDemanda && hasActivePlan}
+                      onCheckedChange={setCotacaoSobDemanda}
+                      disabled={!hasActivePlan}
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                    Consulte cotações a qualquer momento! Envie mensagens como <strong>&quot;HGLG11&quot;</strong> ou <strong>&quot;cotacao VISC11&quot;</strong> no WhatsApp e receba instantaneamente:
+                  </p>
+                  <ul className="text-gray-300 text-xs space-y-1 mb-3 ml-4">
+                    <li>📊 Cotação atual e variação do dia</li>
+                    <li>📈 Máxima e mínima</li>
+                    <li>💰 Volume negociado</li>
+                    <li>⏰ Horário da última atualização</li>
+                  </ul>
+                  <div className="bg-cyan-900/30 border border-cyan-500/30 rounded-lg p-3 mt-3">
+                    <p className="text-cyan-300 text-xs">
+                      <strong>⏱️ Rate Limit:</strong> Para evitar spam, você pode consultar a mesma cotação a cada 2 minutos.
+                    </p>
+                  </div>
+                  {!hasActivePlan && (
+                    <div className="mt-3 text-orange-400 text-xs font-bold">
+                      ⚠️ Plano necessário para ativar este recurso!
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+
+              {/* 6. TODO: Temporarily hidden === Anúncios de Rendimentos === */}
 
               {/* <Card className={`bg-slate-900/70 backdrop-blur-xl border-gray-700/50 shadow-xl hover:border-blue-500/40 hover:bg-blue-600/20 transition-all duration-300 hover:shadow-blue-500/20 hover:scale-[1.02] ${!hasActivePlan ? 'opacity-60' : ''}`}>
                 <CardHeader className="pb-4">

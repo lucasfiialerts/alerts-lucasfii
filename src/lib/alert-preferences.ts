@@ -12,6 +12,7 @@ export interface AlertPreferences {
   alertPreferencesFnet: boolean;
   alertPreferencesBitcoin: boolean;
   alertPreferencesStatusInvest: boolean;
+  alertPreferencesOnDemandQuote: boolean;
 }
 
 /**
