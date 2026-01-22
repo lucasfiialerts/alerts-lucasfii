@@ -6,14 +6,18 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const timestamp = new Date().toISOString();
     
     console.log('=== ULTRAMSG PAYLOAD DEBUG ===');
+    console.log('Timestamp:', timestamp);
     console.log('Headers:', Object.fromEntries(request.headers.entries()));
     console.log('Body:', JSON.stringify(body, null, 2));
     console.log('===========================');
     
+    // Retorna com timestamp para confirmar que foi recebido AGORA
     return NextResponse.json({ 
-      received: true, 
+      received: true,
+      timestamp,
       payload: body,
       headers: Object.fromEntries(request.headers.entries())
     });

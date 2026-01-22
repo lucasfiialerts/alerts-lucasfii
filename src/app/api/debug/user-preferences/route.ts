@@ -9,6 +9,7 @@ export async function GET() {
       .select({
         id: userTable.id,
         email: userTable.email,
+        whatsappNumber: userTable.whatsappNumber,
         alertPreferencesReports: userTable.alertPreferencesReports,
         alertPreferencesMarketClose: userTable.alertPreferencesMarketClose,
         alertPreferencesTreasury: userTable.alertPreferencesTreasury,
@@ -16,6 +17,7 @@ export async function GET() {
         alertPreferencesVariation: userTable.alertPreferencesVariation,
         alertPreferencesYield: userTable.alertPreferencesYield,
         alertPreferencesFnet: userTable.alertPreferencesFnet,
+        alertPreferencesOnDemandQuote: userTable.alertPreferencesOnDemandQuote,
       })
       .from(userTable)
       .limit(10);
