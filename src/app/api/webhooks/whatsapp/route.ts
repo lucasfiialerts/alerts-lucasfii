@@ -190,9 +190,9 @@ export async function POST(request: NextRequest) {
     
     // Buscar cotação na brapi
     console.log(`   🔍 Buscando cotação de ${ticker}...`);
-    const quote = await brapiService.getQuote(ticker);
+    const quotes = await brapiService.getFiiData([ticker]);
     
-    if (!quote) {
+    if (!quotes || quotes.length === 0) {
       console.log('   ❌ Cotação não encontrada');
       await sendWhatsAppMessage(
         body.from,
@@ -202,6 +202,8 @@ export async function POST(request: NextRequest) {
       );
       return NextResponse.json({ success: false, error: 'Quote not found' }, { status: 404 });
     }
+    
+    const quote = quotes[0];
     
     // Formatar e enviar resposta
     const message = formatQuoteMessage(ticker, quote);
