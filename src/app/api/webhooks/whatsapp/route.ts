@@ -94,19 +94,11 @@ function extractTicker(message: string): string | null {
  */
 function formatQuoteMessage(ticker: string, data: any): string {
   const { regularMarketPrice, regularMarketChange, regularMarketChangePercent, 
-          regularMarketDayHigh, regularMarketDayLow, regularMarketVolume, 
-          regularMarketTime } = data;
+          regularMarketDayHigh, regularMarketDayLow, regularMarketVolume } = data;
   
   const isPositive = regularMarketChange >= 0;
   const arrow = isPositive ? '📈' : '📉';
   const sign = isPositive ? '+' : '';
-  
-  // Formatar data/hora
-  const date = new Date(regularMarketTime * 1000);
-  const timeStr = date.toLocaleTimeString('pt-BR', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
   
   return `*${arrow} ${ticker}*\n\n` +
     `💰 *Cotação:* R$ ${regularMarketPrice.toFixed(2)}\n` +
@@ -114,8 +106,7 @@ function formatQuoteMessage(ticker: string, data: any): string {
     `📊 *Hoje:*\n` +
     `   Máxima: R$ ${regularMarketDayHigh.toFixed(2)}\n` +
     `   Mínima: R$ ${regularMarketDayLow.toFixed(2)}\n` +
-    `   Volume: ${(regularMarketVolume / 1000000).toFixed(2)}M\n\n` +
-    `⏰ Atualizado às ${timeStr}`;
+    `   Volume: ${(regularMarketVolume / 1000000).toFixed(2)}M`;
 }
 
 /**
