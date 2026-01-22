@@ -34,6 +34,7 @@ export const userTable = pgTable("user", {
   alertPreferencesFnet: boolean("alert_preferences_fnet").default(false), // FNet B3 - Documentos Oficiais
   alertPreferencesBitcoin: boolean("alert_preferences_bitcoin").default(false), // Bitcoin - Variação de Preço
   alertPreferencesStatusInvest: boolean("alert_preferences_status_invest").default(false), // Status Invest - Comunicados (Relatórios, Fatos Relevantes, Informes)
+  alertPreferencesOnDemandQuote: boolean("alert_preferences_on_demand_quote").default(false), // Cotação Sob Demanda - Consulta via WhatsApp
   
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())

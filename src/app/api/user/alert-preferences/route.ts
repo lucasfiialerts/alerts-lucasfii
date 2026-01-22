@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         alertPreferencesFnet: userTable.alertPreferencesFnet,
         alertPreferencesBitcoin: userTable.alertPreferencesBitcoin,
         alertPreferencesStatusInvest: userTable.alertPreferencesStatusInvest,
+        alertPreferencesOnDemandQuote: userTable.alertPreferencesOnDemandQuote,
       })
       .from(userTable)
       .where(eq(userTable.id, session.user.id))
@@ -86,7 +87,8 @@ export async function POST(request: NextRequest) {
       alertPreferencesYield,
       alertPreferencesFnet,
       alertPreferencesBitcoin,
-      alertPreferencesStatusInvest
+      alertPreferencesStatusInvest,
+      alertPreferencesOnDemandQuote
     } = body;
 
     // Atualizar preferências no banco
@@ -102,6 +104,7 @@ export async function POST(request: NextRequest) {
         alertPreferencesFnet: alertPreferencesFnet ?? undefined,
         alertPreferencesBitcoin: alertPreferencesBitcoin ?? undefined,
         alertPreferencesStatusInvest: alertPreferencesStatusInvest ?? undefined,
+        alertPreferencesOnDemandQuote: alertPreferencesOnDemandQuote ?? undefined,
         updatedAt: new Date()
       })
       .where(eq(userTable.id, session.user.id))
@@ -129,6 +132,7 @@ export async function POST(request: NextRequest) {
         alertPreferencesFnet: result[0].alertPreferencesFnet,
         alertPreferencesBitcoin: result[0].alertPreferencesBitcoin,
         alertPreferencesStatusInvest: result[0].alertPreferencesStatusInvest,
+        alertPreferencesOnDemandQuote: result[0].alertPreferencesOnDemandQuote,
       },
       timestamp: new Date().toISOString()
     });
