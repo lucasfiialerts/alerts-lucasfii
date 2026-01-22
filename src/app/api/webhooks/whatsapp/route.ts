@@ -18,10 +18,21 @@ import { brapiService } from '@/lib/brapi';
 const rateLimitCache = new Map<string, Map<string, number>>();
 const RATE_LIMIT_MS = 2 * 60 * 1000; // 2 minutos
 
-interface WhatsAppMessage {
+interface UltraMessageData {
+  id: string;
   from: string;
+  to: string;
+  ack?: string;
+  type: string;
   body: string;
-  timestamp?: number;
+  fromMe: boolean;
+  time: number;
+}
+
+interface UltraMessagePayload {
+  event_type: string;
+  instanceId: string;
+  data: UltraMessageData;
 }
 
 /**
@@ -83,19 +94,11 @@ function extractTicker(message: string): string | null {
  */
 function formatQuoteMessage(ticker: string, data: any): string {
   const { regularMarketPrice, regularMarketChange, regularMarketChangePercent, 
-          regularMarketDayHigh, regularMarketDayLow, regularMarketVolume, 
-          regularMarketTime } = data;
+          regularMarketDayHigh, regularMarketDayLow, regularMarketVolume } = data;
   
   const isPositive = regularMarketChange >= 0;
   const arrow = isPositive ? '📈' : '📉';
   const sign = isPositive ? '+' : '';
-  
-  // Formatar data/hora
-  const date = new Date(regularMarketTime * 1000);
-  const timeStr = date.toLocaleTimeString('pt-BR', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
   
   return `*${arrow} ${ticker}*\n\n` +
     `💰 *Cotação:* R$ ${regularMarketPrice.toFixed(2)}\n` +
@@ -103,8 +106,7 @@ function formatQuoteMessage(ticker: string, data: any): string {
     `📊 *Hoje:*\n` +
     `   Máxima: R$ ${regularMarketDayHigh.toFixed(2)}\n` +
     `   Mínima: R$ ${regularMarketDayLow.toFixed(2)}\n` +
-    `   Volume: ${(regularMarketVolume / 1000000).toFixed(2)}M\n\n` +
-    `⏰ Atualizado às ${timeStr}`;
+    `   Volume: ${(regularMarketVolume / 1000000).toFixed(2)}M`;
 }
 
 /**
@@ -135,12 +137,25 @@ async function sendWhatsAppMessage(to: string, message: string): Promise<void> {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as WhatsAppMessage;
+    const payload = await request.json() as UltraMessagePayload;
     
-    console.log('📱 Mensagem recebida:', { from: body.from, body: body.body });
+    console.log('📱 Webhook recebido:', { event_type: payload.event_type, from: payload.data?.from });
+    
+    // Ignorar se não for mensagem recebida
+    if (payload.event_type !== 'message_received' || !payload.data) {
+      return NextResponse.json({ success: true, message: 'Event ignored' });
+    }
+    
+    // Ignorar mensagens enviadas por mim
+    if (payload.data.fromMe) {
+      return NextResponse.json({ success: true, message: 'Own message ignored' });
+    }
+    
+    const { from, body } = payload.data;
+    console.log('   📝 Mensagem:', { from, body });
     
     // Extrair ticker
-    const ticker = extractTicker(body.body);
+    const ticker = extractTicker(body);
     
     if (!ticker) {
       console.log('   ℹ️ Não é um comando de cotação');
@@ -149,8 +164,8 @@ export async function POST(request: NextRequest) {
     
     console.log(`   🎯 Ticker detectado: ${ticker}`);
     
-    // Buscar usuário pelo número de WhatsApp
-    const phoneNumber = body.from.replace(/\D/g, '');
+    // Buscar usuário pelo número de WhatsApp (remover @c.us e 55 do início)
+    const phoneNumber = from.replace(/@c\.us$/, '').replace(/^55/, '');
     const users = await db
       .select()
       .from(userTable)
@@ -168,7 +183,7 @@ export async function POST(request: NextRequest) {
     if (!user.alertPreferencesOnDemandQuote) {
       console.log('   ⚠️ Recurso não ativado para este usuário');
       await sendWhatsAppMessage(
-        body.from,
+        from,
         '⚠️ *Recurso não ativado*\n\n' +
         'Para usar consultas de cotação, ative o recurso *"Cotação Sob Demanda"* ' +
         'nas configurações do app! 📱'
@@ -180,7 +195,7 @@ export async function POST(request: NextRequest) {
     if (!canConsultTicker(phoneNumber, ticker)) {
       console.log('   ⏱️ Rate limit atingido');
       await sendWhatsAppMessage(
-        body.from,
+        from,
         `⏱️ *Aguarde um momento!*\n\n` +
         `Você pode consultar *${ticker}* novamente em alguns instantes.\n` +
         `Rate limit: 1 consulta a cada 2 minutos por ticker.`
@@ -195,7 +210,7 @@ export async function POST(request: NextRequest) {
     if (!quotes || quotes.length === 0) {
       console.log('   ❌ Cotação não encontrada');
       await sendWhatsAppMessage(
-        body.from,
+        from,
         `❌ *Ticker não encontrado*\n\n` +
         `Não consegui encontrar informações sobre *${ticker}*.\n` +
         `Verifique se o ticker está correto.`
@@ -207,7 +222,7 @@ export async function POST(request: NextRequest) {
     
     // Formatar e enviar resposta
     const message = formatQuoteMessage(ticker, quote);
-    await sendWhatsAppMessage(body.from, message);
+    await sendWhatsAppMessage(from, message);
     
     // Registrar consulta (rate limit)
     registerConsult(phoneNumber, ticker);
