@@ -164,20 +164,36 @@ export async function POST(request: NextRequest) {
     
     console.log(`   🎯 Ticker detectado: ${ticker}`);
     
-    // Buscar usuário pelo número de WhatsApp (remover @c.us e 55 do início)
-    const phoneNumber = from.replace(/@c\.us$/, '').replace(/^55/, '');
+    // Buscar usuário pelo número de WhatsApp (remover @c.us)
+    const phoneWithCountry = from.replace(/@c\.us$/, ''); // ex: 5521998579960
+    const phoneWithoutCountry = phoneWithCountry.replace(/^55/, ''); // ex: 21998579960
+    
+    // Tentar ambos os formatos (com e sem código do país)
     const users = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.whatsappNumber, phoneNumber))
+      .where(
+        eq(userTable.whatsappNumber, phoneWithCountry)
+      )
       .limit(1);
     
+    // Se não encontrou, tentar sem o 55
     if (users.length === 0) {
-      console.log('   ❌ Usuário não encontrado');
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      const usersAlt = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.whatsappNumber, phoneWithoutCountry))
+        .limit(1);
+      
+      if (usersAlt.length === 0) {
+        console.log('   ❌ Usuário não encontrado');
+        return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      }
+      users.push(usersAlt[0]);
     }
     
     const user = users[0];
+    const phoneNumber = user.whatsappNumber || phoneWithCountry; // Usar o número do banco ou fallback
     
     // Verificar se tem o recurso ativo
     if (!user.alertPreferencesOnDemandQuote) {
