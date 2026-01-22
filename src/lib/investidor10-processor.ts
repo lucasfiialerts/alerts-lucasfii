@@ -123,28 +123,31 @@ async function buscarComunicados(ticker: string): Promise<Comunicado[]> {
     const html = await response.text();
     const comunicados: Comunicado[] = [];
     
-    // Parse HTML simples para buscar comunicados
-    const cardMatches = html.matchAll(/<div[^>]*class="[^"]*communication-card[^"]*"[^>]*>([\s\S]*?)<\/div>/gi);
+    // Nova estratégia: buscar por blocos mais amplos
+    // Regex melhorado que captura o card inteiro incluindo quebras de linha
+    const cardRegex = /<div class="communication-card">([\s\S]*?)<\/a>/gi;
+    const matches = html.matchAll(cardRegex);
     
-    for (const match of cardMatches) {
+    for (const match of matches) {
       const cardHtml = match[1];
       
-      // Extrair título
-      const tituloMatch = cardHtml.match(/class="[^"]*communication-card--content[^"]*"[^>]*>([^<]+)</i);
+      // Extrair título (conteúdo do card)
+      const tituloMatch = cardHtml.match(/communication-card--content[^>]*>\s*([^<\n]+)/i);
       const titulo = tituloMatch ? tituloMatch[1].trim() : '';
       
-      // Extrair data
-      const dataMatch = cardHtml.match(/class="[^"]*card-date[^"]*"[^>]*>([^<]+)</i);
+      // Extrair data (dentro de card-date--content)
+      const dataMatch = cardHtml.match(/card-date--content[^>]*>\s*([^<\n]+)/i);
       const data = dataMatch ? dataMatch[1].trim() : '';
       
-      // Extrair URL
+      // Extrair URL (href com link_comunicado)
       const urlMatch = cardHtml.match(/href="([^"]*link_comunicado[^"]*)"/i);
       const url = urlMatch ? urlMatch[1] : '';
       
-      if (titulo && url) {
+      if (titulo && url && data) {
         let tipo = 'Comunicado';
         if (/relatório\s+gerencial/i.test(titulo)) tipo = 'Relatório Gerencial';
         else if (/informe\s+mensal/i.test(titulo)) tipo = 'Informe Mensal';
+        else if (/fatos?\s+relevantes?/i.test(titulo)) tipo = 'Fato Relevante';
         
         comunicados.push({
           tipo,
@@ -160,6 +163,40 @@ async function buscarComunicados(ticker: string): Promise<Comunicado[]> {
   } catch (error: any) {
     console.error(`❌ Erro ao buscar comunicados:`, error.message);
     return [];
+  }
+}
+
+/**
+ * Tenta obter o link direto do PDF da B3/FNet
+ */
+async function obterLinkDiretoPDF(urlInvestidor10: string): Promise<string | null> {
+  try {
+    const htmlResponse = await fetch(urlInvestidor10, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'text/html',
+      }
+    });
+    
+    const html = await htmlResponse.text();
+    
+    // Procurar por link da FNet (B3) - esse é o link real do documento
+    const fnetMatch = html.match(/https?:\/\/fnet\.bmfbovespa\.com\.br\/fnet\/publico\/exibirDocumento\?[^"'<>&\s]+/i);
+    if (fnetMatch) {
+      // Decodificar &amp; para &
+      return fnetMatch[0].replace(/&amp;/g, '&');
+    }
+    
+    // Procurar por outros links da B3/CVM
+    const b3Match = html.match(/https?:\/\/[^"'<>&\s]*(?:bvmf|b3|cvm)[^"'<>&\s]*(?:\.pdf|exibirDocumento)/i);
+    if (b3Match) {
+      return b3Match[0].replace(/&amp;/g, '&');
+    }
+    
+    return null;
+  } catch (error) {
+    console.log(`   ⚠️ Não foi possível obter link direto da FNet`);
+    return null;
   }
 }
 
@@ -237,6 +274,14 @@ async function processarFII(
   try {
     // 1. Buscar comunicados
     const comunicados = await buscarComunicados(ticker);
+    
+    console.log(`   📄 Total comunicados encontrados: ${comunicados.length}`);
+    if (comunicados.length > 0) {
+      comunicados.forEach(c => {
+        console.log(`      - ${c.tipo}: ${c.data} - ${c.titulo.substring(0, 50)}...`);
+      });
+    }
+    
     const relatorio = comunicados.find(c => c.tipo === 'Relatório Gerencial');
     
     if (!relatorio) {
@@ -247,20 +292,36 @@ async function processarFII(
     console.log(`   📄 Relatório: ${relatorio.data}`);
     
     // Verificar se é recente
-    if (!isDocumentoRecente(relatorio.data)) {
+    const isRecente = isDocumentoRecente(relatorio.data);
+    console.log(`   📅 É recente (últimos 30 dias)? ${isRecente ? 'SIM ✅' : 'NÃO ❌'}`);
+    
+    if (!isRecente) {
       console.log(`   ⏳ Relatório antigo (${relatorio.data}), pulando...`);
       return { status: 'antigo' };
     }
     
-    // 2. Preparar mensagem simplificada (sem IA por enquanto)
+    // 2. Tentar obter link direto do PDF
+    console.log(`   🔍 Buscando link direto do PDF...`);
+    const linkDireto = await obterLinkDiretoPDF(relatorio.url);
+    const urlFinal = linkDireto || relatorio.url;
+    
+    if (linkDireto) {
+      console.log(`   ✅ Link direto encontrado!`);
+    } else {
+      console.log(`   ℹ️  Usando link do Investidor10`);
+    }
+    
+    // 3. Preparar mensagem
     const mensagemWhatsApp = 
       `*📊 Relatório Gerencial - ${ticker}*\n` +
       `📅 Data: ${relatorio.data}\n` +
       `📌 Título: ${relatorio.titulo}\n\n` +
-      `🔗 Acesse o documento: ${relatorio.url}`;
+      `🔗 Acesse o documento: ${urlFinal}`;
     
-    // 3. Enviar se solicitado
+    // 4. Enviar se solicitado
     if (enviar && usuarios.length > 0) {
+      console.log(`   📋 Verificando quais usuários acompanham ${ticker}...`);
+      
       let enviados = 0;
       
       for (const usuario of usuarios) {
@@ -268,6 +329,8 @@ async function processarFII(
         const acompanhaFII = usuario.fiisAcompanhados.some(
           fii => fii.toUpperCase() === ticker.toUpperCase()
         );
+        
+        console.log(`      👤 ${usuario.email}: ${acompanhaFII ? '✅ ACOMPANHA' : '❌ NÃO ACOMPANHA'} (FIIs: [${usuario.fiisAcompanhados.join(', ')}])`);
         
         if (acompanhaFII) {
           try {
@@ -285,7 +348,7 @@ async function processarFII(
       console.log(`   📤 Total enviados: ${enviados}`);
       return { status: 'enviado', enviados };
     } else {
-      console.log(`   ℹ️ Preview gerado (modo teste)`);
+      console.log(`   ℹ️ Preview gerado (modo teste ou sem usuários)`);
       return { status: 'preview' };
     }
     
@@ -312,6 +375,11 @@ export async function processarRelatoriosInvestidor10(
         usuarios_ativos: 0
       };
     }
+    
+    console.log(`✅ ${usuarios.length} usuários ativos encontrados:`);
+    usuarios.forEach((u, i) => {
+      console.log(`   ${i + 1}. ${u.email} - ${u.fiisAcompanhados.length} FIIs: [${u.fiisAcompanhados.join(', ')}]`);
+    });
     
     // 2. Buscar FIIs acompanhados
     const fiis = buscarFIIsAcompanhados(usuarios);
