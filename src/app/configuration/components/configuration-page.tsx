@@ -759,7 +759,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                         <FileText className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-white text-base sm:text-lg font-bold">Relatórios Gerenciais</CardTitle>
+                        <CardTitle className="text-white text-base sm:text-lg font-bold">Relatórios e Eventos</CardTitle>
                       </div>
                     </div>
                     <Switch
@@ -771,8 +771,7 @@ export function ConfigurationPage({ session }: ConfigurationPageProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      Receba notificações quando novos <strong>Relatórios Gerenciais</strong> forem publicados pelos 
-                      FIIs que você acompanha. Link direto para o documento na B3/FNet!
+                      Você receberá o documento sempre que um ativo da sua lista divulgar <strong>relatórios gerenciais</strong>, <strong>fatos relevantes</strong>, atualizações patrimoniais ou qualquer outra informação oficial. Tudo direto no seu WhatsApp, sem precisar buscar.
                     </p>
                     {!hasActivePlan && (
                       <div className="mt-3 text-orange-400 text-xs font-bold">
