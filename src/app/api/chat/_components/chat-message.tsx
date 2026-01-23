@@ -28,10 +28,10 @@ export const ChatMessage = ({
 
   if (isSystem) {
     return (
-      <div className="flex w-full flex-col gap-3 px-4 pt-5 pb-0 sm:px-5 sm:pt-6">
-        <div className="flex w-full flex-col gap-2.5 rounded-2xl border border-white/10 bg-white/5 p-3">
+      <div className="flex w-full flex-col gap-3 px-2 pt-4 pb-0 sm:px-4 sm:pt-5">
+        <div className="flex w-full flex-col gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] p-4">
           <div className="flex w-full items-center justify-center gap-2.5">
-            <p className="grow basis-0 text-center text-sm leading-[1.4] font-normal text-white/70">
+            <p className="grow basis-0 text-center text-sm leading-relaxed font-normal text-white/60">
               {content}
             </p>
           </div>
@@ -42,9 +42,9 @@ export const ChatMessage = ({
 
   if (isUser) {
     return (
-      <div className="flex w-full flex-col items-end gap-3 pt-5 pr-4 pb-0 pl-8 sm:pt-6 sm:pr-5 sm:pl-10">
-        <div className="flex max-w-[calc(100%-40px)] items-center gap-2.5 rounded-2xl border border-white/10 bg-blue-500/20 px-4 py-3">
-          <p className="text-sm leading-[1.4] font-normal text-white/90 break-words whitespace-pre-wrap">
+      <div className="flex w-full flex-col items-end gap-3 pt-4 pr-2 pb-0 pl-8 sm:pt-5 sm:pr-4 sm:pl-10">
+        <div className="flex max-w-[85%] items-center gap-2.5 rounded-2xl bg-white/[0.08] px-4 py-3 sm:max-w-[75%]">
+          <p className="text-[15px] leading-relaxed font-normal text-white/95 break-words whitespace-pre-wrap">
             {content}
           </p>
         </div>
@@ -53,12 +53,12 @@ export const ChatMessage = ({
   }
 
   return (
-    <div className="flex w-full flex-col gap-3 pt-5 pr-4 pb-0 pl-3 sm:pt-6 sm:pr-14">
-      <div className="flex w-full gap-2">
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-blue-500/15">
-          <Bot className="size-3.5 text-blue-300" />
+    <div className="flex w-full flex-col gap-3 pt-4 pr-2 pb-0 pl-2 sm:pt-5 sm:pr-4 sm:pl-3">
+      <div className="flex w-full gap-3">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08]">
+          <Bot className="size-4 text-white/80" />
         </div>
-        <div className="max-w-full text-sm leading-[1.5] font-normal text-white/90 break-words whitespace-pre-wrap">
+        <div className="max-w-full flex-1 text-[15px] leading-relaxed font-normal text-white/90 break-words whitespace-pre-wrap">
           {content}
         </div>
       </div>

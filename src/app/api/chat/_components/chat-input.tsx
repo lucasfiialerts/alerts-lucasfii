@@ -25,32 +25,30 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="absolute bottom-0 left-0 flex w-full flex-col gap-2.5 border-t border-white/10 bg-[#0b1220]/90 p-3 sm:p-5 backdrop-blur">
-      <div className="flex w-full gap-2 sm:gap-3">
-        <Input
-          value={input}
-          onChange={onChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Digite sua mensagem"
-          className="grow basis-0 rounded-full border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/40 sm:py-3"
-          disabled={isLoading}
-        />
-        <Button
-          size="icon"
-          className="size-10 shrink-0 rounded-full bg-blue-500/60 p-2.5 hover:bg-blue-500/80 sm:size-[42px]"
-          disabled
-        >
-          <Mic className="size-4 text-white sm:size-5" />
-        </Button>
-        <Button
-          size="icon"
-          className="size-10 shrink-0 rounded-full bg-blue-500/80 p-2.5 hover:bg-blue-500 sm:size-[42px]"
-          onClick={onSubmit}
-          disabled={isLoading || !input.trim()}
-        >
-          <Send className="size-4 text-white sm:size-5" />
-        </Button>
-      </div>
+    <div className="flex w-full items-center gap-2 sm:gap-2.5">
+      <Input
+        value={input}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Pergunte ao Research.IA"
+        className="grow basis-0 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] text-white/95 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05] sm:px-5 sm:py-3.5"
+        disabled={isLoading}
+      />
+      <Button
+        size="icon"
+        className="size-10 shrink-0 rounded-xl bg-transparent p-2.5 text-white/50 hover:bg-white/[0.08] hover:text-white/80 sm:size-11"
+        disabled
+      >
+        <Mic className="size-5" />
+      </Button>
+      <Button
+        size="icon"
+        className="size-10 shrink-0 rounded-xl bg-blue-600 p-2.5 hover:bg-blue-500 disabled:bg-white/[0.08] disabled:text-white/30 sm:size-11"
+        onClick={onSubmit}
+        disabled={isLoading || !input.trim()}
+      >
+        <Send className="size-5 text-white" />
+      </Button>
     </div>
   );
 };

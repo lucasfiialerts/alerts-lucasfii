@@ -79,7 +79,45 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addUtilities }: { addUtilities: (utilities: Record<string, any>) => void }) {
+      addUtilities({
+        ".scrollbar-hide": {
+          /* IE and Edge */
+          "-ms-overflow-style": "none",
+          /* Firefox */
+          "scrollbar-width": "none",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            display: "none",
+            width: "0",
+            height: "0",
+          },
+        },
+        ".scrollbar-dark": {
+          /* Firefox */
+          "scrollbar-width": "thin",
+          "scrollbar-color": "#141414 #141414",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#141414",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#141414",
+            "border-radius": "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "#1a1a1a",
+          },
+        },
+      });
+    },
+  ],
 } satisfies Config;
 
 export default config;

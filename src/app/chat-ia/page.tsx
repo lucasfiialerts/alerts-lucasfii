@@ -53,24 +53,8 @@ export default function ChatIaRoute() {
   }
 
   return (
-    <>
-      <TestEnvironmentBanner />
-      <PageLayout
-        title="Chat IA"
-        activeMenuItem="chat-ia"
-        session={{
-          user: session?.user
-            ? {
-                name: session.user.name,
-                email: session.user.email,
-                image: session.user.image || undefined,
-              }
-            : undefined,
-        }}
-        onMenuItemClick={handleMenuItemClick}
-      >
-        <ChatIaPage />
-      </PageLayout>
-    </>
+    <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#141414' }}>
+      <ChatIaPage />
+    </div>
   );
 }

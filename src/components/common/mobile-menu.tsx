@@ -54,7 +54,7 @@ export function MobileMenu({ isOpen, onClose, activeMenuItem, onMenuItemClick }:
     { id: "my-follow", label: "Acompanhamento", icon: TrendingUp },
     { id: "configuracao", label: "Configuração", icon: Settings },
     { id: "planos", label: "Planos", icon: CrownIcon },
-    { id: "chat-ia", label: "Chat IA", icon: MessageCircle },
+    { id: "chat-ia", label: "Acessar Research.IA", icon: MessageCircle },
     { id: "como-funciona", label: "Como funciona", icon: HelpCircle },
   ];
 

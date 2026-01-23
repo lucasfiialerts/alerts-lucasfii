@@ -1,11 +1,12 @@
 "use client";
 
-import { Bot, Sparkles } from "lucide-react";
+import { Bot, Sparkles, Menu } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ChatInput } from "@/app/api/chat/_components/chat-input";
 import { ChatMessage, type ChatMessageData } from "@/app/api/chat/_components/chat-message";
 import { Button } from "@/components/ui/button";
+import { ChatSidebar } from "./chat-sidebar";
 
 const suggestions = [
   {
@@ -29,6 +30,8 @@ const suggestions = [
 const toTextParts = (text: string) => [{ type: "text" as const, text }];
 
 export function ChatIaPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   const initialMessages = useMemo<ChatMessageData[]>(
     () => [
       {
@@ -168,81 +171,106 @@ export function ChatIaPage() {
   const hasUserMessages = messages.some((message) => message.role === "user");
 
   return (
-    <div className="relative min-h-[calc(100vh-64px)]">
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col px-4 pb-24 pt-6 sm:pb-28 sm:pt-10 lg:px-8">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
-            <Sparkles className="size-3.5 text-blue-300" />
-            Research.IA
-          </div>
-          <h1 className="mt-4 text-2xl font-semibold text-white sm:text-4xl">
-            Research.IA
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-white/70 sm:text-base">
-            Pergunte à Research.IA! Seu assistente inteligente especializado em fundos imobiliários.
-          </p>
-        </div>
+    <div className="relative flex h-screen flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
+      {/* Chat Sidebar Component */}
+      <ChatSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-        <div className="mt-5 flex items-center justify-center sm:mt-6">
-          <Button
-            variant="secondary"
-            className="rounded-full border border-white/15 bg-white/10 px-5 py-2 text-sm text-white/90 hover:bg-white/20"
-            onClick={() => setShowSuggestions((prev) => !prev)}
-          >
-            {showSuggestions ? "Ocultar dicas" : "Dicas de perguntas"}
-          </Button>
-        </div>
-
-        {showSuggestions && (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {suggestions.map((suggestion) => (
-              <Button
-                key={suggestion.id}
-                variant="secondary"
-                className="h-auto w-full justify-start rounded-2xl border border-white/15 bg-white/10 px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/20 sm:px-4 sm:py-3"
-                onClick={() => handleSuggestion(suggestion.title)}
-              >
-                <span className="whitespace-normal leading-relaxed">
-                  {suggestion.title}
-                </span>
-              </Button>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-6 flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#0b1220]/70 shadow-2xl backdrop-blur sm:mt-8 sm:rounded-3xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6 sm:py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-full bg-blue-500/25 sm:size-10">
-                <Bot className="size-4 text-blue-200 sm:size-5" />
+      {/* Header */}
+      <div className="flex-shrink-0 border-b border-white/5 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-3xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="size-5" />
+            </Button>
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-8 items-center justify-center rounded-full bg-white/[0.08] sm:size-9">
+                <Bot className="size-4 text-white/80" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Research.IA</p>
-                <p className="text-xs text-emerald-300">online agora</p>
+                <p className="text-sm font-semibold text-white/90">Research.IA</p>
+                {/* <p className="text-xs text-emerald-400/80">online agora</p> */}
               </div>
             </div>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08] sm:px-4"
+            onClick={() => setShowSuggestions((prev) => !prev)}
+          >
+            {showSuggestions ? "Ocultar" : "💡 Dicas"}
+          </Button>
+        </div>
+      </div>
 
-          <div className="relative flex-1 overflow-y-auto px-2 pb-24 pt-2 sm:pb-28">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
-            ))}
-
-            {!hasUserMessages && (
-              <div className="px-6 pt-8 text-center text-sm text-white/70">
-                Faça uma pergunta para começar.
+      {/* Messages Area */}
+      <div 
+        className="chat-messages-scroll relative flex-1 overflow-y-auto"
+      >
+        <div className="mx-auto max-w-3xl px-4 py-4">
+          {/* Welcome Message */}
+          {!hasUserMessages && (
+            <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center sm:py-12">
+              <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/80">
+                <Sparkles className="size-4 text-blue-300" />
+                Research.IA
               </div>
-            )}
+              {/* <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+                Research.IA
+              </h1> */}
+              <p className="max-w-2xl text-sm text-white/70 sm:text-base">
+                Seu assistente inteligente especializado em fundos imobiliários.
+              </p>
+            </div>
+          )}
 
-            <div ref={bottomRef} />
-          </div>
+          {/* Suggestions */}
+          {showSuggestions && !hasUserMessages && (
+            <div className="mb-6 grid gap-2.5 sm:grid-cols-2">
+              {suggestions.map((suggestion) => (
+                <Button
+                  key={suggestion.id}
+                  variant="secondary"
+                  className="h-auto w-full justify-start rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left text-[13px] text-white/80 hover:bg-white/[0.06] sm:px-4"
+                  onClick={() => {
+                    handleSuggestion(suggestion.title);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  <span className="whitespace-normal leading-relaxed">
+                    {suggestion.title}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          )}
 
+          {/* Messages */}
+          {messages.map((message) => (
+            <ChatMessage key={message.id} message={message} />
+          ))}
+
+          <div ref={bottomRef} />
+        </div>
+      </div>
+
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-white/5">
+        <div className="mx-auto max-w-3xl px-4 pb-3 pt-3 sm:pb-4 sm:pt-4">
           <ChatInput
             input={input}
             onChange={handleInputChange}
             onSubmit={handleSubmit}
             isLoading={isLoading}
           />
+          <p className="mt-2 text-center text-xs text-white/40">
+            O Research.IA pode cometer erros. Por isso, é bom verificar as informações.
+          </p>
         </div>
       </div>
     </div>

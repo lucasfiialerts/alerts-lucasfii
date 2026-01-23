@@ -273,3 +273,14 @@ button:hover, .button:hover, [role="button"]:hover {
 .mobile-menu-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(71, 85, 105, 0.9);
 }
+/* Hide scrollbar completely for chat messages */
+.chat-messages-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.chat-messages-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+}
