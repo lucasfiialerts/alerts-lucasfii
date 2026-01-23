@@ -103,6 +103,11 @@ export function ChatIaPage() {
       if (result.success && result.conversation) {
         conversationId = result.conversation.id;
         setCurrentConversationId(conversationId);
+        
+        // Refresh sidebar to show new conversation
+        if ((window as any).__refreshChatConversations) {
+          await (window as any).__refreshChatConversations();
+        }
       } else {
         toast.error("Erro ao criar conversa");
         return;

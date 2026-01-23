@@ -57,6 +57,13 @@ export function ChatSidebar({
     loadConversations();
   }, []);
 
+  // Reload conversations when sidebar opens
+  useEffect(() => {
+    if (isOpen) {
+      loadConversations();
+    }
+  }, [isOpen]);
+
   const loadConversations = async () => {
     setIsLoading(true);
     const result = await getUserConversations();
