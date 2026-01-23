@@ -7,11 +7,13 @@ import { PageLayout } from "@/components/common/page-layout";
 import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import { authClient } from "@/lib/auth-client";
+import { useDevMode } from "@/contexts/dev-mode-context";
 
 import { ChatIaPage } from "./components/chat-ia-page";
 
 export default function ChatIaRoute() {
   const { data: session, isPending } = authClient.useSession();
+  const { isDevMode } = useDevMode();
   const router = useRouter();
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function ChatIaRoute() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
+    <div className={`flex h-screen flex-col overflow-hidden ${isDevMode ? 'pt-12' : ''}`} style={{ backgroundColor: '#141414' }}>
       <TestEnvironmentBanner />
       <div className="flex-1 overflow-hidden">
         <ChatIaPage userName={session?.user?.name || 'Usuário'} />

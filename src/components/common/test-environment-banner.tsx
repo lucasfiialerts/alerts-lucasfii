@@ -10,7 +10,7 @@ export function TestEnvironmentBanner() {
     }
 
     return (
-        <div className="relative z-50 bg-gradient-to-r from-orange-400 via-orange-300 to-orange-400 w-full h-12 px-6 flex items-center justify-between shadow-md flex-shrink-0">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-orange-400 via-orange-300 to-orange-400 w-full h-12 px-6 flex items-center justify-between shadow-md flex-shrink-0">
             {/* <span className="text-gray-800 font-semibold text-sm">
                 Sandbox Mode
             </span> */}
