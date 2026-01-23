@@ -53,8 +53,11 @@ export default function ChatIaRoute() {
   }
 
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#141414' }}>
-      <ChatIaPage />
+    <div className="flex h-screen flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
+      <TestEnvironmentBanner />
+      <div className="flex-1 overflow-hidden">
+        <ChatIaPage />
+      </div>
     </div>
   );
 }

@@ -16,11 +16,11 @@ export function ChatSidebar({ isOpen, onClose, activeMenuItem = "chat-ia" }: Cha
 
   const menuItems = [
     { id: "home", label: "Home", icon: Home, route: "/home" },
-    { id: "my-follow", label: "Acompanhamento", icon: TrendingUp, route: "/my-follow" },
-    { id: "configuracao", label: "Configuração", icon: Settings, route: "/configuration" },
-    { id: "planos", label: "Planos", icon: CrownIcon, route: "/planos" },
-    { id: "chat-ia", label: "Acessar Research.IA", icon: MessageCircle, route: "/chat-ia" },
-    { id: "como-funciona", label: "Como funciona", icon: HelpCircle, route: "/step-by-step" },
+    // { id: "my-follow", label: "Acompanhamento", icon: TrendingUp, route: "/my-follow" },
+    // { id: "configuracao", label: "Configuração", icon: Settings, route: "/configuration" },
+    // { id: "planos", label: "Planos", icon: CrownIcon, route: "/planos" },
+    { id: "chat-ia", label: "Research.IA", icon: MessageCircle, route: "/chat-ia" },
+    // { id: "como-funciona", label: "Como funciona", icon: HelpCircle, route: "/step-by-step" },
   ];
 
   const handleMenuClick = (route: string) => {

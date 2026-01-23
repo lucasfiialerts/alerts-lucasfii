@@ -171,7 +171,7 @@ export function ChatIaPage() {
   const hasUserMessages = messages.some((message) => message.role === "user");
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
+    <div className="relative flex h-full flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
       {/* Chat Sidebar Component */}
       <ChatSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
