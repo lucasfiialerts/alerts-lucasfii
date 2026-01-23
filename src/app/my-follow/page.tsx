@@ -55,6 +55,8 @@ export default function MyFollowPage() {
       router.push("/planos");
     } else if (itemId === "como-funciona") {
       router.push("/step-by-step");
+    } else if (itemId === "chat-ia") {
+      router.push("/chat-ia");
     } else {
       router.push("/home");
     }
@@ -71,7 +73,7 @@ export default function MyFollowPage() {
   // Verificar se o usuário tem plano ativo
   if (planCheck && !planCheck.hasActivePlan) {
     return (
-      <PlanRequired 
+      <PlanRequired
         message="Plano Necessário"
         description="Para acompanhar e configurar alertas de FIIs, você precisa de um plano ativo. Escolha um plano que melhor se adequa às suas necessidades."
       />
@@ -84,7 +86,7 @@ export default function MyFollowPage() {
       <PageLayout
         title="Acompanhamento"
         activeMenuItem="my-follow"
-        session={{ 
+        session={{
           user: session?.user ? {
             name: session.user.name,
             email: session.user.email,
@@ -93,7 +95,7 @@ export default function MyFollowPage() {
         }}
         onMenuItemClick={handleMenuItemClick}
       >
-        <MyFollowContent session={{ 
+        <MyFollowContent session={{
           user: session?.user ? {
             name: session.user.name,
             email: session.user.email,

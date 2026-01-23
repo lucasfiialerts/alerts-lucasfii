@@ -4,6 +4,7 @@ import {
   CrownIcon,
   HelpCircle,
   Home,
+  MessageCircle,
   Settings,
   TrendingUp,
   LogOut,
@@ -129,6 +130,7 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
     { id: "my-follow", label: "Acompanhamento", icon: TrendingUp },
     { id: "configuracao", label: "Configuração", icon: Settings },
     { id: "planos", label: "Planos", icon: CrownIcon },
+    { id: "chat-ia", label: "Chat IA", icon: MessageCircle },
     { id: "como-funciona", label: "Como funciona", icon: HelpCircle },
   ];
 
@@ -180,6 +182,8 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
         router.push("/home");
       } else if (itemId === "my-follow") {
         router.push("/my-follow");
+      } else if (itemId === "chat-ia") {
+        router.push("/chat-ia");
       } else if (itemId === "configuracao") {
         router.push("/configuration");
       } else if (itemId === "planos") {
@@ -223,19 +227,18 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeMenuItem === item.id;
-              
+
               return (
                 <button
                   key={item.id}
                   onClick={() => handleMenuItemClick(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group ${isActive
                       ? "text-blue-400"
                       : "text-gray-400 hover:text-white"
-                  }`}
+                    }`}
                 >
                   <motion.div
-                    whileHover={{ 
+                    whileHover={{
                       scale: 1.2,
                       rotate: [0, -10, 10, -10, 0],
                       transition: { duration: 0.5 }
@@ -370,7 +373,7 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
       </div>
 
       {/* Toast Notifications Container */}
-      
+
       <div className="fixed bottom-4 right-4 p-4 space-y-2 w-full max-w-sm z-[9999]">
         <AnimatePresence>
           {notifications.map((notification) => (

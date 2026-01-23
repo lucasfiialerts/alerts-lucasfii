@@ -5,12 +5,12 @@ import { useEffect } from "react";
 
 import { PageLayout } from "@/components/common/page-layout";
 import { TestEnvironmentBanner } from "@/components/common/test-environment-banner";
+import { LoadingSpinner } from "@/components/common/loading-spinner";
 import { authClient } from "@/lib/auth-client";
 
-import { PlanosContent } from "./components/planos-page";
-import { PlanosSkeleton } from "./components/planos-skeleton";
+import { ChatIaPage } from "./components/chat-ia-page";
 
-export default function PlanosPage() {
+export default function ChatIaRoute() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
@@ -21,24 +21,31 @@ export default function PlanosPage() {
   }, [session, isPending, router]);
 
   const handleMenuItemClick = (itemId: string) => {
+    if (itemId === "chat-ia") {
+      return;
+    }
+
     if (itemId === "home") {
       router.push("/home");
     } else if (itemId === "my-follow") {
       router.push("/my-follow");
     } else if (itemId === "configuracao") {
       router.push("/configuration");
+    } else if (itemId === "planos") {
+      router.push("/planos");
     } else if (itemId === "como-funciona") {
       router.push("/step-by-step");
-    } else if (itemId === "chat-ia") {
-      router.push("/chat-ia");
-    } else if (itemId === "planos") {
-      // Já estamos na página de planos
-      return;
+    } else {
+      router.push("/home");
     }
   };
 
   if (isPending) {
-    return <PlanosSkeleton />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (!session) {
@@ -49,24 +56,20 @@ export default function PlanosPage() {
     <>
       <TestEnvironmentBanner />
       <PageLayout
-        title="Planos"
-        activeMenuItem="planos"
+        title="Chat IA"
+        activeMenuItem="chat-ia"
         session={{
-          user: {
-            name: session.user.name,
-            email: session.user.email,
-            image: session.user.image || undefined
-          }
+          user: session?.user
+            ? {
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image || undefined,
+              }
+            : undefined,
         }}
         onMenuItemClick={handleMenuItemClick}
       >
-        <PlanosContent session={{
-          user: session?.user ? {
-            name: session.user.name,
-            email: session.user.email,
-            image: session.user.image || undefined
-          } : undefined
-        }} />
+        <ChatIaPage />
       </PageLayout>
     </>
   );

@@ -32,6 +32,8 @@ export default function StepByStepPageRoute() {
       router.push("/configuration");
     } else if (itemId === "planos") {
       router.push("/planos");
+    } else if (itemId === "chat-ia") {
+      router.push("/chat-ia");
     } else {
       router.push("/home");
     }
@@ -51,7 +53,7 @@ export default function StepByStepPageRoute() {
       <PageLayout
         title="Como funciona"
         activeMenuItem="como-funciona"
-        session={{ 
+        session={{
           user: session?.user ? {
             name: session.user.name,
             email: session.user.email,
@@ -60,13 +62,13 @@ export default function StepByStepPageRoute() {
         }}
         onMenuItemClick={handleMenuItemClick}
       >
-        <StepByStepPage session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }} />
+        <StepByStepPage session={{
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }} />
       </PageLayout>
     </>
   );

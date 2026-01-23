@@ -30,6 +30,8 @@ export default function ConfigurationPageRoute() {
       router.push("/my-follow");
     } else if (itemId === "planos") {
       router.push("/planos");
+    } else if (itemId === "chat-ia") {
+      router.push("/chat-ia");
     } else if (itemId === "como-funciona") {
       router.push("/step-by-step");
     }
@@ -49,7 +51,7 @@ export default function ConfigurationPageRoute() {
       <PageLayout
         title="Configuração"
         activeMenuItem="configuracao"
-        session={{ 
+        session={{
           user: session?.user ? {
             name: session.user.name,
             email: session.user.email,
@@ -58,13 +60,13 @@ export default function ConfigurationPageRoute() {
         }}
         onMenuItemClick={handleMenuItemClick}
       >
-        <ConfigurationPage session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }} />
+        <ConfigurationPage session={{
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }} />
       </PageLayout>
     </>
   );

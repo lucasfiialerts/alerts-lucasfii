@@ -30,6 +30,8 @@ export default function HomePage() {
       router.push("/configuration");
     } else if (itemId === "planos") {
       router.push("/planos");
+    } else if (itemId === "chat-ia") {
+      router.push("/chat-ia");
     } else if (itemId === "como-funciona") {
       router.push("/step-by-step");
     } else {
@@ -52,7 +54,7 @@ export default function HomePage() {
       <PageLayout
         title="Home"
         activeMenuItem="home"
-        session={{ 
+        session={{
           user: session?.user ? {
             name: session.user.name,
             email: session.user.email,
@@ -61,13 +63,13 @@ export default function HomePage() {
         }}
         onMenuItemClick={handleMenuItemClick}
       >
-        <HomeContent session={{ 
-        user: session?.user ? {
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image || undefined
-        } : undefined
-      }} />
+        <HomeContent session={{
+          user: session?.user ? {
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image || undefined
+          } : undefined
+        }} />
       </PageLayout>
     </>
   );

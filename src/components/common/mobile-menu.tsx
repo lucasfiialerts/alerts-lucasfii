@@ -4,6 +4,7 @@ import {
   CrownIcon,
   HelpCircle,
   Home,
+  MessageCircle,
   Settings,
   TrendingUp,
   LogOut,
@@ -53,6 +54,7 @@ export function MobileMenu({ isOpen, onClose, activeMenuItem, onMenuItemClick }:
     { id: "my-follow", label: "Acompanhamento", icon: TrendingUp },
     { id: "configuracao", label: "Configuração", icon: Settings },
     { id: "planos", label: "Planos", icon: CrownIcon },
+    { id: "chat-ia", label: "Chat IA", icon: MessageCircle },
     { id: "como-funciona", label: "Como funciona", icon: HelpCircle },
   ];
 
@@ -179,6 +181,8 @@ export function MobileMenu({ isOpen, onClose, activeMenuItem, onMenuItemClick }:
         router.push("/home");
       } else if (itemId === "my-follow") {
         router.push("/my-follow");
+      } else if (itemId === "chat-ia") {
+        router.push("/chat-ia");
       } else if (itemId === "configuracao") {
         router.push("/configuration");
       } else if (itemId === "planos") {
