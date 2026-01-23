@@ -35,7 +35,11 @@ const suggestions = [
 
 const toTextParts = (text: string) => [{ type: "text" as const, text }];
 
-export function ChatIaPage() {
+interface ChatIaPageProps {
+  userName?: string;
+}
+
+export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(undefined);
   
@@ -254,8 +258,8 @@ export function ChatIaPage() {
               <Menu className="size-5" />
             </Button>
             <div className="flex items-center gap-2.5">
-              <div className="flex size-8 items-center justify-center rounded-full bg-white/[0.08] sm:size-9">
-                <Bot className="size-4 text-white/80" />
+              <div className={`flex size-8 items-center justify-center rounded-full bg-white/[0.08] sm:size-9 ${isLoading ? 'animate-pulse' : ''}`}>
+                <Bot className={`size-4 text-white/80 ${isLoading ? 'animate-bounce' : ''}`} />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white/90">Research.IA</p>
@@ -281,16 +285,15 @@ export function ChatIaPage() {
         <div className="mx-auto max-w-3xl px-4 py-4">
           {/* Welcome Message */}
           {!hasUserMessages && (
-            <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center sm:py-12">
-              <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/80">
-                <Sparkles className="size-4 text-blue-300" />
-                Research.IA
+            <div className="flex flex-col items-center justify-center space-y-6 py-12 text-center sm:py-16">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="size-5 text-blue-400" />
+                <h1 className="text-3xl font-medium text-white/95 sm:text-4xl">
+                  Olá, {userName}
+                </h1>
               </div>
-              {/* <h1 className="text-2xl font-semibold text-white sm:text-3xl">
-                Research.IA
-              </h1> */}
-              <p className="max-w-2xl text-sm text-white/70 sm:text-base">
-                Seu assistente inteligente especializado em fundos imobiliários.
+              <p className="text-xl font-light text-white/70 sm:text-2xl">
+                Por onde começamos?
               </p>
             </div>
           )}
@@ -326,7 +329,7 @@ export function ChatIaPage() {
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 border-t border-white/5">
+      <div className="flex-shrink-0">
         <div className="mx-auto max-w-3xl px-4 pb-3 pt-3 sm:pb-4 sm:pt-4">
           <ChatInput
             input={input}

@@ -34,13 +34,13 @@ export const ChatInput = ({
         className="grow basis-0 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] text-white/95 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05] sm:px-5 sm:py-3.5"
         disabled={isLoading}
       />
-      <Button
+      {/* TODO: <Button
         size="icon"
         className="size-10 shrink-0 rounded-xl bg-transparent p-2.5 text-white/50 hover:bg-white/[0.08] hover:text-white/80 sm:size-11"
         disabled
       >
         <Mic className="size-5" />
-      </Button>
+      </Button> */}
       <Button
         size="icon"
         className="size-10 shrink-0 rounded-xl bg-blue-600 p-2.5 hover:bg-blue-500 disabled:bg-white/[0.08] disabled:text-white/30 sm:size-11"

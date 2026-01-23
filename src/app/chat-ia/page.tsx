@@ -56,7 +56,7 @@ export default function ChatIaRoute() {
     <div className="flex h-screen flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
       <TestEnvironmentBanner />
       <div className="flex-1 overflow-hidden">
-        <ChatIaPage />
+        <ChatIaPage userName={session?.user?.name || 'Usuário'} />
       </div>
     </div>
   );
