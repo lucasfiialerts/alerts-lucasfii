@@ -10,6 +10,7 @@ import {
   LogOut,
   MoreVertical,
   Code2,
+  Bot,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -130,7 +131,7 @@ export function CustomSidebar({ activeMenuItem, onMenuItemClick }: CustomSidebar
     { id: "my-follow", label: "Acompanhamento", icon: TrendingUp },
     { id: "configuracao", label: "Configuração", icon: Settings },
     { id: "planos", label: "Planos", icon: CrownIcon },
-    { id: "chat-ia", label: "Acessar Research.IA", icon: MessageCircle },
+    { id: "chat-ia", label: "Acessar Research.IA", icon: Bot },
     { id: "como-funciona", label: "Como funciona", icon: HelpCircle },
   ];
 

@@ -469,3 +469,36 @@ export const fiiAlertLogRelations = relations(fiiAlertLogTable, ({ one }) => ({
     references: [fiiFundTable.id],
   }),
 }));
+
+// Chat IA Tables
+export const chatConversationTable = pgTable("chat_conversation", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  userId: text("user_id").notNull().references(() => userTable.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+  updatedAt: timestamp("updated_at").$defaultFn(() => new Date()).notNull(),
+});
+
+export const chatMessageTable = pgTable("chat_message", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  conversationId: uuid("conversation_id").notNull().references(() => chatConversationTable.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // 'user', 'assistant', 'system'
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+});
+
+export const chatConversationRelations = relations(chatConversationTable, ({ one, many }) => ({
+  user: one(userTable, {
+    fields: [chatConversationTable.userId],
+    references: [userTable.id],
+  }),
+  messages: many(chatMessageTable),
+}));
+
+export const chatMessageRelations = relations(chatMessageTable, ({ one }) => ({
+  conversation: one(chatConversationTable, {
+    fields: [chatMessageTable.conversationId],
+    references: [chatConversationTable.id],
+  }),
+}));

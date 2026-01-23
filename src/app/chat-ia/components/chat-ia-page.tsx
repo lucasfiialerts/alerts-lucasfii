@@ -2,11 +2,17 @@
 
 import { Bot, Sparkles, Menu } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { ChatInput } from "@/app/api/chat/_components/chat-input";
 import { ChatMessage, type ChatMessageData } from "@/app/api/chat/_components/chat-message";
 import { Button } from "@/components/ui/button";
 import { ChatSidebar } from "./chat-sidebar";
+import { 
+  createConversation, 
+  getConversationMessages, 
+  saveMessage 
+} from "@/actions/chat-conversations";
 
 const suggestions = [
   {
@@ -31,6 +37,7 @@ const toTextParts = (text: string) => [{ type: "text" as const, text }];
 
 export function ChatIaPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(undefined);
   
   const initialMessages = useMemo<ChatMessageData[]>(
     () => [
@@ -89,6 +96,19 @@ export function ChatIaPage() {
       return;
     }
 
+    // Create conversation if doesn't exist
+    let conversationId = currentConversationId;
+    if (!conversationId) {
+      const result = await createConversation(text.substring(0, 50));
+      if (result.success && result.conversation) {
+        conversationId = result.conversation.id;
+        setCurrentConversationId(conversationId);
+      } else {
+        toast.error("Erro ao criar conversa");
+        return;
+      }
+    }
+
     const userMessage: ChatMessageData = {
       id: crypto.randomUUID(),
       role: "user",
@@ -107,6 +127,11 @@ export function ChatIaPage() {
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setInput("");
     setIsLoading(true);
+
+    // Save user message to backend
+    if (conversationId) {
+      await saveMessage(conversationId, "user", text);
+    }
 
     try {
       const response = await fetch("/api/chat-ia", {
@@ -151,6 +176,11 @@ export function ChatIaPage() {
           ),
         );
       }
+
+      // Save assistant message to backend
+      if (conversationId && assistantText) {
+        await saveMessage(conversationId, "assistant", assistantText);
+      }
     } catch (error) {
       setMessages((prev) => [
         ...prev,
@@ -170,10 +200,41 @@ export function ChatIaPage() {
 
   const hasUserMessages = messages.some((message) => message.role === "user");
 
+  const handleNewConversation = () => {
+    setMessages(initialMessages);
+    setInput("");
+    setCurrentConversationId(undefined);
+  };
+
+  const handleSelectConversation = async (id: string) => {
+    setCurrentConversationId(id);
+    
+    // Load messages from backend
+    const result = await getConversationMessages(id);
+    if (result.success && result.messages) {
+      const loadedMessages: ChatMessageData[] = result.messages.map(msg => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant" | "system",
+        content: msg.content,
+        parts: toTextParts(msg.content),
+      }));
+      setMessages(loadedMessages.length > 0 ? loadedMessages : initialMessages);
+    } else {
+      toast.error(result.error || "Erro ao carregar mensagens");
+      setMessages(initialMessages);
+    }
+  };
+
   return (
     <div className="relative flex h-full flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
       {/* Chat Sidebar Component */}
-      <ChatSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <ChatSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)}
+        currentConversationId={currentConversationId}
+        onNewConversation={handleNewConversation}
+        onSelectConversation={handleSelectConversation}
+      />
 
       {/* Header */}
       <div className="flex-shrink-0 border-b border-white/5 px-4 py-3 sm:px-6">

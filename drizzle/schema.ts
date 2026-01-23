@@ -234,3 +234,32 @@ export const user = pgTable("user", {
 }, (table) => [
 	unique("user_email_unique").on(table.email),
 ]);
+
+export const chatConversation = pgTable("chat_conversation", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	userId: text("user_id").notNull(),
+	title: text().notNull(),
+	isPinned: boolean("is_pinned").default(false).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+		columns: [table.userId],
+		foreignColumns: [user.id],
+		name: "chat_conversation_user_id_user_id_fk"
+	}).onDelete("cascade"),
+]);
+
+export const chatMessage = pgTable("chat_message", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	conversationId: uuid("conversation_id").notNull(),
+	role: text().notNull(), // 'user', 'assistant', 'system'
+	content: text().notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+		columns: [table.conversationId],
+		foreignColumns: [chatConversation.id],
+		name: "chat_message_conversation_id_chat_conversation_id_fk"
+	}).onDelete("cascade"),
+]);
