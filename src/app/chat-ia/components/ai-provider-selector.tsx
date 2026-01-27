@@ -27,6 +27,17 @@ const AI_PROVIDERS = [
     disabled: false,
   },
 
+  {
+    id: 'wiro-finance',
+    name: 'Research.IA Finance',
+    defaultLabel: 'WiroAI Finance',
+    description: 'Especialista em análise financeira',
+    subtitle: 'Análises avançadas de finanças, investimentos e mercado com 500k+ instruções',
+    badge: 'BETA',
+    icon: '📊',
+    disabled: false,
+  },
+
   // {
   //   id: 'groq-llama',
   //   name: 'Research.IA 2',

@@ -1,10 +1,11 @@
 import { streamText } from "ai";
 // import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
+import { HfInference } from '@huggingface/inference';
 
 export const POST = async (request: Request) => {
     try {
-        const { messages } = await request.json();
+        const { messages, selectedAiProvider } = await request.json();
 
         // Processar mensagens para garantir formato correto
         const processedMessages = messages
@@ -43,6 +44,106 @@ export const POST = async (request: Request) => {
                 };
             });
 
+        // Se o provider for wiro-finance, usar Hugging Face
+        if (selectedAiProvider === 'wiro-finance') {
+            if (!process.env.HUGGINGFACE_API_KEY) {
+                return new Response(
+                    JSON.stringify({
+                        error: 'API do Hugging Face não configurada. Configure HUGGINGFACE_API_KEY no arquivo .env.local'
+                    }),
+                    {
+                        status: 500,
+                        headers: { 'Content-Type': 'application/json' }
+                    }
+                );
+            }
+
+            const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+            // Converter mensagens para o formato do Hugging Face
+            const hfMessages = processedMessages.map((msg: any) => {
+                if (Array.isArray(msg.content)) {
+                    // Mensagem com conteúdo multimodal
+                    const textParts = msg.content.filter((p: any) => p.type === 'text');
+                    const imageParts = msg.content.filter((p: any) => p.type === 'image');
+
+                    if (imageParts.length > 0) {
+                        // Formato multimodal
+                        const content: any[] = [];
+                        
+                        if (textParts.length > 0) {
+                            content.push({
+                                type: 'text',
+                                text: textParts.map((p: any) => p.text).join('\n')
+                            });
+                        }
+                        
+                        imageParts.forEach((imgPart: any) => {
+                            content.push({
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:image/jpeg;base64,${imgPart.image}`
+                                }
+                            });
+                        });
+
+                        return { role: msg.role, content };
+                    }
+
+                    // Apenas texto
+                    const textContent = textParts.map((p: any) => p.text).join('\n');
+                    return { role: msg.role, content: textContent };
+                }
+                
+                return { role: msg.role, content: msg.content };
+            });
+
+            try {
+                // Usando WiroAI Finance - modelo especializado em análise financeira
+                const response = await hf.chatCompletion({
+                    model: "WiroAI/WiroAI-Finance-Qwen-7B",
+                    messages: hfMessages,
+                    max_tokens: 512,
+                    temperature: 0.9,
+                });
+
+                // Criar resposta em streaming
+                const encoder = new TextEncoder();
+                const text = response.choices?.[0]?.message?.content || 'Sem resposta do modelo';
+                
+                const readable = new ReadableStream({
+                    start(controller) {
+                        // Enviar texto em chunks para simular streaming
+                        const chunkSize = 10;
+                        for (let i = 0; i < text.length; i += chunkSize) {
+                            const chunk = text.slice(i, i + chunkSize);
+                            controller.enqueue(encoder.encode(chunk));
+                        }
+                        controller.close();
+                    }
+                });
+
+                return new Response(readable, {
+                    headers: {
+                        'Content-Type': 'text/plain; charset=utf-8',
+                        'Transfer-Encoding': 'chunked'
+                    }
+                });
+            } catch (hfError: any) {
+                console.error('Erro ao chamar Hugging Face:', hfError);
+                return new Response(
+                    JSON.stringify({
+                        error: 'Erro ao processar com WiroAI Finance. Tente novamente.'
+                    }),
+                    {
+                        status: 500,
+                        headers: { 'Content-Type': 'application/json' }
+                    }
+                );
+            }
+        }
+
+        // Provider padrão: Gemini
         const result = streamText({
             // model: openai("gpt-4o-mini"),
             model: google("models/gemini-2.5-flash-lite"),

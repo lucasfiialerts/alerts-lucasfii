@@ -15,7 +15,7 @@ if (typeof globalThis !== 'undefined') {
 }
 
 // Hugging Face Request Handler
-async function handleHuggingFaceRequest(messages: any[], userId: string) {
+async function handleHuggingFaceRequest(messages: any[], userId: string, modelName: string = 'Qwen/Qwen2.5-VL-7B-Instruct', isFinanceMode: boolean = false) {
   // Verificar se a API key está configurada
   if (!process.env.HUGGINGFACE_API_KEY) {
     console.error('❌ HUGGINGFACE_API_KEY não está configurada no .env');
@@ -26,10 +26,45 @@ async function handleHuggingFaceRequest(messages: any[], userId: string) {
 
   const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
 
-  console.log('🦙 Processando com Qwen2-VL (Alibaba)...');
+  // Verificar se há imagens nas mensagens
+  const hasImages = messages.some((msg: any) => 
+    msg.parts?.some((part: any) => part.type === 'image')
+  );
+
+  // Se for Finance mas tiver imagens, usar Qwen2.5-VL ao invés de GLM
+  if (isFinanceMode && hasImages && modelName === 'zai-org/GLM-4.7-Flash') {
+    console.log('🖼️ Imagens detectadas no modo Finance. Alternando para Qwen2.5-VL (suporta visão)...');
+    modelName = 'Qwen/Qwen2.5-VL-7B-Instruct';
+  }
+
+  // Log apropriado baseado no modo
+  if (isFinanceMode) {
+    console.log(`📊 Processando com modo Finance (${hasImages ? 'com imagens' : 'texto'})...`);
+  } else {
+    console.log('🦙 Processando com Qwen2-VL (Alibaba)...');
+  }
+
+  // System prompt especializado para modo Finance
+  const financeSystemPrompt = isFinanceMode ? `Você é um especialista em análise financeira e investimentos, com foco em Fundos Imobiliários (FIIs) e mercado brasileiro. 
+
+**IMPORTANTE: RESPONDA SEMPRE EM PORTUGUÊS BRASILEIRO (PT-BR). NUNCA use inglês nas suas respostas.**
+
+Sua expertise inclui:
+- Análise fundamentalista de FIIs (dividend yield, P/VP, vacância, liquidez)
+- Avaliação de risco e retorno
+- Estratégias de carteira de investimentos
+- Interpretação de indicadores financeiros
+- Análise de relatórios gerenciais e balanços
+- Tendências do mercado imobiliário brasileiro
+
+Sempre forneça análises objetivas, baseadas em dados e indicadores reais. Explique conceitos de forma clara e didática, adaptando-se ao nível de conhecimento do investidor.
+
+**LEMBRE-SE: Todas as respostas devem ser em PORTUGUÊS BRASILEIRO, incluindo títulos, listas e exemplos.**
+
+IMPORTANTE: Nunca garanta retornos futuros. Sempre mencione os riscos envolvidos e que a decisão final é do investidor.` : '';
 
   // Converter mensagens para o formato do Hugging Face
-  const hfMessages = messages.map((msg: any) => {
+  let hfMessages = messages.map((msg: any) => {
     if (msg.parts) {
       // Mensagem com parts (pode ter imagens)
       const textParts = msg.parts.filter((p: any) => p.type === 'text');
@@ -77,23 +112,101 @@ async function handleHuggingFaceRequest(messages: any[], userId: string) {
     }
   });
 
+  // Adicionar system prompt no início se for modo Finance
+  if (isFinanceMode && financeSystemPrompt) {
+    hfMessages = [
+      { role: 'system', content: financeSystemPrompt },
+      ...hfMessages
+    ];
+    
+    // Forçar a primeira mensagem do usuário a incluir instrução de português
+    if (hfMessages.length > 1 && hfMessages[1].role === 'user') {
+      const originalContent = hfMessages[1].content;
+      hfMessages[1].content = `[INSTRUÇÃO IMPORTANTE: Responda SOMENTE em português brasileiro (PT-BR). NÃO use inglês.]\n\n${originalContent}`;
+    }
+  }
+
   console.log('📤 Enviando para Hugging Face:', { 
     messageCount: hfMessages.length,
-    model: "Qwen/Qwen2.5-VL-7B-Instruct"
+    model: modelName,
+    financeMode: isFinanceMode
   });
 
   try {
-    // Usando Qwen2.5-VL da Alibaba - modelo multimodal com suporte a visão
+    // Configurar parâmetros baseados no modo e modelo
+    const maxTokens = isFinanceMode ? 1500 : 2000;
+    const temperature = isFinanceMode ? 0.6 : 0.7;
+
+    // Chamar o modelo do Hugging Face
     const response = await hf.chatCompletion({
-      model: "Qwen/Qwen2.5-VL-7B-Instruct",
+      model: modelName,
       messages: hfMessages,
-      max_tokens: 2000,
-      temperature: 0.7,
+      max_tokens: maxTokens,
+      temperature: temperature,
     });
 
-    // Criar resposta simples (não-streaming por limitações da API gratuita)
+    console.log('✅ Resposta recebida do HF:', {
+      hasChoices: !!response.choices,
+      choicesLength: response.choices?.length,
+      hasContent: !!response.choices?.[0]?.message?.content,
+      hasReasoningContent: !!(response.choices?.[0]?.message as any)?.reasoning_content,
+      contentPreview: response.choices?.[0]?.message?.content?.substring(0, 100),
+      reasoningPreview: ((response.choices?.[0]?.message as any)?.reasoning_content as string)?.substring(0, 100)
+    });
+
+    // GLM-4.7-Flash usa reasoning_content ao invés de content
     const encoder = new TextEncoder();
-    const text = response.choices?.[0]?.message?.content || 'Sem resposta do modelo';
+    const message = response.choices?.[0]?.message as any;
+    let text = message?.reasoning_content || message?.content || 'Sem resposta do modelo';
+    
+    console.log('📝 Texto original:', typeof text === 'string' ? text.substring(0, 200) : text);
+    
+    // Se for modo Finance e o texto estiver em inglês, traduzir para português
+    if (isFinanceMode && typeof text === 'string' && text.length > 0) {
+      const isEnglish = /\b(analyze|user|request|fund|yield|dividend|calculate|based|monthly|annual)\b/i.test(text.substring(0, 500));
+      
+      if (isEnglish) {
+        console.log('🌐 Detectado texto em inglês, traduzindo para português...');
+        
+        try {
+          // Usar Gemini para traduzir
+          const translateResponse = await hf.chatCompletion({
+            model: 'Qwen/Qwen2.5-VL-7B-Instruct',
+            messages: [
+              { 
+                role: 'system', 
+                content: 'You are a professional translator. Translate financial analysis texts from English to Brazilian Portuguese (PT-BR). Maintain formatting, structure, and all numbers/calculations exactly as they are.' 
+              },
+              { 
+                role: 'user', 
+                content: `Traduza para português brasileiro:\n\n${text}` 
+              }
+            ],
+            max_tokens: 2000,
+            temperature: 0.3,
+          });
+          
+          const translatedText = translateResponse.choices?.[0]?.message?.content;
+          if (translatedText) {
+            text = translatedText;
+            console.log('✅ Tradução concluída');
+          }
+        } catch (translateError) {
+          console.error('❌ Erro na tradução, usando texto original:', translateError);
+        }
+      }
+    }
+    
+    // Limpar metadados do processo de raciocínio (thinking process)
+    if (typeof text === 'string') {
+      // Remover linhas de metadados como "Esboço do Conteúdo", "Polimento Final", etc.
+      text = text
+        .replace(/^\d+\.\s*\*\*[A-Z][^:]+:\*\*[\s\S]*?(?=\n\d+\.|\n\n[A-Z]|$)/gm, '') // Remove seções numeradas de thinking
+        .replace(/^(Esboço|Polimento|Rascunho|Verificação|Análise Interna)[^:]*:.*$/gm, '') // Remove linhas de processo
+        .replace(/^\(.*?\)$/gm, '') // Remove comentários entre parênteses
+        .replace(/\n{3,}/g, '\n\n') // Remove múltiplas linhas em branco
+        .trim();
+    }
     
     const readable = new ReadableStream({
       start(controller) {
@@ -146,10 +259,16 @@ async function getAIModel(userId: string, hasImages: boolean = false) {
 
     const provider = userData?.selectedAiProvider || 'gemini-flash';
 
+    // WiroAI Finance (Hugging Face) - usando GLM-4.7-Flash otimizado
+    if (provider === 'wiro-finance') {
+      console.log('📊 Provider: WiroAI Finance (GLM-4.7-Flash especializado)');
+      return { model: null, isGroq: false, isHF: true, modelName: 'zai-org/GLM-4.7-Flash', isFinanceMode: true };
+    }
+
     // Hugging Face Llama 4 Maverick
     if (provider === 'llama4-vision') {
       console.log('🦙 Provider: Llama 4 Maverick (Hugging Face)');
-      return { model: null, isGroq: false, isHF: true };
+      return { model: null, isGroq: false, isHF: true, modelName: 'Qwen/Qwen2.5-VL-7B-Instruct' };
     }
 
     // Groq Llama 3.3 (apenas texto, modelos de visão foram descontinuados)
@@ -186,14 +305,14 @@ export const POST = async (request: Request) => {
         );
 
         // Get user's selected model
-        const { model, isGroq, isHF } = await getAIModel(session.user.id, hasImages);
+        const { model, isGroq, isHF, modelName, isFinanceMode } = await getAIModel(session.user.id, hasImages);
 
-        console.log('🔍 Provider selecionado:', { isGroq, isHF, hasImages });
+        console.log('🔍 Provider selecionado:', { isGroq, isHF, modelName, isFinanceMode, hasImages });
 
         // Se for Hugging Face, processar com API diferente
         if (isHF) {
-            console.log('🦙 Usando Hugging Face Llama 4 Maverick...');
-            return handleHuggingFaceRequest(messages, session.user.id);
+            console.log(`🤗 Usando Hugging Face: ${modelName || 'modelo padrão'}...`);
+            return handleHuggingFaceRequest(messages, session.user.id, modelName, isFinanceMode || false);
         }
 
         console.log('📨 Mensagens recebidas:', JSON.stringify(messages, null, 2));

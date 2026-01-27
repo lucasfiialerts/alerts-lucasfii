@@ -56,6 +56,7 @@ export async function POST(request: Request) {
       'groq-llama',
       'groq-mixtral',
       'llama4-vision',
+      'wiro-finance',
     ];
 
     if (!validProviders.includes(provider)) {
