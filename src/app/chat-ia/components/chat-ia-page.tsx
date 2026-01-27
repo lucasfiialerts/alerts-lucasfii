@@ -101,6 +101,10 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     setInput(event.target.value);
   };
 
+  const handleVoiceInput = (text: string) => {
+    setInput(text);
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -466,6 +470,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
             onImageUpload={handleImageUpload}
             pdfAttached={extractedPdfData ? { fileName: extractedPdfData.fileName, pages: extractedPdfData.pages } : null}
             aiProviderSelector={<AiProviderSelector />}
+            onVoiceInput={handleVoiceInput}
           />
           <p className="mt-2 text-center text-xs text-white/40">
             O Research.IA pode cometer erros. Por isso, é bom verificar as informações.

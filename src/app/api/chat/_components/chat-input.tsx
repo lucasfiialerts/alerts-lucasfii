@@ -1,9 +1,9 @@
 "use client";
 
-import { Paperclip, Send } from "lucide-react";
+import { Paperclip, Send, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ReactNode } from "react";
+import { ReactNode, useState, useRef } from "react";
 
 interface ChatInputProps {
   input: string;
@@ -13,6 +13,7 @@ interface ChatInputProps {
   onImageUpload?: (file: File) => void;
   pdfAttached?: { fileName: string; pages: number } | null;
   aiProviderSelector?: ReactNode;
+  onVoiceInput?: (text: string) => void;
 }
 
 export const ChatInput = ({
@@ -23,7 +24,11 @@ export const ChatInput = ({
   onImageUpload,
   pdfAttached,
   aiProviderSelector,
+  onVoiceInput,
 }: ChatInputProps) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -43,6 +48,60 @@ export const ChatInput = ({
       }
     };
     input.click();
+  };
+
+  const toggleVoiceRecording = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.');
+      return;
+    }
+
+    if (isRecording) {
+      // Para a gravação
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      // Inicia a gravação
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'pt-BR';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        if (finalTranscript && onVoiceInput) {
+          onVoiceInput(input + finalTranscript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Erro no reconhecimento de voz:', event.error);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+      setIsRecording(true);
+    }
   };
 
   return (
@@ -96,6 +155,23 @@ export const ChatInput = ({
             }}
           />
         </div>
+        
+        {/* Botão de voz */}
+        <Button
+          size="icon"
+          type="button"
+          variant="ghost"
+          className={`size-10 shrink-0 rounded-xl transition-all ${
+            isRecording 
+              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 animate-pulse' 
+              : 'text-white/60 hover:bg-white/[0.08] hover:text-white/90'
+          }`}
+          onClick={toggleVoiceRecording}
+          disabled={isLoading}
+          title={isRecording ? "Parar gravação" : "Gravar áudio"}
+        >
+          {isRecording ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+        </Button>
         
         {/* Botão de enviar */}
         <Button
