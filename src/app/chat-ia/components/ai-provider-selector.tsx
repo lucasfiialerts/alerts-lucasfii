@@ -148,11 +148,11 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
             key={provider.id}
             onClick={() => !provider.disabled && handleSelectProvider(provider.id)}
             disabled={isLoading || provider.disabled}
-            className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${provider.disabled
+            className={`flex items-start gap-3 p-3 rounded-lg transition-colors focus:bg-transparent focus:text-white ${provider.disabled
               ? 'opacity-50 cursor-not-allowed bg-white/[0.02]'
               : selectedProvider === provider.id
-                ? 'bg-blue-600/15 text-white cursor-pointer'
-                : 'hover:bg-blue-600/[0.02] text-blue/90 cursor-pointer'
+                ? 'bg-white/[0.06] text-white cursor-pointer hover:bg-white/[0.06]'
+                : 'text-white/90 cursor-pointer hover:bg-white/[0.03] hover:text-white/90'
               }`}
           >
             <span className={`text-2xl mt-0.5 ${provider.disabled ? 'grayscale opacity-60' : ''}`}>
