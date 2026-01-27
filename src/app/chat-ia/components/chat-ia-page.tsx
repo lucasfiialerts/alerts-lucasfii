@@ -53,17 +53,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(undefined);
   
   const initialMessages = useMemo<ChatMessageData[]>(
-    () => [
-      {
-        id: "system-welcome",
-        role: "system",
-        content:
-          "Pergunte à Research.IA! Seu assistente inteligente especializado em fundos imobiliários.",
-        parts: toTextParts(
-          "Pergunte à Research.IA! Seu assistente inteligente especializado em fundos imobiliários.",
-        ),
-      },
-    ],
+    () => [],
     [],
   );
 
