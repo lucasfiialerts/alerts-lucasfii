@@ -64,6 +64,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [extractedPdfData, setExtractedPdfData] = useState<{ fileName: string; text: string; pages: number } | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -89,14 +90,47 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     void sendMessage(input.trim());
   };
 
-  const handleImageUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      setSelectedImage(base64);
-      toast.success("Imagem anexada! Digite sua pergunta e envie.");
-    };
-    reader.readAsDataURL(file);
+  const handleImageUpload = async (file: File) => {
+    // Se for PDF, processar o texto
+    if (file.type === 'application/pdf') {
+      toast.info('Processando PDF...');
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/extract-pdf', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Armazenar dados do PDF sem preencher o input
+          setExtractedPdfData({
+            fileName: data.fileName,
+            text: data.text,
+            pages: data.pages
+          });
+          toast.success(`PDF processado! ${data.pages} páginas extraídas. Digite sua pergunta.`);
+        } else {
+          toast.error(data.error || 'Erro ao processar PDF');
+        }
+      } catch (error) {
+        console.error('Erro ao processar PDF:', error);
+        toast.error('Erro ao processar PDF');
+      }
+    } else {
+      // Se for imagem, processar como antes
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        setSelectedImage(base64);
+        toast.success("Imagem anexada! Digite sua pergunta e envie.");
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const getMessageText = (message: ChatMessageData) =>
@@ -110,6 +144,14 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const sendMessage = async (text: string) => {
     if (isLoading) {
       return;
+    }
+
+    // Preparar o texto final (incluindo PDF se houver)
+    let finalText = text;
+    if (extractedPdfData) {
+      const pdfIntro = `📄 **PDF: ${extractedPdfData.fileName}** (${extractedPdfData.pages} páginas)\n\n`;
+      const pdfContent = extractedPdfData.text.substring(0, 100000); // Limite de 100k caracteres
+      finalText = `${pdfIntro}${pdfContent}\n\n**Minha pergunta:** ${text}`;
     }
 
     // Create conversation if doesn't exist
@@ -133,10 +175,10 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     const userMessage: ChatMessageData = {
       id: crypto.randomUUID(),
       role: "user",
-      content: text,
+      content: finalText,
       parts: selectedImage 
-        ? [{ type: "text" as const, text }, { type: "image" as const, image: selectedImage }]
-        : toTextParts(text),
+        ? [{ type: "text" as const, text: finalText }, { type: "image" as const, image: selectedImage }]
+        : toTextParts(finalText),
     };
 
     const assistantMessageId = crypto.randomUUID();
@@ -150,6 +192,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setInput("");
     setSelectedImage(null); // Clear selected image after sending
+    setExtractedPdfData(null); // Clear PDF data after sending
     setIsLoading(true);
 
     // Save user message to backend
@@ -400,6 +443,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
             onSubmit={handleSubmit}
             isLoading={isLoading}
             onImageUpload={handleImageUpload}
+            pdfAttached={extractedPdfData ? { fileName: extractedPdfData.fileName, pages: extractedPdfData.pages } : null}
           />
           <p className="mt-2 text-center text-xs text-white/40">
             O Research.IA pode cometer erros. Por isso, é bom verificar as informações.

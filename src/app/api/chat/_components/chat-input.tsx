@@ -10,6 +10,7 @@ interface ChatInputProps {
   onSubmit: (e: React.FormEvent) => void;
   isLoading?: boolean;
   onImageUpload?: (file: File) => void;
+  pdfAttached?: { fileName: string; pages: number } | null;
 }
 
 export const ChatInput = ({
@@ -18,6 +19,7 @@ export const ChatInput = ({
   onSubmit,
   isLoading,
   onImageUpload,
+  pdfAttached,
 }: ChatInputProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -29,7 +31,7 @@ export const ChatInput = ({
   const handleImageClick = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'image/*,application/pdf';
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file && onImageUpload) {
@@ -40,7 +42,13 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="flex w-full items-center gap-2 sm:gap-2.5">
+    <div className="flex w-full flex-col gap-2">
+      {pdfAttached && (
+        <div className="flex items-center gap-2 rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-400">
+          <span>📄 {pdfAttached.fileName} ({pdfAttached.pages} páginas extraídas)</span>
+        </div>
+      )}
+      <div className="flex w-full items-center gap-2 sm:gap-2.5">
       <Button
         size="icon"
         type="button"
@@ -66,6 +74,7 @@ export const ChatInput = ({
       >
         <Send className="size-5 text-white" />
       </Button>
+    </div>
     </div>
   );
 };
