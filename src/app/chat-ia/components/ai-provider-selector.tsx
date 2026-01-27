@@ -21,8 +21,8 @@ const AI_PROVIDERS = [
     id: 'llama4-vision',
     name: 'Qwen IA',
     defaultLabel: 'Agente 3',
-    description: 'Análise avançada de imagens',
-    subtitle: 'Visão computacional com Qwen 2.5',
+    description: 'Visão computacional com Qwen 2.5',
+    subtitle: 'Análises de imagens e Respostas em textos',
     badge: 'BETA',
     icon: '🤖',
     disabled: false,
@@ -30,25 +30,27 @@ const AI_PROVIDERS = [
 
   {
     id: 'groq-llama',
-    name: 'Groq Llama 3.3',
+    name: 'Groq',
     defaultLabel: 'Agente 2',
     description: 'Ultra rápido',
     subtitle: '(Apenas texto)',
-    badge: 'BETA',
-    icon: '💬',
-    disabled: false,
-  },
-
-  {
-    id: 'gemini-flash',
-    name: 'Gemini Flash',
-    defaultLabel: 'Agente 1',
-    description: 'Rápido e eficiente',
-    subtitle: 'Análises de imagens e Respostas em textos',
     badge: 'EM BREVE',
-    icon: '⚡',
+    // badge: 'BETA',
+    // badge: 'NOVO',
+    icon: '💬',
     disabled: true,
   },
+
+  // {
+  //   id: 'gemini-flash',
+  //   name: 'Gemini',
+  //   defaultLabel: 'Agente 1',
+  //   description: 'Rápido e eficiente',
+  //   subtitle: 'Análises de imagens e Respostas em textos',
+  //   badge: 'EM BREVE',
+  //   icon: '⚡',
+  //   disabled: true,
+  // },
 
 
 ];
