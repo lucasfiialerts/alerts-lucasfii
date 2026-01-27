@@ -1,17 +1,81 @@
 
 import { streamText } from "ai";
-// import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
+import { groq as groqProvider } from '@ai-sdk/groq';
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { db } from "@/db";
+import { userTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
+// Disable AI SDK warnings
+if (typeof globalThis !== 'undefined') {
+  (globalThis as any).AI_SDK_LOG_WARNINGS = false;
+}
+
+// Function to get AI model based on user preference
+async function getAIModel(userId: string) {
+  try {
+    const [userData] = await db
+      .select({ selectedAiProvider: userTable.selectedAiProvider })
+      .from(userTable)
+      .where(eq(userTable.id, userId))
+      .limit(1);
+
+    const provider = userData?.selectedAiProvider || 'gemini-flash';
+
+    if (provider === 'groq-llama') {
+      console.log('🚀 Usando GROQ Llama 3.3 (70B)');
+      return { model: groqProvider('llama-3.3-70b-versatile'), isGroq: true };
+    }
+    
+    console.log('⚡ Usando Gemini Flash Lite');
+    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false };
+  } catch (error) {
+    console.error("Error getting AI model:", error);
+    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false };
+  }
+}
 
 export const POST = async (request: Request) => {
     try {
+        // Get user session
+        const session = await auth.api.getSession({
+          headers: await headers(),
+        });
+
+        if (!session?.user?.id) {
+          return Response.json({ error: "Não autenticado" }, { status: 401 });
+        }
+
         const { messages } = await request.json();
 
-        // Processar mensagens para garantir formato correto
+        // Get user's selected model
+        const { model, isGroq } = await getAIModel(session.user.id);
+
+        // Processar mensagens de forma diferente para Groq e Gemini
         const processedMessages = messages
-            .filter((msg: any) => msg.role !== 'system') // Remover mensagens do sistema das messages
+            .filter((msg: any) => msg.role !== 'system')
             .map((msg: any) => {
-                // Se a mensagem tem parts, processar
+                // Para Groq, usar apenas texto simples
+                if (isGroq) {
+                    let textContent = '';
+                    if (msg.parts && Array.isArray(msg.parts)) {
+                        textContent = msg.parts
+                            .filter((part: any) => part.type === 'text')
+                            .map((part: any) => part.text)
+                            .join('');
+                    } else {
+                        textContent = msg.content || '';
+                    }
+                    
+                    return {
+                        role: msg.role,
+                        content: textContent
+                    };
+                }
+                
+                // Para Gemini, processar parts normalmente
                 if (msg.parts && Array.isArray(msg.parts)) {
                     const content: any[] = [];
 
@@ -19,7 +83,6 @@ export const POST = async (request: Request) => {
                         if (part.type === 'text' && part.text) {
                             content.push({ type: 'text', text: part.text });
                         } else if (part.type === 'image' && part.image) {
-                            // Para Gemini, extrair base64 puro
                             let imageData = part.image;
                             if (imageData.includes('base64,')) {
                                 imageData = imageData.split('base64,')[1];
@@ -37,16 +100,15 @@ export const POST = async (request: Request) => {
                     };
                 }
 
-                // Fallback para mensagens sem parts
                 return {
                     role: msg.role,
                     content: msg.content || ''
                 };
             });
 
-        const result = streamText({
-            // model: openai("gpt-4o-mini"),
-            model: google("models/gemini-2.5-flash-lite"),
+        try {
+            const result = streamText({
+                model: model,
             messages: processedMessages,
             system: `Você é o tem como objetivo de analisar textos e PDFs fazer um resumo da infromacao contida neles.
 
@@ -234,7 +296,20 @@ O assistente NÃO DEVE:
 • Usar marcadores, títulos e blocos para melhor visualização`,
         });
 
-        return result.toTextStreamResponse();
+            return result.toTextStreamResponse();
+        } catch (modelError: any) {
+            console.error('❌ Erro ao usar modelo:', modelError.message);
+            
+            return new Response(
+                JSON.stringify({
+                    error: modelError.message || 'Erro ao processar mensagem. Tente novamente mais tarde.'
+                }),
+                {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+        }
     } catch (error: any) {
         console.error('Erro na API do chat:', error);
 
@@ -253,7 +328,7 @@ O assistente NÃO DEVE:
 
         return new Response(
             JSON.stringify({
-                error: 'Erro ao processar mensagem. Tente novamente.'
+                error: 'Erro ao processar mensagem. Tente novamente mais tarde.'
             }),
             {
                 status: 500,

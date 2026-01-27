@@ -231,6 +231,9 @@ export const user = pgTable("user", {
 	alertPreferencesYield: boolean("alert_preferences_yield").default(false),
 	alertPreferencesFnet: boolean("alert_preferences_fnet").default(false),
 	alertPreferencesBitcoin: boolean("alert_preferences_bitcoin").default(false),
+	// AI Provider Preferences
+	selectedAiProvider: text("selected_ai_provider").default('gemini-flash'),
+	aiProviderCustomName: text("ai_provider_custom_name"),
 }, (table) => [
 	unique("user_email_unique").on(table.email),
 ]);

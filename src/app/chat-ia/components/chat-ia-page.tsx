@@ -8,6 +8,7 @@ import { ChatInput } from "@/app/api/chat/_components/chat-input";
 import { ChatMessage, type ChatMessageData } from "@/app/api/chat/_components/chat-message";
 import { Button } from "@/components/ui/button";
 import { ChatSidebar } from "./chat-sidebar";
+import { AiProviderSelector } from "./ai-provider-selector";
 import { 
   createConversation, 
   getConversationMessages, 
@@ -158,7 +159,19 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       });
 
       if (!response.ok || !response.body) {
-        throw new Error("Resposta inválida do servidor.");
+        // Try to parse error message from response
+        let errorMessage = "Erro ao processar mensagem. Tente novamente mais tarde.";
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // Use default message if parsing fails
+        }
+        
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
 
       const reader = response.body.getReader();
@@ -191,14 +204,17 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         await saveMessage(conversationId, "assistant", assistantText);
       }
     } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+      toast.error("Erro ao processar mensagem. Tente novamente mais tarde.");
+      
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "system",
-          content: "Não foi possível obter resposta da IA. Tente novamente.",
+          content: "Não foi possível obter resposta da IA. Tente novamente mais tarde.",
           parts: toTextParts(
-            "Não foi possível obter resposta da IA. Tente novamente.",
+            "Não foi possível obter resposta da IA. Tente novamente mais tarde.",
           ),
         },
       ]);
@@ -267,14 +283,17 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
               </div>
             </div>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08] sm:px-4"
-            onClick={() => setShowSuggestions((prev) => !prev)}
-          >
-            {showSuggestions ? "Ocultar" : "💡 Dicas"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <AiProviderSelector />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08] sm:px-4"
+              onClick={() => setShowSuggestions((prev) => !prev)}
+            >
+              {showSuggestions ? "Ocultar" : "💡 Dicas"}
+            </Button>
+          </div>
         </div>
       </div>
 
