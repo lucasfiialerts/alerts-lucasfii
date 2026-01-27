@@ -16,30 +16,29 @@ import { Input } from "@/components/ui/input";
 
 const AI_PROVIDERS = [
 
-
   {
     id: 'llama4-vision',
-    name: 'Qwen IA',
-    defaultLabel: 'Agente 3',
+    name: 'Research.IA',
+    defaultLabel: 'Qwen IA',
     description: 'Visão computacional com Qwen 2.5',
-    subtitle: 'Análises de imagens e Respostas em textos',
+    subtitle: 'Pergunte à Research.IA! Seu assistente inteligente especializado em FIIs.',
     badge: 'BETA',
     icon: '🤖',
     disabled: false,
   },
 
-  {
-    id: 'groq-llama',
-    name: 'Groq',
-    defaultLabel: 'Agente 2',
-    description: 'Ultra rápido',
-    subtitle: '(Apenas texto)',
-    badge: 'EM BREVE',
-    // badge: 'BETA',
-    // badge: 'NOVO',
-    icon: '💬',
-    disabled: true,
-  },
+  // {
+  //   id: 'groq-llama',
+  //   name: 'Research.IA 2',
+  //   defaultLabel: 'Groq IA',
+  //   description: 'Ultra rápido',
+  //   subtitle: '(Apenas texto)',
+  //   badge: 'EM BREVE',
+  //   // badge: 'BETA',
+  //   // badge: 'NOVO',
+  //   icon: '💬',
+  //   disabled: true,
+  // },
 
   // {
   //   id: 'gemini-flash',
@@ -130,10 +129,10 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
         <Button
           variant="ghost"
           size="icon"
-          className="h-10 w-10 rounded-xl border border-white/10 bg-white/[0.03] text-white/90 hover:bg-white/[0.06] hover:text-white sm:h-11 sm:w-11"
+          className="size-9 shrink-0 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
           title={getCurrentProviderLabel()}
         >
-          <Bot className="size-5" />
+          <Bot className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -150,10 +149,10 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
             onClick={() => !provider.disabled && handleSelectProvider(provider.id)}
             disabled={isLoading || provider.disabled}
             className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${provider.disabled
-                ? 'opacity-50 cursor-not-allowed bg-white/[0.02]'
-                : selectedProvider === provider.id
-                  ? 'bg-blue-600/15 text-white cursor-pointer'
-                  : 'hover:bg-blue-600/[0.02] text-blue/90 cursor-pointer'
+              ? 'opacity-50 cursor-not-allowed bg-white/[0.02]'
+              : selectedProvider === provider.id
+                ? 'bg-blue-600/15 text-white cursor-pointer'
+                : 'hover:bg-blue-600/[0.02] text-blue/90 cursor-pointer'
               }`}
           >
             <span className={`text-2xl mt-0.5 ${provider.disabled ? 'grayscale opacity-60' : ''}`}>
@@ -166,8 +165,8 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
                 </span>
                 {provider.badge && (
                   <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${provider.badge === 'EM BREVE'
-                      ? 'bg-orange-600/30 text-orange-400 border border-orange-600/50'
-                      : 'bg-blue-600/30 text-blue-400 border border-blue-600/50'
+                    ? 'bg-orange-600/30 text-orange-400 border border-orange-600/50'
+                    : 'bg-blue-600/30 text-blue-400 border border-blue-600/50'
                     }`}>
                     {provider.badge}
                   </span>
