@@ -4,7 +4,7 @@ export type ChatMessageData = {
   id: string;
   role: "user" | "assistant" | "system";
   content?: string;
-  parts?: Array<{ type: "text"; text: string }>;
+  parts?: Array<{ type: "text"; text: string } | { type: "image"; image: string }>;
 };
 
 interface ChatMessageProps {
@@ -41,12 +41,34 @@ export const ChatMessage = ({
   }
 
   if (isUser) {
+    const textParts = message.parts?.filter((part) => part.type === "text") || [];
+    const imageParts = message.parts?.filter((part) => part.type === "image") || [];
+    
+    const textContent = textParts.length
+      ? textParts.map((part: any) => part.text).join("")
+      : message.content || "";
+
     return (
       <div className="flex w-full flex-col items-end gap-3 pt-4 pr-2 pb-0 pl-8 sm:pt-5 sm:pr-4 sm:pl-10">
-        <div className="flex max-w-[85%] items-center gap-2.5 rounded-2xl bg-white/[0.08] px-4 py-3 sm:max-w-[75%]">
-          <p className="text-[15px] leading-relaxed font-normal text-white/95 break-words whitespace-pre-wrap">
-            {content}
-          </p>
+        <div className="flex max-w-[85%] flex-col gap-2 rounded-2xl bg-white/[0.08] px-4 py-3 sm:max-w-[75%]">
+          {imageParts.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageParts.map((part: any, idx: number) => (
+                <img
+                  key={idx}
+                  src={part.image}
+                  alt="Uploaded"
+                  className="max-w-full rounded-lg"
+                  style={{ maxHeight: '200px' }}
+                />
+              ))}
+            </div>
+          )}
+          {textContent && (
+            <p className="text-[15px] leading-relaxed font-normal text-white/95 break-words whitespace-pre-wrap">
+              {textContent}
+            </p>
+          )}
         </div>
       </div>
     );

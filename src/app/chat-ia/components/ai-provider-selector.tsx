@@ -15,22 +15,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const AI_PROVIDERS = [
+
+
   {
-    id: 'gemini-flash',
-    name: 'Gemini Flash',
-    defaultLabel: 'Agente 1',
-    description: 'Rápido e eficiente',
-    subtitle: 'Respostas rápidas',
-    icon: '⚡',
+    id: 'llama4-vision',
+    name: 'Qwen IA',
+    defaultLabel: 'Agente 3',
+    description: 'Análise avançada de imagens',
+    subtitle: 'Visão computacional com Qwen 2.5',
+    badge: 'BETA',
+    icon: '🤖',
+    disabled: false,
   },
+
   {
     id: 'groq-llama',
     name: 'Groq Llama 3.3',
     defaultLabel: 'Agente 2',
     description: 'Ultra rápido',
-    subtitle: 'Velocidade extrema de processamento',
-    icon: '🚀',
+    subtitle: '(Apenas texto)',
+    badge: 'BETA',
+    icon: '💬',
+    disabled: false,
   },
+
+  {
+    id: 'gemini-flash',
+    name: 'Gemini Flash',
+    defaultLabel: 'Agente 1',
+    description: 'Rápido e eficiente',
+    subtitle: 'Análises de imagens e Respostas em textos',
+    badge: 'EM BREVE',
+    icon: '⚡',
+    disabled: true,
+  },
+
+
 ];
 
 interface AiProviderSelectorProps {
@@ -114,34 +134,47 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
           <ChevronDown className="size-4 text-white/60" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end" 
+      <DropdownMenuContent
+        align="end"
         className="w-80 border-white/10 bg-[#1f1f1f] text-white p-2"
       >
         <DropdownMenuLabel className="text-xs text-white/60 font-normal px-2 pb-2">
           Escolher modelo
         </DropdownMenuLabel>
-        
+
         {AI_PROVIDERS.map((provider) => (
           <DropdownMenuItem
             key={provider.id}
-            onClick={() => handleSelectProvider(provider.id)}
-            disabled={isLoading}
-            className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-              selectedProvider === provider.id
-                ? 'bg-blue-600/15 text-white'
-                : 'hover:bg-blue-600/[0.02] text-blue/90'
-            }`}
+            onClick={() => !provider.disabled && handleSelectProvider(provider.id)}
+            disabled={isLoading || provider.disabled}
+            className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${provider.disabled
+                ? 'opacity-50 cursor-not-allowed bg-white/[0.02]'
+                : selectedProvider === provider.id
+                  ? 'bg-blue-600/15 text-white cursor-pointer'
+                  : 'hover:bg-blue-600/[0.02] text-blue/90 cursor-pointer'
+              }`}
           >
-            <span className="text-2xl mt-0.5">{provider.icon}</span>
+            <span className={`text-2xl mt-0.5 ${provider.disabled ? 'grayscale opacity-60' : ''}`}>
+              {provider.icon}
+            </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">{provider.name}</span>
-                {selectedProvider === provider.id && (
+                <span className={`font-semibold text-sm ${provider.disabled ? 'text-white/40' : ''}`}>
+                  {provider.name}
+                </span>
+                {provider.badge && (
+                  <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${provider.badge === 'EM BREVE'
+                      ? 'bg-orange-600/30 text-orange-400 border border-orange-600/50'
+                      : 'bg-blue-600/30 text-blue-400 border border-blue-600/50'
+                    }`}>
+                    {provider.badge}
+                  </span>
+                )}
+                {selectedProvider === provider.id && !provider.disabled && (
                   <Check className="size-4 text-blue-400" />
                 )}
               </div>
-              <p className="text-xs text-white/60 mt-0.5">
+              <p className={`text-xs mt-0.5 ${provider.disabled ? 'text-white/30' : 'text-white/60'}`}>
                 {provider.subtitle}
               </p>
             </div>
@@ -149,7 +182,7 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
         ))}
 
         <DropdownMenuSeparator className="bg-white/10 my-2" />
-        
+
         <div className="px-2 py-2">
           <p className="text-xs text-white/50">
             Troque de modelo a qualquer momento

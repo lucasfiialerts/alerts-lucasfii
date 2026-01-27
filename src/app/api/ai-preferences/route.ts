@@ -55,6 +55,7 @@ export async function POST(request: Request) {
       'gemini-pro',
       'groq-llama',
       'groq-mixtral',
+      'llama4-vision',
     ];
 
     if (!validProviders.includes(provider)) {

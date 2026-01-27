@@ -63,6 +63,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -86,6 +87,16 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     }
 
     void sendMessage(input.trim());
+  };
+
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setSelectedImage(base64);
+      toast.success("Imagem anexada! Digite sua pergunta e envie.");
+    };
+    reader.readAsDataURL(file);
   };
 
   const getMessageText = (message: ChatMessageData) =>
@@ -123,7 +134,9 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       id: crypto.randomUUID(),
       role: "user",
       content: text,
-      parts: toTextParts(text),
+      parts: selectedImage 
+        ? [{ type: "text" as const, text }, { type: "image" as const, image: selectedImage }]
+        : toTextParts(text),
     };
 
     const assistantMessageId = crypto.randomUUID();
@@ -136,6 +149,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setInput("");
+    setSelectedImage(null); // Clear selected image after sending
     setIsLoading(true);
 
     // Save user message to backend
@@ -278,21 +292,21 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
                 <Bot className={`size-4 text-white/80 ${isLoading ? 'animate-bounce' : ''}`} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white/90">Research.IA</p>
+                {/* <p className="text-sm font-semibold text-white/90">Research.IA</p> */}
                 {/* <p className="text-xs text-emerald-400/80">online agora</p> */}
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <AiProviderSelector />
-            <Button
+            {/* <Button
               variant="secondary"
               size="sm"
               className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08] sm:px-4"
               onClick={() => setShowSuggestions((prev) => !prev)}
             >
               {showSuggestions ? "Ocultar" : "💡 Dicas"}
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
@@ -350,11 +364,24 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       {/* Input Area - Fixed at bottom */}
       <div className="flex-shrink-0">
         <div className="mx-auto max-w-3xl px-4 pb-3 pt-3 sm:pb-4 sm:pt-4">
+          {selectedImage && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
+              <img src={selectedImage} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+              <p className="text-sm text-white/70">Imagem anexada</p>
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="ml-auto rounded-lg px-2 py-1 text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              >
+                Remover
+              </button>
+            </div>
+          )}
           <ChatInput
             input={input}
             onChange={handleInputChange}
             onSubmit={handleSubmit}
             isLoading={isLoading}
+            onImageUpload={handleImageUpload}
           />
           <p className="mt-2 text-center text-xs text-white/40">
             O Research.IA pode cometer erros. Por isso, é bom verificar as informações.

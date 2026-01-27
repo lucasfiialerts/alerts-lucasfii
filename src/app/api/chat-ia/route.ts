@@ -7,14 +7,136 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import { userTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { HfInference } from '@huggingface/inference';
 
 // Disable AI SDK warnings
 if (typeof globalThis !== 'undefined') {
   (globalThis as any).AI_SDK_LOG_WARNINGS = false;
 }
 
+// Hugging Face Request Handler
+async function handleHuggingFaceRequest(messages: any[], userId: string) {
+  // Verificar se a API key está configurada
+  if (!process.env.HUGGINGFACE_API_KEY) {
+    console.error('❌ HUGGINGFACE_API_KEY não está configurada no .env');
+    return Response.json({ 
+      error: 'API do Hugging Face não configurada. Configure HUGGINGFACE_API_KEY no arquivo .env.local' 
+    }, { status: 500 });
+  }
+
+  const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+  console.log('🦙 Processando com Qwen2-VL (Alibaba)...');
+
+  // Converter mensagens para o formato do Hugging Face
+  const hfMessages = messages.map((msg: any) => {
+    if (msg.parts) {
+      // Mensagem com parts (pode ter imagens)
+      const textParts = msg.parts.filter((p: any) => p.type === 'text');
+      const imageParts = msg.parts.filter((p: any) => p.type === 'image');
+
+      // Se tiver imagens, usar formato multimodal
+      if (imageParts.length > 0) {
+        const content: any[] = [];
+        
+        // Adicionar texto
+        if (textParts.length > 0) {
+          content.push({
+            type: 'text',
+            text: textParts.map((p: any) => p.text).join('\n')
+          });
+        }
+        
+        // Adicionar imagens
+        imageParts.forEach((imgPart: any) => {
+          content.push({
+            type: 'image_url',
+            image_url: {
+              url: imgPart.image
+            }
+          });
+        });
+
+        return {
+          role: msg.role,
+          content: content
+        };
+      }
+
+      // Sem imagens, apenas texto
+      const textContent = textParts.map((p: any) => p.text).join('\n');
+      return {
+        role: msg.role,
+        content: textContent
+      };
+    } else {
+      return {
+        role: msg.role,
+        content: msg.content
+      };
+    }
+  });
+
+  console.log('📤 Enviando para Hugging Face:', { 
+    messageCount: hfMessages.length,
+    model: "Qwen/Qwen2.5-VL-7B-Instruct"
+  });
+
+  try {
+    // Usando Qwen2.5-VL da Alibaba - modelo multimodal com suporte a visão
+    const response = await hf.chatCompletion({
+      model: "Qwen/Qwen2.5-VL-7B-Instruct",
+      messages: hfMessages,
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+
+    // Criar resposta simples (não-streaming por limitações da API gratuita)
+    const encoder = new TextEncoder();
+    const text = response.choices?.[0]?.message?.content || 'Sem resposta do modelo';
+    
+    const readable = new ReadableStream({
+      start(controller) {
+        // Enviar o texto completo
+        controller.enqueue(encoder.encode(`0:${JSON.stringify(text)}\n`));
+        controller.close();
+      }
+    });
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'x-vercel-ai-data-stream': 'v1',
+      },
+    });
+  } catch (error: any) {
+    console.error('❌ Erro ao chamar Hugging Face:', {
+      message: error.message,
+      code: error.code,
+      statusCode: error.httpResponse?.statusCode,
+      statusText: error.httpResponse?.statusText,
+      body: error.httpResponse?.body
+    });
+    
+    // Mensagem de erro mais específica
+    let errorMessage = 'Erro ao processar com Hugging Face';
+    
+    if (error.httpResponse?.statusCode === 401 || error.httpResponse?.statusCode === 403) {
+      errorMessage = 'API key do Hugging Face inválida. Verifique a configuração.';
+    } else if (error.httpResponse?.statusCode === 404) {
+      errorMessage = 'Modelo não encontrado no Hugging Face.';
+    } else if (error.httpResponse?.statusCode === 429) {
+      errorMessage = 'Limite de uso do Hugging Face atingido.';
+    } else if (error.message) {
+      errorMessage = `Erro do Hugging Face: ${error.message}`;
+    }
+    
+    return Response.json({ error: errorMessage }, { status: 500 });
+  }
+}
+
 // Function to get AI model based on user preference
-async function getAIModel(userId: string) {
+async function getAIModel(userId: string, hasImages: boolean = false) {
   try {
     const [userData] = await db
       .select({ selectedAiProvider: userTable.selectedAiProvider })
@@ -24,16 +146,24 @@ async function getAIModel(userId: string) {
 
     const provider = userData?.selectedAiProvider || 'gemini-flash';
 
+    // Hugging Face Llama 4 Maverick
+    if (provider === 'llama4-vision') {
+      console.log('🦙 Provider: Llama 4 Maverick (Hugging Face)');
+      return { model: null, isGroq: false, isHF: true };
+    }
+
+    // Groq Llama 3.3 (apenas texto, modelos de visão foram descontinuados)
     if (provider === 'groq-llama') {
-      console.log('🚀 Usando GROQ Llama 3.3 (70B)');
-      return { model: groqProvider('llama-3.3-70b-versatile'), isGroq: true };
+      console.log('🚀 Usando GROQ Llama 3.3 (70B) - apenas texto');
+      return { model: groqProvider('llama-3.3-70b-versatile'), isGroq: true, isHF: false };
     }
     
+    // Gemini Flash (padrão, suporta imagens)
     console.log('⚡ Usando Gemini Flash Lite');
-    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false };
+    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false, isHF: false };
   } catch (error) {
     console.error("Error getting AI model:", error);
-    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false };
+    return { model: google("models/gemini-2.5-flash-lite"), isGroq: false, isHF: false };
   }
 }
 
@@ -50,15 +180,56 @@ export const POST = async (request: Request) => {
 
         const { messages } = await request.json();
 
+        // Detectar se há imagens nas mensagens
+        const hasImages = messages.some((msg: any) => 
+            msg.parts?.some((part: any) => part.type === 'image')
+        );
+
         // Get user's selected model
-        const { model, isGroq } = await getAIModel(session.user.id);
+        const { model, isGroq, isHF } = await getAIModel(session.user.id, hasImages);
+
+        console.log('🔍 Provider selecionado:', { isGroq, isHF, hasImages });
+
+        // Se for Hugging Face, processar com API diferente
+        if (isHF) {
+            console.log('🦙 Usando Hugging Face Llama 4 Maverick...');
+            return handleHuggingFaceRequest(messages, session.user.id);
+        }
+
+        console.log('📨 Mensagens recebidas:', JSON.stringify(messages, null, 2));
 
         // Processar mensagens de forma diferente para Groq e Gemini
         const processedMessages = messages
             .filter((msg: any) => msg.role !== 'system')
             .map((msg: any) => {
-                // Para Groq, usar apenas texto simples
+                // Para Groq
                 if (isGroq) {
+                    // Se tiver imagens E esta mensagem específica tem imagens
+                    if (hasImages && msg.parts && Array.isArray(msg.parts) && msg.parts.some((p: any) => p.type === 'image')) {
+                        const content: any[] = [];
+                        
+                        msg.parts.forEach((part: any) => {
+                            if (part.type === 'text' && part.text) {
+                                content.push({ type: 'text', text: part.text });
+                            } else if (part.type === 'image' && part.image) {
+                                // Groq espera formato image_url
+                                content.push({
+                                    type: 'image_url',
+                                    image_url: { url: part.image }
+                                });
+                            }
+                        });
+                        
+                        // Só retornar array se realmente tiver conteúdo
+                        if (content.length > 0) {
+                            return {
+                                role: msg.role,
+                                content: content
+                            };
+                        }
+                    }
+                    
+                    // Sem imagens, usar apenas texto como string simples
                     let textContent = '';
                     if (msg.parts && Array.isArray(msg.parts)) {
                         textContent = msg.parts
@@ -77,26 +248,61 @@ export const POST = async (request: Request) => {
                 
                 // Para Gemini, processar parts normalmente
                 if (msg.parts && Array.isArray(msg.parts)) {
-                    const content: any[] = [];
+                    // Verificar se esta mensagem específica tem imagens
+                    const hasImageInMsg = msg.parts.some((p: any) => p.type === 'image');
+                    
+                    // Se tiver imagens na mensagem
+                    if (hasImageInMsg) {
+                        const content: any[] = [];
 
-                    msg.parts.forEach((part: any) => {
-                        if (part.type === 'text' && part.text) {
-                            content.push({ type: 'text', text: part.text });
-                        } else if (part.type === 'image' && part.image) {
-                            let imageData = part.image;
-                            if (imageData.includes('base64,')) {
-                                imageData = imageData.split('base64,')[1];
+                        msg.parts.forEach((part: any) => {
+                            if (part.type === 'text' && part.text) {
+                                content.push({ type: 'text', text: part.text });
+                            } else if (part.type === 'image' && part.image) {
+                                // Extrair o mimeType e os dados base64
+                                const imageUrl = part.image;
+                                let mimeType = 'image/jpeg'; // Default
+                                let base64Data = imageUrl;
+                                
+                                // Se tiver o formato data:image/xxx;base64,xxxxx
+                                if (imageUrl.startsWith('data:')) {
+                                    const matches = imageUrl.match(/data:(image\/[^;]+);base64,(.+)/);
+                                    if (matches) {
+                                        mimeType = matches[1];
+                                        base64Data = matches[2];
+                                    }
+                                }
+                                
+                                console.log('🖼️ Processando imagem para Gemini:', {
+                                    mimeType,
+                                    base64Length: base64Data.length,
+                                    base64Preview: base64Data.substring(0, 50) + '...'
+                                });
+                                
+                                // Formato correto para o Google AI SDK
+                                content.push({
+                                    type: 'image',
+                                    image: Buffer.from(base64Data, 'base64'),
+                                    mimeType: mimeType
+                                });
                             }
-                            content.push({
-                                type: 'image',
-                                image: imageData
-                            });
-                        }
-                    });
+                        });
 
+                        return {
+                            role: msg.role,
+                            content: content
+                        };
+                    }
+                    
+                    // Sem imagens, extrair apenas o texto como string
+                    const textContent = msg.parts
+                        .filter((part: any) => part.type === 'text')
+                        .map((part: any) => part.text)
+                        .join('');
+                    
                     return {
                         role: msg.role,
-                        content: content
+                        content: textContent || msg.content || ''
                     };
                 }
 
@@ -105,6 +311,26 @@ export const POST = async (request: Request) => {
                     content: msg.content || ''
                 };
             });
+
+        console.log('✅ Mensagens processadas:', processedMessages.length);
+        
+        // Log detalhado das mensagens processadas
+        processedMessages.forEach((msg: any, idx: number) => {
+            console.log(`📋 Mensagem ${idx}:`, {
+                role: msg.role,
+                contentType: typeof msg.content,
+                isArray: Array.isArray(msg.content),
+                contentSample: Array.isArray(msg.content) 
+                    ? `Array com ${msg.content.length} items` 
+                    : typeof msg.content === 'string' 
+                        ? msg.content.substring(0, 50) 
+                        : 'outro'
+            });
+        });
+
+        if (!model) {
+            throw new Error('Model not available');
+        }
 
         try {
             const result = streamText({
@@ -131,10 +357,12 @@ como um analista virtual que:
 • Analisa indicadores financeiros relevantes
 • Ajuda o usuário a entender riscos, vantagens e limitações de cada ativo
 • Oferece recomendações personalizadas, sem prometer retornos
+• Consulta informações na internet para fornecer dados atualizados e precisos sobre FIIs, mercado imobiliário e indicadores financeiros
 
 ⚠️ IMPORTANTE:
 O assistente NÃO É consultor financeiro e NÃO GARANTE rentabilidade futura. 
 Todas as respostas têm caráter educacional e informativo.
+O assistente DEVE buscar informações atualizadas na internet sempre que necessário para garantir precisão e atualidade das análises.
 
 ═══════════════════════════════════════════════════════════════════════════
 
@@ -147,6 +375,8 @@ O assistente deve sempre:
 • Ajustar o nível técnico da resposta ao perfil do usuário
 • Priorizar clareza, didática e organização visual
 • Estruturar respostas com títulos, listas e blocos explicativos
+• Buscar informações atualizadas na internet sobre FIIs, indicadores, dividendos e notícias do mercado imobiliário
+• Validar dados com fontes confiáveis sempre que possível
 
 ═══════════════════════════════════════════════════════════════════════════
 
