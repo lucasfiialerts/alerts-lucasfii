@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Sparkles, Menu, Lightbulb, Copy, Check } from "lucide-react";
+import { Bot, Sparkles, Menu, Lightbulb, Copy, Check, SquarePen, Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -339,8 +339,46 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   };
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden" style={{ backgroundColor: '#141414' }}>
-      {/* Chat Sidebar Component */}
+    <div className="relative flex h-full overflow-hidden" style={{ backgroundColor: '#141414' }}>
+      {/* Sidebar estilo Gemini - fixo à esquerda (apenas desktop) */}
+      <div className="hidden md:flex flex-shrink-0 w-16 bg-[#1e1e1e] border-r border-white/5 flex-col items-center py-4 gap-6">
+        {/* Menu hamburger no topo */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          <Menu className="size-5" />
+        </Button>
+        
+        {/* Botão nova conversa */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+          onClick={handleNewConversation}
+          title="Nova conversa"
+        >
+          <SquarePen className="size-5" />
+        </Button>
+        
+        {/* Spacer para empurrar config pro final */}
+        <div className="flex-1" />
+        
+        {/* Botão de sugestões no final */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+          onClick={() => setShowSuggestionsModal(true)}
+          title="Mensagens prontas"
+        >
+          <Lightbulb className="size-5" />
+        </Button>
+      </div>
+
+      {/* Chat Sidebar Component (overlay) */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)}
@@ -349,19 +387,44 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         onSelectConversation={handleSelectConversation}
       />
 
-      {/* Header */}
-      <div className="flex-shrink-0 border-b border-white/5 px-4 py-3 sm:px-6">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-all hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:scale-105 active:scale-95"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <Menu className="size-5" />
-          </Button>
-          
-          <div className="absolute left-1/2 -translate-x-1/2">
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Header mobile - barra superior (apenas mobile) */}
+        <div className="md:hidden flex-shrink-0 border-b border-white/5 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="size-5" />
+            </Button>
+            
+            <HoverGlitch
+              text="Research.IA"
+              fontFamily="system-ui, -apple-system, sans-serif"
+              fontSize="1.5rem"
+              fontWeight={600}
+              color="#ffffff"
+              baseIntensity={1.1}
+              hoverIntensity={6}
+            />
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              onClick={handleNewConversation}
+            >
+              <SquarePen className="size-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Header desktop - simplificado (apenas desktop) */}
+        <div className="hidden md:block flex-shrink-0 border-b border-white/5 px-4 py-3 sm:px-6">
+          <div className="mx-auto flex max-w-3xl items-center justify-center">
             <HoverGlitch
               text="Research.IA"
               fontFamily="system-ui, -apple-system, sans-serif"
@@ -372,23 +435,12 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
               hoverIntensity={6}
             />
           </div>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-all hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:scale-105 active:scale-95"
-            onClick={() => setShowSuggestionsModal(true)}
-            title="Mensagens prontas"
-          >
-            <Lightbulb className="size-5" />
-          </Button>
         </div>
-      </div>
 
-      {/* Messages Area */}
-      <div 
-        className="chat-messages-scroll relative flex-1 overflow-y-auto"
-      >
+        {/* Messages Area */}
+        <div 
+          className="chat-messages-scroll relative flex-1 overflow-y-auto"
+        >
         <div className="mx-auto max-w-3xl px-4 py-4">
           {/* Welcome Message */}
           {!hasUserMessages && (
@@ -476,6 +528,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
             O Research.IA pode cometer erros. Por isso, é bom verificar as informações.
           </p>
         </div>
+      </div>
       </div>
 
       {/* Modal de Mensagens Prontas */}

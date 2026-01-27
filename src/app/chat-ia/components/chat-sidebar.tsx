@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, TrendingUp, Settings, CrownIcon, MessageCircle, HelpCircle, X, PlusCircle, MoreVertical, Share2, Pin, Edit2, Trash2, Search } from "lucide-react";
+import { Home, TrendingUp, Settings, CrownIcon, MessageCircle, HelpCircle, X, PlusCircle, MoreVertical, Share2, Pin, Edit2, Trash2, Search, SquarePen, Maximize2, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useDevMode } from "@/contexts/dev-mode-context";
@@ -51,6 +51,7 @@ export function ChatSidebar({
   const [searchQuery, setSearchQuery] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSearchPage, setShowSearchPage] = useState(false);
 
   // Load conversations from backend
   useEffect(() => {
@@ -186,24 +187,91 @@ export function ChatSidebar({
         style={{ backgroundColor: '#141414' }}
       >
         <div className="flex h-full flex-col">
-          {/* Sidebar Header */}
+          {/* Sidebar Header - Menu e Pesquisa */}
           <div className="flex items-center justify-between border-b border-white/5 px-3 py-3">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-white/60 hover:bg-white/[0.08] hover:text-white/90"
-              onClick={onClose}
+              className="h-9 w-9 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              onClick={() => {
+                setShowSearchPage(false);
+                onClose();
+              }}
             >
-              <X className="size-5" />
+              <Menu className="size-5" />
             </Button>
             <Button
               variant="ghost"
-              size="sm"
-              className="h-9 gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-white/80 transition-all duration-200 hover:bg-white/[0.1] hover:border-white/20 hover:text-white/95 hover:shadow-lg hover:scale-[1.02]"
+              size="icon"
+              className="h-9 w-9 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+              onClick={() => setShowSearchPage(true)}
+              title="Pesquisar"
+            >
+              <Search className="size-5" />
+            </Button>
+          </div>
+
+          {/* Tela de Pesquisa */}
+          {showSearchPage ? (
+            <div className="flex h-full flex-col">
+              {/* Título Pesquisa */}
+              <div className="px-6 py-6 border-b border-white/5">
+                <h2 className="text-2xl font-normal text-white/95">Pesquisa</h2>
+              </div>
+
+              {/* Campo de busca grande */}
+              <div className="px-6 py-6">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-white/40" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Pesquise conversas"
+                    className="h-12 rounded-full border-white/10 bg-white/[0.03] pl-12 text-[15px] text-white/90 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05]"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Lista de conversas recentes */}
+              <div className="flex-1 overflow-y-auto px-3 chat-messages-scroll">
+                <div className="mb-3 px-3">
+                  <h3 className="text-sm font-medium text-white/60">Recentes</h3>
+                </div>
+                <div className="space-y-1">
+                  {filteredConversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      onClick={() => {
+                        handleSelectConversation(conversation.id);
+                        setShowSearchPage(false);
+                      }}
+                      className="group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-200 cursor-pointer hover:bg-white/[0.06]"
+                    >
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="truncate text-[15px] font-normal text-white/95">
+                          {conversation.title}
+                        </span>
+                      </div>
+                      <span className="text-xs text-white/40 shrink-0 ml-4">
+                        {formatDate(conversation.updatedAt)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+          {/* Botão Nova conversa com ícone e texto */}
+          <div className="border-b border-white/5 px-3 py-3">
+            <Button
+              variant="ghost"
+              className="w-full h-auto justify-start gap-3 rounded-xl px-4 py-3 text-white/80 hover:bg-white/[0.08] hover:text-white/95"
               onClick={handleNewConversation}
             >
-              <PlusCircle className="size-4" />
-              <span className="text-sm font-medium">Nova conversa</span>
+              <SquarePen className="size-5" />
+              <span className="text-[15px] font-normal">Nova conversa</span>
             </Button>
           </div>
 
@@ -214,7 +282,7 @@ export function ChatSidebar({
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar conversas..."
+                placeholder="Pesquise conversas"
                 className="h-9 rounded-lg border-white/10 bg-white/[0.03] pl-9 text-sm text-white/90 placeholder:text-white/40 focus:border-white/20 focus:bg-white/[0.05]"
               />
             </div>
@@ -317,6 +385,8 @@ export function ChatSidebar({
               )}
             </div>
           </div>
+          </>
+          )}
 
           {/* Bottom Navigation */}
           <div className="border-t border-white/5 px-2 py-2">
