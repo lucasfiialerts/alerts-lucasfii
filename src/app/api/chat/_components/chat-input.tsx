@@ -1,6 +1,6 @@
 "use client";
 
-import { Paperclip, Send, Mic, MicOff } from "lucide-react";
+import { Paperclip, Send, Mic, MicOff, Maximize2, Minimize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ReactNode, useState, useRef } from "react";
@@ -27,6 +27,7 @@ export const ChatInput = ({
   onVoiceInput,
 }: ChatInputProps) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const recognitionRef = useRef<any>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -105,7 +106,106 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="flex w-full flex-col gap-3">
+    <>
+      {/* Modal de tela cheia */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-4xl h-[80vh] flex flex-col gap-3 rounded-3xl border border-white/10 bg-[#2f2f2f] p-6">
+            {/* Header com botão fechar */}
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white/90 font-medium">Escreva sua mensagem</h3>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-8 rounded-lg text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+                onClick={() => setIsFullscreen(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+            
+            {/* Textarea expandido */}
+            <div className="flex-1 overflow-hidden">
+              <style jsx>{`
+                textarea::-webkit-scrollbar {
+                  width: 6px;
+                }
+                textarea::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                textarea::-webkit-scrollbar-thumb {
+                  background: #2e2e2e;
+                  border-radius: 10px;
+                }
+                textarea::-webkit-scrollbar-thumb:hover {
+                  background: #3e3e3e;
+                }
+              `}</style>
+              <textarea
+                value={input}
+                onChange={onChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Pergunte ao Research.IA"
+                className="w-full h-full resize-none bg-transparent text-[15px] text-white/95 placeholder:text-white/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 overflow-y-auto leading-6 p-4 rounded-xl border border-white/5"
+                disabled={isLoading}
+                autoFocus
+              />
+            </div>
+            
+            {/* Botões de ação */}
+            <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+              <Button
+                size="icon"
+                type="button"
+                variant="ghost"
+                className="size-9 shrink-0 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
+                onClick={handleImageClick}
+                disabled={isLoading}
+                title="Anexar arquivo"
+              >
+                <Paperclip className="size-4" />
+              </Button>
+              
+              {aiProviderSelector && (
+                <div className="shrink-0">
+                  {aiProviderSelector}
+                </div>
+              )}
+              
+              <div className="flex-1" />
+              
+              <Button
+                size="icon"
+                type="button"
+                variant="ghost"
+                className={`size-9 shrink-0 rounded-xl transition-all ${
+                  isRecording 
+                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 animate-pulse' 
+                    : 'text-white/60 hover:bg-white/[0.08] hover:text-white/90'
+                }`}
+                onClick={toggleVoiceRecording}
+                disabled={isLoading}
+                title={isRecording ? "Parar gravação" : "Gravar áudio"}
+              >
+                {isRecording ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+              </Button>
+              
+              <Button
+                size="icon"
+                type="button"
+                className="size-9 shrink-0 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-white/[0.08] disabled:text-white/30 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95"
+                onClick={onSubmit}
+                disabled={isLoading || !input.trim()}
+                title="Enviar mensagem"
+              >
+                <Send className="size-4 text-white" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex w-full flex-col gap-3">
       {pdfAttached && (
         <div className="flex items-center gap-2 rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-400">
           <span>📄 {pdfAttached.fileName} ({pdfAttached.pages} páginas extraídas)</span>
@@ -113,9 +213,19 @@ export const ChatInput = ({
       )}
       
       {/* Card único estilo Gemini com todos os controles integrados */}
-      <div className="flex w-full flex-col gap-2 rounded-3xl border border-white/10 bg-[#2f2f2f] px-4 py-3 transition-all hover:bg-[#343434] focus-within:border-white/20">
+      <div className="flex w-full flex-col gap-2 rounded-3xl border border-white/10 bg-[#2f2f2f] px-4 py-3 transition-all hover:bg-[#343434] focus-within:border-white/20 relative">
+        {/* Botão de tela cheia no canto superior direito */}
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-3 right-3 p-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all"
+          title="Tela cheia"
+          type="button"
+        >
+          <Maximize2 className="size-4" />
+        </button>
+        
         {/* Input de texto no topo */}
-        <div className="w-full">
+        <div className="w-full pr-8">
           <style jsx>{`
             textarea::-webkit-scrollbar {
               width: 6px;
@@ -206,5 +316,6 @@ export const ChatInput = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
