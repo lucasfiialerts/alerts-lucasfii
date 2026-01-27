@@ -1,4 +1,6 @@
-import { Bot, Loader2 } from "lucide-react";
+import { Bot, Loader2, Share2, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -41,6 +43,7 @@ export const ChatMessage = ({
   message,
   isStreaming = false,
 }: ChatMessageProps) => {
+  const [copied, setCopied] = useState(false);
   const isUser = message.role === "user";
   const isSystem = message.role === "system";
 
@@ -55,6 +58,17 @@ export const ChatMessage = ({
           .join("")
       : message.content || ""
   );
+
+  const handleCopyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      toast.success("Resposta copiada!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error("Erro ao copiar");
+    }
+  };
 
   if (isSystem) {
     return (
@@ -117,24 +131,45 @@ export const ChatMessage = ({
             </div>
           )}
         </div>
-        <div className="max-w-full flex-1 text-[15px] leading-relaxed font-normal text-white/90 break-words prose prose-invert prose-sm max-w-none">
-          <ReactMarkdown 
-            remarkPlugins={[remarkGfm]}
-            components={{
-              // Estilos personalizados para elementos markdown
-              p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
-              ul: ({children}) => <ul className="mb-3 ml-4 list-disc space-y-1">{children}</ul>,
-              ol: ({children}) => <ol className="mb-3 ml-4 list-decimal space-y-1">{children}</ol>,
-              li: ({children}) => <li className="ml-2">{children}</li>,
-              strong: ({children}) => <strong className="font-bold text-white">{children}</strong>,
-              h1: ({children}) => <h1 className="text-xl font-bold mb-3 mt-4">{children}</h1>,
-              h2: ({children}) => <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>,
-              h3: ({children}) => <h3 className="text-base font-bold mb-2 mt-2">{children}</h3>,
-              code: ({children}) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm">{children}</code>,
-            }}
-          >
-            {content}
-          </ReactMarkdown>
+        <div className="flex-1">
+          <div className="max-w-full text-[15px] leading-relaxed font-normal text-white/90 break-words prose prose-invert prose-sm max-w-none">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                // Estilos personalizados para elementos markdown
+                p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
+                ul: ({children}) => <ul className="mb-3 ml-4 list-disc space-y-1">{children}</ul>,
+                ol: ({children}) => <ol className="mb-3 ml-4 list-decimal space-y-1">{children}</ol>,
+                li: ({children}) => <li className="ml-2">{children}</li>,
+                strong: ({children}) => <strong className="font-bold text-white">{children}</strong>,
+                h1: ({children}) => <h1 className="text-xl font-bold mb-3 mt-4">{children}</h1>,
+                h2: ({children}) => <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>,
+                h3: ({children}) => <h3 className="text-base font-bold mb-2 mt-2">{children}</h3>,
+                code: ({children}) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm">{children}</code>,
+              }}
+            >
+              {content}
+            </ReactMarkdown>
+          </div>
+          {!isStreaming && content && (
+            <button
+              onClick={handleCopyMessage}
+              className="mt-2 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white/80"
+              title="Copiar resposta"
+            >
+              {copied ? (
+                <>
+                  <Check className="size-3.5" />
+                  <span>Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="size-3.5" />
+                  <span>Compartilhar resposta</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
