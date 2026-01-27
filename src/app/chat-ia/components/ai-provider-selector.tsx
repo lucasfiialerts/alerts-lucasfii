@@ -129,11 +129,11 @@ export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="gap-2 border border-white/10 bg-white/[0.03] text-white/90 hover:bg-white/[0.06] hover:text-white h-9 px-3"
+          size="icon"
+          className="h-10 w-10 rounded-xl border border-white/10 bg-white/[0.03] text-white/90 hover:bg-white/[0.06] hover:text-white sm:h-11 sm:w-11"
+          title={getCurrentProviderLabel()}
         >
-          <span className="text-sm font-medium">{getCurrentProviderLabel()}</span>
-          <ChevronDown className="size-4 text-white/60" />
+          <Bot className="size-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

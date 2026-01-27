@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Sparkles, Menu } from "lucide-react";
+import { Bot, Sparkles, Menu, Lightbulb, Copy, Check } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +9,14 @@ import { ChatMessage, type ChatMessageData } from "@/app/api/chat/_components/ch
 import { Button } from "@/components/ui/button";
 import { ChatSidebar } from "./chat-sidebar";
 import { AiProviderSelector } from "./ai-provider-selector";
+import HoverGlitch from "@/components/ui/hover-glitch";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   createConversation, 
   getConversationMessages, 
@@ -65,6 +73,8 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [extractedPdfData, setExtractedPdfData] = useState<{ fileName: string; text: string; pages: number } | null>(null);
+  const [showSuggestionsModal, setShowSuggestionsModal] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +84,17 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
 
   const handleSuggestion = (text: string) => {
     void sendMessage(text);
+  };
+
+  const handleCopySuggestion = async (text: string, id: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      toast.success("Mensagem copiada!");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast.error("Erro ao copiar");
+    }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,36 +348,36 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       {/* Header */}
       <div className="flex-shrink-0 border-b border-white/5 px-4 py-3 sm:px-6">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-white/60 hover:bg-white/[0.08] hover:text-white/90"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <Menu className="size-5" />
-            </Button>
-            <div className="flex items-center gap-2.5">
-              <div className={`flex size-8 items-center justify-center rounded-full bg-white/[0.08] sm:size-9 ${isLoading ? 'animate-pulse' : ''}`}>
-                <Bot className={`size-4 text-white/80 ${isLoading ? 'animate-bounce' : ''}`} />
-              </div>
-              <div>
-                {/* <p className="text-sm font-semibold text-white/90">Research.IA</p> */}
-                {/* <p className="text-xs text-emerald-400/80">online agora</p> */}
-              </div>
-            </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-all hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:scale-105 active:scale-95"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Menu className="size-5" />
+          </Button>
+          
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <HoverGlitch
+              text="Research.IA"
+              fontFamily="system-ui, -apple-system, sans-serif"
+              fontSize="1.94rem"
+              fontWeight={600}
+              color="#ffffff"
+              baseIntensity={1.1}
+              hoverIntensity={6}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <AiProviderSelector />
-            {/* <Button
-              variant="secondary"
-              size="sm"
-              className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08] sm:px-4"
-              onClick={() => setShowSuggestions((prev) => !prev)}
-            >
-              {showSuggestions ? "Ocultar" : "💡 Dicas"}
-            </Button> */}
-          </div>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-all hover:bg-white/[0.08] hover:text-white hover:border-white/20 hover:scale-105 active:scale-95"
+            onClick={() => setShowSuggestionsModal(true)}
+            title="Mensagens prontas"
+          >
+            <Lightbulb className="size-5" />
+          </Button>
         </div>
       </div>
 
@@ -444,12 +465,54 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
             isLoading={isLoading}
             onImageUpload={handleImageUpload}
             pdfAttached={extractedPdfData ? { fileName: extractedPdfData.fileName, pages: extractedPdfData.pages } : null}
+            aiProviderSelector={<AiProviderSelector />}
           />
           <p className="mt-2 text-center text-xs text-white/40">
             O Research.IA pode cometer erros. Por isso, é bom verificar as informações.
           </p>
         </div>
       </div>
+
+      {/* Modal de Mensagens Prontas */}
+      <Dialog open={showSuggestionsModal} onOpenChange={setShowSuggestionsModal}>
+        <DialogContent className="bg-[#1a1a1a] border-white/10 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Lightbulb className="size-5 text-yellow-400" />
+              Mensagens Prontas
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Clique em uma mensagem para copiar e começar sua conversa
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 py-4">
+            {suggestions.map((suggestion) => (
+              <div
+                key={suggestion.id}
+                className="group relative flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all hover:bg-white/[0.06] hover:border-white/20"
+              >
+                <div className="flex-1">
+                  <p className="text-sm leading-relaxed text-white/90">
+                    {suggestion.title}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+                  onClick={() => handleCopySuggestion(suggestion.title, suggestion.id)}
+                >
+                  {copiedId === suggestion.id ? (
+                    <Check className="size-4 text-green-400" />
+                  ) : (
+                    <Copy className="size-4" />
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
