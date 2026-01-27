@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm"
-import { boolean, foreignKey, integer, pgEnum,pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core"
+import { boolean, foreignKey, integer, jsonb, pgEnum,pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core"
 
 export const orderStatus = pgEnum("order_status", ['pending', 'paid', 'canceled'])
 
@@ -258,6 +258,7 @@ export const chatMessage = pgTable("chat_message", {
 	conversationId: uuid("conversation_id").notNull(),
 	role: text().notNull(), // 'user', 'assistant', 'system'
 	content: text().notNull(),
+	parts: jsonb(), // Array de parts com texto e imagens
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({

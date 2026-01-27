@@ -110,20 +110,27 @@ export async function getConversationMessages(conversationId: string) {
       return { success: false, error: "Conversa não encontrada" };
     }
 
+    console.log('🔍 Buscando mensagens para conversa:', conversationId);
+    
     const messages = await db
       .select({
         id: chatMessageTable.id,
         role: chatMessageTable.role,
         content: chatMessageTable.content,
+        parts: chatMessageTable.parts,
         createdAt: chatMessageTable.createdAt,
       })
       .from(chatMessageTable)
       .where(eq(chatMessageTable.conversationId, conversationId))
       .orderBy(chatMessageTable.createdAt);
 
+    console.log('✅ Mensagens encontradas:', messages.length);
+    console.log('📋 Primeira mensagem:', messages[0]);
+
     return { success: true, messages };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching messages:", error);
+    console.error("Error stack:", error.stack);
     return { success: false, error: "Erro ao carregar mensagens" };
   }
 }
@@ -131,7 +138,8 @@ export async function getConversationMessages(conversationId: string) {
 export async function saveMessage(
   conversationId: string,
   role: "user" | "assistant" | "system",
-  content: string
+  content: string,
+  parts?: Array<{ type: "text"; text: string } | { type: "image"; image: string }>
 ) {
   try {
     const session = await auth.api.getSession({
@@ -164,6 +172,7 @@ export async function saveMessage(
         conversationId,
         role,
         content,
+        parts: parts || null,
       })
       .returning();
 

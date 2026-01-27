@@ -1,4 +1,29 @@
-import { Bot } from "lucide-react";
+import { Bot, Loader2 } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+// Função para processar e limpar o texto da IA
+function processAIText(text: string): string {
+  if (!text) return '';
+  
+  return text
+    // Remover todos os prefixos do streaming (0:", 1:", etc)
+    .replace(/\d+:"/g, '')
+    .replace(/\d+:/g, '')
+    // Remover caracteres de escape ANTES de processar quebras de linha
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t')
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+    // Remover barras invertidas soltas que sobraram
+    .replace(/\\/g, '')
+    // Remover aspas soltas no início e fim
+    .replace(/^"+|"+$/g, '')
+    // Limpar múltiplas quebras de linha consecutivas
+    .replace(/\n{3,}/g, '\n\n')
+    // Trim espaços em branco no início e fim
+    .trim();
+}
 
 export type ChatMessageData = {
   id: string;
@@ -19,12 +44,17 @@ export const ChatMessage = ({
   const isUser = message.role === "user";
   const isSystem = message.role === "system";
 
-  const content = message.parts?.length
-    ? message.parts
-        .filter((part) => part.type === "text")
-        .map((part) => part.text)
-        .join("")
-    : message.content || "";
+  // Garantir que parts seja sempre um array válido
+  const safeParts = Array.isArray(message.parts) ? message.parts : [];
+
+  const content = processAIText(
+    safeParts.length
+      ? safeParts
+          .filter((part) => part.type === "text")
+          .map((part) => part.text)
+          .join("")
+      : message.content || ""
+  );
 
   if (isSystem) {
     return (
@@ -41,12 +71,14 @@ export const ChatMessage = ({
   }
 
   if (isUser) {
-    const textParts = message.parts?.filter((part) => part.type === "text") || [];
-    const imageParts = message.parts?.filter((part) => part.type === "image") || [];
+    const textParts = safeParts.filter((part) => part.type === "text");
+    const imageParts = safeParts.filter((part) => part.type === "image");
     
-    const textContent = textParts.length
-      ? textParts.map((part: any) => part.text).join("")
-      : message.content || "";
+    const textContent = processAIText(
+      textParts.length
+        ? textParts.map((part: any) => part.text).join("")
+        : message.content || ""
+    );
 
     return (
       <div className="flex w-full flex-col items-end gap-3 pt-4 pr-2 pb-0 pl-8 sm:pt-5 sm:pr-4 sm:pl-10">
@@ -77,11 +109,32 @@ export const ChatMessage = ({
   return (
     <div className="flex w-full flex-col gap-3 pt-4 pr-2 pb-0 pl-2 sm:pt-5 sm:pr-4 sm:pl-3">
       <div className="flex w-full gap-3">
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08]">
+        <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08]">
           <Bot className="size-4 text-white/80" />
+          {isStreaming && (
+            <div className="absolute -bottom-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-blue-500">
+              <Loader2 className="size-2.5 text-white animate-spin" />
+            </div>
+          )}
         </div>
-        <div className="max-w-full flex-1 text-[15px] leading-relaxed font-normal text-white/90 break-words whitespace-pre-wrap">
-          {content}
+        <div className="max-w-full flex-1 text-[15px] leading-relaxed font-normal text-white/90 break-words prose prose-invert prose-sm max-w-none">
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              // Estilos personalizados para elementos markdown
+              p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
+              ul: ({children}) => <ul className="mb-3 ml-4 list-disc space-y-1">{children}</ul>,
+              ol: ({children}) => <ol className="mb-3 ml-4 list-decimal space-y-1">{children}</ol>,
+              li: ({children}) => <li className="ml-2">{children}</li>,
+              strong: ({children}) => <strong className="font-bold text-white">{children}</strong>,
+              h1: ({children}) => <h1 className="text-xl font-bold mb-3 mt-4">{children}</h1>,
+              h2: ({children}) => <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>,
+              h3: ({children}) => <h3 className="text-base font-bold mb-2 mt-2">{children}</h3>,
+              code: ({children}) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm">{children}</code>,
+            }}
+          >
+            {content}
+          </ReactMarkdown>
         </div>
       </div>
     </div>

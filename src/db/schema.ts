@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
   uuid,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
@@ -489,6 +490,7 @@ export const chatMessageTable = pgTable("chat_message", {
   conversationId: uuid("conversation_id").notNull().references(() => chatConversationTable.id, { onDelete: "cascade" }),
   role: text("role").notNull(), // 'user', 'assistant', 'system'
   content: text("content").notNull(),
+  parts: jsonb("parts"), // Array de parts com texto e imagens
   createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
 });
 

@@ -154,7 +154,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
 
     // Save user message to backend
     if (conversationId) {
-      await saveMessage(conversationId, "user", text);
+      await saveMessage(conversationId, "user", text, userMessage.parts);
     }
 
     try {
@@ -250,13 +250,19 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     
     // Load messages from backend
     const result = await getConversationMessages(id);
+    console.log('📥 Mensagens carregadas:', result);
+    
     if (result.success && result.messages) {
-      const loadedMessages: ChatMessageData[] = result.messages.map(msg => ({
-        id: msg.id,
-        role: msg.role as "user" | "assistant" | "system",
-        content: msg.content,
-        parts: toTextParts(msg.content),
-      }));
+      const loadedMessages: ChatMessageData[] = result.messages.map(msg => {
+        console.log('📝 Processando mensagem:', { id: msg.id, parts: msg.parts, partsType: typeof msg.parts });
+        
+        return {
+          id: msg.id,
+          role: msg.role as "user" | "assistant" | "system",
+          content: msg.content,
+          parts: (msg.parts && Array.isArray(msg.parts)) ? msg.parts as any : toTextParts(msg.content),
+        };
+      });
       setMessages(loadedMessages.length > 0 ? loadedMessages : initialMessages);
     } else {
       toast.error(result.error || "Erro ao carregar mensagens");
@@ -353,9 +359,21 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
           )}
 
           {/* Messages */}
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
+          {messages.map((message, index) => {
+            // A última mensagem do assistente está em streaming se isLoading estiver true
+            const isLastAssistantMessage = 
+              message.role === 'assistant' && 
+              index === messages.length - 1;
+            const isStreamingMessage = isLastAssistantMessage && isLoading;
+            
+            return (
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+                isStreaming={isStreamingMessage}
+              />
+            );
+          })}
 
           <div ref={bottomRef} />
         </div>
