@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm';
 function processAIText(text: string): string {
   if (!text) return '';
   
-  return text
+  let cleaned = text
     // Remover todos os prefixos do streaming (0:", 1:", etc)
     .replace(/\d+:"/g, '')
     .replace(/\d+:/g, '')
@@ -19,12 +19,17 @@ function processAIText(text: string): string {
     .replace(/\\\\/g, '\\')
     // Remover barras invertidas soltas que sobraram
     .replace(/\\/g, '')
-    // Remover aspas soltas no início e fim
-    .replace(/^"+|"+$/g, '')
     // Limpar múltiplas quebras de linha consecutivas
     .replace(/\n{3,}/g, '\n\n')
     // Trim espaços em branco no início e fim
     .trim();
+  
+  // Remover aspas duplas no início e fim (múltiplas passagens para garantir)
+  while (cleaned.startsWith('"') || cleaned.endsWith('"')) {
+    cleaned = cleaned.replace(/^"+/, '').replace(/"+$/, '');
+  }
+  
+  return cleaned;
 }
 
 export type ChatMessageData = {
