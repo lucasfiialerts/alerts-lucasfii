@@ -58,7 +58,7 @@ interface AiProviderSelectorProps {
 }
 
 export function AiProviderSelector({ onProviderChange }: AiProviderSelectorProps) {
-  const [selectedProvider, setSelectedProvider] = useState('gemini-flash');
+  const [selectedProvider, setSelectedProvider] = useState('llama4-vision'); // Qwen IA como padrão
   const [customNames, setCustomNames] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
