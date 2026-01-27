@@ -97,7 +97,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
 
