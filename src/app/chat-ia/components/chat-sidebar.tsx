@@ -36,6 +36,7 @@ interface ChatSidebarProps {
   currentConversationId?: string;
   onNewConversation?: () => void;
   onSelectConversation?: (id: string) => void;
+  onOpenSettings?: () => void;
 }
 
 export function ChatSidebar({ 
@@ -44,7 +45,8 @@ export function ChatSidebar({
   activeMenuItem = "chat-ia",
   currentConversationId,
   onNewConversation,
-  onSelectConversation
+  onSelectConversation,
+  onOpenSettings
 }: ChatSidebarProps) {
   const router = useRouter();
   const { isDevMode } = useDevMode();
@@ -264,7 +266,7 @@ export function ChatSidebar({
           ) : (
             <>
           {/* Botão Nova conversa com ícone e texto */}
-          <div className="border-b border-white/5 px-3 py-3">
+          <div className="border-b border-white/5 px-3 py-3 space-y-2">
             <Button
               variant="ghost"
               className="w-full h-auto justify-start gap-3 rounded-xl px-4 py-3 text-white/80 hover:bg-white/[0.08] hover:text-white/95"
@@ -273,6 +275,20 @@ export function ChatSidebar({
               <SquarePen className="size-5" />
               <span className="text-[15px] font-normal">Nova conversa</span>
             </Button>
+            
+            {onOpenSettings && (
+              <Button
+                variant="ghost"
+                className="w-full h-auto justify-start gap-3 rounded-xl px-4 py-3 text-white/80 hover:bg-white/[0.08] hover:text-white/95"
+                onClick={() => {
+                  onClose();
+                  onOpenSettings();
+                }}
+              >
+                <Settings className="size-5" />
+                <span className="text-[15px] font-normal">Configurações</span>
+              </Button>
+            )}
           </div>
 
           {/* Search */}

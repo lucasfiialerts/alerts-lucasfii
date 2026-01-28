@@ -1,8 +1,9 @@
 "use client";
 
-import { Bot, Sparkles, Menu, Lightbulb, Copy, Check, SquarePen, Search } from "lucide-react";
+import { Bot, Sparkles, Menu, Lightbulb, Copy, Check, SquarePen, Search, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 import { ChatInput } from "@/app/api/chat/_components/chat-input";
 import { ChatMessage, type ChatMessageData } from "@/app/api/chat/_components/chat-message";
@@ -51,6 +52,7 @@ interface ChatIaPageProps {
 export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(undefined);
+  const [audioMode, setAudioMode] = useState(false); // Toggle para modo áudio
   
   const initialMessages = useMemo<ChatMessageData[]>(
     () => [],
@@ -64,6 +66,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [extractedPdfData, setExtractedPdfData] = useState<{ fileName: string; text: string; pages: number } | null>(null);
   const [showSuggestionsModal, setShowSuggestionsModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -356,15 +359,15 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         {/* Spacer para empurrar config pro final */}
         <div className="flex-1" />
         
-        {/* Botão de sugestões no final */}
+        {/* Botão de configurações no final */}
         <Button
           variant="ghost"
           size="icon"
           className="h-10 w-10 rounded-xl text-white/60 hover:bg-white/[0.08] hover:text-white/90"
-          onClick={() => setShowSuggestionsModal(true)}
-          title="Mensagens prontas"
+          onClick={() => setShowSettingsModal(true)}
+          title="Configurações"
         >
-          <Lightbulb className="size-5" />
+          <Settings className="size-5" />
         </Button>
       </div>
 
@@ -375,6 +378,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         currentConversationId={currentConversationId}
         onNewConversation={handleNewConversation}
         onSelectConversation={handleSelectConversation}
+        onOpenSettings={() => setShowSettingsModal(true)}
       />
 
       {/* Main content area */}
@@ -481,6 +485,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
                 key={message.id} 
                 message={message} 
                 isStreaming={isStreamingMessage}
+                audioMode={audioMode}
               />
             );
           })}
@@ -520,6 +525,62 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         </div>
       </div>
       </div>
+
+      {/* Modal de Configurações */}
+      <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+        <DialogContent className="bg-[#1a1a1a] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Settings className="size-5 text-blue-400" />
+              Configurações
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Ajuste as preferências do seu assistente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Modo Áudio */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">Modo Áudio 🔊 (Beta)</div>
+                <div className="text-xs text-white/60">
+                  Ouvir as respostas da IA automaticamente
+                </div>
+              </div>
+              <Switch
+                checked={audioMode}
+                onCheckedChange={setAudioMode}
+              />
+            </div>
+
+            {/* Mensagens Prontas */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <Lightbulb className="size-4 text-yellow-400" />
+                    Mensagens Prontas
+                  </div>
+                  <div className="text-xs text-white/60">
+                    Acesse perguntas frequentes
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setShowSettingsModal(false);
+                    setShowSuggestionsModal(true);
+                  }}
+                >
+                  Abrir
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Mensagens Prontas */}
       <Dialog open={showSuggestionsModal} onOpenChange={setShowSuggestionsModal}>

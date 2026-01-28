@@ -6,7 +6,7 @@
  */
 
 import { google } from '@ai-sdk/google';
-import { CoreMessage,generateText, streamText } from 'ai';
+import { generateText, streamText } from 'ai';
 
 // Configuração do modelo Gemini
 const geminiModel = google('gemini-1.5-flash');
