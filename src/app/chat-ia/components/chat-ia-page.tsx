@@ -18,10 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { 
-  createConversation, 
-  getConversationMessages, 
-  saveMessage 
+import {
+  createConversation,
+  getConversationMessages,
+  saveMessage
 } from "@/actions/chat-conversations";
 
 const suggestions = [
@@ -53,7 +53,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(undefined);
   const [audioMode, setAudioMode] = useState(false); // Toggle para modo áudio
-  
+
   const initialMessages = useMemo<ChatMessageData[]>(
     () => [],
     [],
@@ -112,18 +112,18 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     // Se for PDF, processar o texto
     if (file.type === 'application/pdf') {
       toast.info('Processando PDF...');
-      
+
       try {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const response = await fetch('/api/extract-pdf', {
           method: 'POST',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           // Armazenar dados do PDF sem preencher o input
           setExtractedPdfData({
@@ -154,9 +154,9 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
   const getMessageText = (message: ChatMessageData) =>
     message.parts?.length
       ? message.parts
-          .filter((part) => part.type === "text")
-          .map((part) => part.text)
-          .join("")
+        .filter((part) => part.type === "text")
+        .map((part) => part.text)
+        .join("")
       : message.content || "";
 
   const sendMessage = async (text: string) => {
@@ -179,7 +179,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       if (result.success && result.conversation) {
         conversationId = result.conversation.id;
         setCurrentConversationId(conversationId);
-        
+
         // Refresh sidebar to show new conversation
         if ((window as any).__refreshChatConversations) {
           await (window as any).__refreshChatConversations();
@@ -194,7 +194,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       id: crypto.randomUUID(),
       role: "user",
       content: finalText,
-      parts: selectedImage 
+      parts: selectedImage
         ? [{ type: "text" as const, text: finalText }, { type: "image" as const, image: selectedImage }]
         : toTextParts(finalText),
     };
@@ -244,7 +244,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         } catch (e) {
           // Use default message if parsing fails
         }
-        
+
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -265,10 +265,10 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
           prev.map((message) =>
             message.id === assistantMessageId
               ? {
-                  ...message,
-                  content: assistantText,
-                  parts: toTextParts(assistantText),
-                }
+                ...message,
+                content: assistantText,
+                parts: toTextParts(assistantText),
+              }
               : message,
           ),
         );
@@ -281,7 +281,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
       toast.error("Erro ao processar mensagem. Tente novamente mais tarde.");
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -308,15 +308,15 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
 
   const handleSelectConversation = async (id: string) => {
     setCurrentConversationId(id);
-    
+
     // Load messages from backend
     const result = await getConversationMessages(id);
     console.log('📥 Mensagens carregadas:', result);
-    
+
     if (result.success && result.messages) {
       const loadedMessages: ChatMessageData[] = result.messages.map(msg => {
         console.log('📝 Processando mensagem:', { id: msg.id, parts: msg.parts, partsType: typeof msg.parts });
-        
+
         return {
           id: msg.id,
           role: msg.role as "user" | "assistant" | "system",
@@ -344,7 +344,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         >
           <Menu className="size-5" />
         </Button>
-        
+
         {/* Botão nova conversa */}
         <Button
           variant="ghost"
@@ -355,10 +355,10 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         >
           <SquarePen className="size-5" />
         </Button>
-        
+
         {/* Spacer para empurrar config pro final */}
         <div className="flex-1" />
-        
+
         {/* Botão de configurações no final */}
         <Button
           variant="ghost"
@@ -372,8 +372,8 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
       </div>
 
       {/* Chat Sidebar Component (overlay) */}
-      <ChatSidebar 
-        isOpen={isSidebarOpen} 
+      <ChatSidebar
+        isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         currentConversationId={currentConversationId}
         onNewConversation={handleNewConversation}
@@ -394,7 +394,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
             >
               <Menu className="size-5" />
             </Button>
-            
+
             <HoverGlitch
               text="Research.IA"
               fontFamily="system-ui, -apple-system, sans-serif"
@@ -404,7 +404,7 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
               baseIntensity={1.1}
               hoverIntensity={6}
             />
-            
+
             <Button
               variant="ghost"
               size="icon"
@@ -432,98 +432,98 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
         </div>
 
         {/* Messages Area */}
-        <div 
+        <div
           className="chat-messages-scroll relative flex-1 overflow-y-auto"
         >
-        <div className="mx-auto max-w-3xl px-4 py-4">
-          {/* Welcome Message */}
-          {!hasUserMessages && (
-            <div className="flex flex-col items-center justify-center space-y-6 py-12 text-center sm:py-16">
-              <div className="flex items-center gap-2.5">
-                <Sparkles className="size-5 text-blue-400" />
-                <h1 className="text-3xl font-medium text-white/95 sm:text-4xl">
-                  Olá, {userName}
-                </h1>
+          <div className="mx-auto max-w-3xl px-4 py-4">
+            {/* Welcome Message */}
+            {!hasUserMessages && (
+              <div className="flex flex-col items-center justify-center space-y-6 py-12 text-center sm:py-16">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="size-5 text-blue-400" />
+                  <h1 className="text-3xl font-medium text-white/95 sm:text-4xl">
+                    Olá, {userName}
+                  </h1>
+                </div>
+                <p className="text-xl font-light text-white/70 sm:text-2xl">
+                  Por onde começamos?
+                </p>
               </div>
-              <p className="text-xl font-light text-white/70 sm:text-2xl">
-                Por onde começamos?
-              </p>
-            </div>
-          )}
+            )}
 
-          {/* Suggestions */}
-          {showSuggestions && !hasUserMessages && (
-            <div className="mb-6 grid gap-2.5 sm:grid-cols-2">
-              {suggestions.map((suggestion) => (
-                <Button
-                  key={suggestion.id}
-                  variant="secondary"
-                  className="h-auto w-full justify-start rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left text-[13px] text-white/80 hover:bg-white/[0.06] sm:px-4"
-                  onClick={() => {
-                    handleSuggestion(suggestion.title);
-                    setShowSuggestions(false);
-                  }}
+            {/* Suggestions */}
+            {showSuggestions && !hasUserMessages && (
+              <div className="mb-6 grid gap-2.5 sm:grid-cols-2">
+                {suggestions.map((suggestion) => (
+                  <Button
+                    key={suggestion.id}
+                    variant="secondary"
+                    className="h-auto w-full justify-start rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-left text-[13px] text-white/80 hover:bg-white/[0.06] sm:px-4"
+                    onClick={() => {
+                      handleSuggestion(suggestion.title);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <span className="whitespace-normal leading-relaxed">
+                      {suggestion.title}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Messages */}
+            {messages.map((message, index) => {
+              // A última mensagem do assistente está em streaming se isLoading estiver true
+              const isLastAssistantMessage =
+                message.role === 'assistant' &&
+                index === messages.length - 1;
+              const isStreamingMessage = isLastAssistantMessage && isLoading;
+
+              return (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  isStreaming={isStreamingMessage}
+                  audioMode={audioMode}
+                />
+              );
+            })}
+
+            <div ref={bottomRef} />
+          </div>
+        </div>
+
+        {/* Input Area - Fixed at bottom */}
+        <div className="flex-shrink-0">
+          <div className="mx-auto max-w-3xl px-4 pb-3 pt-3 sm:pb-4 sm:pt-4">
+            {selectedImage && (
+              <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
+                <img src={selectedImage} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+                <p className="text-sm text-white/70">Imagem anexada</p>
+                <button
+                  onClick={() => setSelectedImage(null)}
+                  className="ml-auto rounded-lg px-2 py-1 text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/90"
                 >
-                  <span className="whitespace-normal leading-relaxed">
-                    {suggestion.title}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {/* Messages */}
-          {messages.map((message, index) => {
-            // A última mensagem do assistente está em streaming se isLoading estiver true
-            const isLastAssistantMessage = 
-              message.role === 'assistant' && 
-              index === messages.length - 1;
-            const isStreamingMessage = isLastAssistantMessage && isLoading;
-            
-            return (
-              <ChatMessage 
-                key={message.id} 
-                message={message} 
-                isStreaming={isStreamingMessage}
-                audioMode={audioMode}
-              />
-            );
-          })}
-
-          <div ref={bottomRef} />
+                  Remover
+                </button>
+              </div>
+            )}
+            <ChatInput
+              input={input}
+              onChange={handleInputChange}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              onImageUpload={handleImageUpload}
+              pdfAttached={extractedPdfData ? { fileName: extractedPdfData.fileName, pages: extractedPdfData.pages } : null}
+              aiProviderSelector={<AiProviderSelector />}
+              onVoiceInput={handleVoiceInput}
+            />
+            <p className="mt-2 text-center text-xs text-white/40">
+              O Research.IA pode cometer erros. Por isso, é bom verificar as informações.
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0">
-        <div className="mx-auto max-w-3xl px-4 pb-3 pt-3 sm:pb-4 sm:pt-4">
-          {selectedImage && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
-              <img src={selectedImage} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
-              <p className="text-sm text-white/70">Imagem anexada</p>
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="ml-auto rounded-lg px-2 py-1 text-xs text-white/60 hover:bg-white/[0.08] hover:text-white/90"
-              >
-                Remover
-              </button>
-            </div>
-          )}
-          <ChatInput
-            input={input}
-            onChange={handleInputChange}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            onImageUpload={handleImageUpload}
-            pdfAttached={extractedPdfData ? { fileName: extractedPdfData.fileName, pages: extractedPdfData.pages } : null}
-            aiProviderSelector={<AiProviderSelector />}
-            onVoiceInput={handleVoiceInput}
-          />
-          <p className="mt-2 text-center text-xs text-white/40">
-            O Research.IA pode cometer erros. Por isso, é bom verificar as informações.
-          </p>
-        </div>
-      </div>
       </div>
 
       {/* Modal de Configurações */}
@@ -538,8 +538,11 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
               Ajuste as preferências do seu assistente
             </DialogDescription>
           </DialogHeader>
+
+          {/* === Modo Áudio === */}
+
           <div className="space-y-6 py-4">
-            {/* Modo Áudio */}
+
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <div className="text-sm font-medium">Modo Áudio 🔊 (Beta)</div>
@@ -553,7 +556,8 @@ export function ChatIaPage({ userName = 'Usuário' }: ChatIaPageProps) {
               />
             </div>
 
-            {/* Mensagens Prontas */}
+            {/* === Mensagens Prontas === */}
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">

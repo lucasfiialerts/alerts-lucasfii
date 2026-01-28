@@ -27,16 +27,16 @@ const AI_PROVIDERS = [
     disabled: false,
   },
 
-  {
-    id: 'wiro-finance',
-    name: 'Research.IA Finance',
-    defaultLabel: 'WiroAI Finance',
-    description: 'Especialista em análise financeira ',
-    subtitle: 'Análises avançadas de finanças (Deep Search)',
-    badge: 'BETA',
-    icon: '📊',
-    disabled: false,
-  },
+  // {
+  //   id: 'wiro-finance',
+  //   name: 'Research.IA Finance',
+  //   defaultLabel: 'WiroAI Finance',
+  //   description: 'Especialista em análise financeira ',
+  //   subtitle: 'Análises avançadas de finanças (Deep Search)',
+  //   badge: 'EM BREVE',
+  //   icon: '📊',
+  //   disabled: true,
+  // },
 
   // {
   //   id: 'groq-llama',
@@ -61,7 +61,6 @@ const AI_PROVIDERS = [
   //   icon: '⚡',
   //   disabled: true,
   // },
-
 
 ];
 
